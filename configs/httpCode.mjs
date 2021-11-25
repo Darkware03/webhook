@@ -7,6 +7,7 @@ export default class HttpCode {
     static HTTP_BAD_REQUEST=400
     static HTTP_UNAUTHORIZED=401
     static HTTP_FORBIDDEN=403
+    static HTTP_NOT_FOUND=404
     static HTTP_UNPROCESSABLE_ENTITY=422
 
     //SERVER ERRORS
