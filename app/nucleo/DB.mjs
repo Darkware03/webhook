@@ -13,7 +13,8 @@ export default class DB {
         return new Sequelize(config.options.db_name, config.options.db_username, config.options.db_password, {
             host: config.options.db_host,
             port: config.options.db_port,
-            dialect: config.motor
+            dialect: config.motor,
+            logging: false
         })
     }
 
@@ -26,7 +27,8 @@ export default class DB {
         }
     }
 
-    static async close(db){
+
+    static async close(db) {
         db.close()
     }
 }

@@ -1,7 +1,7 @@
 import express from 'express'
-import NoAuthException from "../handlers/NoAuthException.mjs";
 import NotFoundExeption from "../handlers/NotFoundExeption.mjs";
 import Handler from "../handlers/Handler.mjs";
+import UsuarioController from "../app/controllers/UsuarioController.mjs";
 
 export default class Server {
 
@@ -12,26 +12,22 @@ export default class Server {
         this.routes()
         this.ExceptionConfig()
     }
-    middlewares(){}
+
+    middlewares() {
+        this.app.use(express.json())
+    }
 
     ExceptionConfig() {
         this.app.use(Handler.logErrorMiddleware)
         this.app.use(Handler.handlerError)
     }
 
-    prueba(){
-        throw new NoAuthException('prueba', 400, 'bat request')
-    }
     routes() {
-        this.app.post('/user', async (req, res, next) => {
-            try{
-                this.prueba()
-                return res.status(200).send("prueba")
-            }catch (error) {
-                next(error)
-            }
-        })
-        this.app.all('*', ()=>{
+        this.app.get('/user', UsuarioController.index)
+        this.app.post('/user', UsuarioController.store)
+        this.app.get('/user/:id', UsuarioController.show)
+
+        this.app.all('*', () => {
             throw new NotFoundExeption()
         })
     }
