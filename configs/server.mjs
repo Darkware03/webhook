@@ -1,23 +1,24 @@
 import express from 'express'
 import NoAuthException from "../handlers/NoAuthException.mjs";
+import NotFoundExeption from "../handlers/NotFoundExeption.mjs";
 import Handler from "../handlers/Handler.mjs";
-import DB from "../app/nucleo/DB.mjs";
 
 export default class Server {
 
     constructor() {
         this.app = express();
         this.port = process.env.PORT || 8000;
-        this.routes()
         this.middlewares()
-        DB.conection('postgres')
-        // throw new NoAuthException()
+        this.routes()
+        this.ExceptionConfig()
     }
+    middlewares(){}
 
-    middlewares() {
+    ExceptionConfig() {
         this.app.use(Handler.logErrorMiddleware)
         this.app.use(Handler.handlerError)
     }
+
     prueba(){
         throw new NoAuthException('prueba', 400, 'bat request')
     }
@@ -31,7 +32,7 @@ export default class Server {
             }
         })
         this.app.all('*', ()=>{
-
+            throw new NotFoundExeption()
         })
     }
 
