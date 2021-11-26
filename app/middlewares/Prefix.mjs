@@ -10,6 +10,4 @@ export default class Prefix {
     generate() {
         this.server.app.use(this.prefix, this.route.getALL())
     }
-
-
 }
