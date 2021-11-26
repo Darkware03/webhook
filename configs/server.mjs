@@ -2,6 +2,9 @@ import express from 'express'
 import NotFoundExeption from "../handlers/NotFoundExeption.mjs";
 import Handler from "../handlers/Handler.mjs";
 import UsuarioController from "../app/controllers/UsuarioController.mjs";
+import Route from "../app/nucleo/Route.mjs";
+
+let ObjectServer = null
 
 export default class Server {
 
@@ -11,6 +14,10 @@ export default class Server {
         this.middlewares()
         this.routes()
         this.ExceptionConfig()
+
+        if (!ObjectServer)
+            ObjectServer = this
+        return ObjectServer
     }
 
     middlewares() {
@@ -23,13 +30,20 @@ export default class Server {
     }
 
     routes() {
-        this.app.get('/user', UsuarioController.index)
-        this.app.post('/user', UsuarioController.store)
+        const route = new Route(this)
+        route.get('/users', UsuarioController.index)
+        route.post('/users',UsuarioController.store)
+        route.put('/users/:id',UsuarioController.update)
+        route.delete('/users/:id',UsuarioController.destroy)
+
+        route.notFound('*')
+
+        /*this.app.post('/user', UsuarioController.store)
         this.app.get('/user/:id', UsuarioController.show)
 
         this.app.all('*', () => {
             throw new NotFoundExeption()
-        })
+        })*/
     }
 
     start() {
