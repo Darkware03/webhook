@@ -10,6 +10,7 @@ const _config = (url, method, verb) => {
     })
 }
 
+
 export default class Route {
     constructor(server) {
         Server = server
