@@ -7,10 +7,16 @@ const Usuario=DB.conection().define('usuario',{
         primaryKey: true,
         autoIncrement: true,
     },
-    first_name:{
-        type:Sequelize.TEXT
+    name:{
+        type:Sequelize.STRING
     },
     last_name:{
+        type:Sequelize.STRING
+    },
+    email:{
+        type:Sequelize.STRING
+    },
+    password:{
         type:Sequelize.TEXT
     }
 },{

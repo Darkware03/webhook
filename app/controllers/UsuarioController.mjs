@@ -1,5 +1,6 @@
 import Usuario from "../models/Usuario.mjs";
 import HttpCode from "../../configs/httpCode.mjs";
+import bcrypt from 'bcryptjs'
 
 export default class UsuarioController {
 
@@ -10,10 +11,14 @@ export default class UsuarioController {
     }
 
     static async store(req, res) {
-        const {first_name, last_name} = req.body
+        const {name, last_name, email, password} = req.body
+        const salt = bcrypt.genSaltSync()
+        const password_crypt = bcrypt.hashSync(password, salt)
+
         const usuario = await Usuario.create({
-            first_name, last_name
+            name, last_name, email, password: password_crypt
         })
+
         return res.status(HttpCode.HTTP_CREATED).json(usuario)
     }
 
@@ -24,11 +29,11 @@ export default class UsuarioController {
     }
 
 
-    static async update(req,res){
+    static async update(req, res) {
 
     }
 
-    static async destroy(req,res){
+    static async destroy(req, res) {
         // return
     }
 }
