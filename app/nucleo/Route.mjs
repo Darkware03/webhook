@@ -1,9 +1,10 @@
 import NotFoundExeption from "../../handlers/NotFoundExeption.mjs";
+import {Router} from "express";
 
-let Server = null
+let Server = Router()
 
 const _config = (url, method, verb) => {
-    return Server.app[verb](url, (req, res, next) => {
+    Server[verb](url, (req, res, next) => {
         return method(req, res).catch(e => {
             next(e)
         })
@@ -12,9 +13,6 @@ const _config = (url, method, verb) => {
 
 
 export default class Route {
-    constructor(server) {
-        Server = server
-    }
 
     get(url, method) {
         return _config(url, method, 'get')
@@ -33,10 +31,12 @@ export default class Route {
     }
 
     notFound(url) {
-        Server.app.all(url, () => {
+        Server.all(url, () => {
             throw new NotFoundExeption()
         })
     }
 
-
+    getALL() {
+        return Server
+    }
 }
