@@ -1,33 +1,31 @@
 import express from 'express'
-import Handler from "../handlers/Handler.mjs";
-import api from "../routes/api.mjs";
+import {createServer} from "http";
 
-export default class Server {
+let instance = null
+
+class Server {
 
     constructor() {
+        if (!instance) {
+            instance = this
+        }
         this.app = express();
+        this.server = createServer(this.app)
         this.port = process.env.PORT || 8000;
+        this.host = process.env.HOST || '10.168.241.53'
         this.middlewares()
-        this.routes()
-        this.ExceptionConfig()
+        return instance
     }
 
     middlewares() {
         this.app.use(express.json())
     }
 
-    ExceptionConfig() {
-        this.app.use(Handler.logErrorMiddleware)
-        this.app.use(Handler.handlerError)
-    }
-
-    routes() {
-        api(this)
-    }
-
     start() {
-        this.app.listen(this.port, () => {
-            console.log(`Corriendo en http://localhost:${this.port}`);
+        this.server.listen(this.port, this.host, () => {
+            console.log(`http://${this.host}:${this.port}`);
         });
     }
 }
+
+export default new Server()

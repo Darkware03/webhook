@@ -2,9 +2,9 @@ import Prefix from "../app/middlewares/Prefix.mjs";
 import {usuario} from './api/usuario.mjs'
 import {auth} from "./api/auth.mjs";
 
-const initRoute = (server) => {
+const initRoute = () => {
     //creamos el prefix api
-    const api = new Prefix(server, '/api')
+    const api = new Prefix('/api')
 
     auth(api)
 

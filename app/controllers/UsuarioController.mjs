@@ -1,6 +1,7 @@
 import Usuario from "../models/Usuario.mjs";
 import HttpCode from "../../configs/httpCode.mjs";
 import bcrypt from 'bcryptjs'
+import WS from '../services/WS.mjs'
 
 export default class UsuarioController {
 
@@ -18,6 +19,8 @@ export default class UsuarioController {
         const usuario = await Usuario.create({
             name, last_name, email, password: password_crypt
         })
+
+        WS.emit("new_user", usuario)
 
         return res.status(HttpCode.HTTP_CREATED).json(usuario)
     }

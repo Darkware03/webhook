@@ -1,6 +1,4 @@
 import './configs/Env.mjs'
-import Server from './configs/server.mjs'
+import Main from "./main.mjs";
 
-const app = new Server();
-
-app.start(); 
+new Main()
