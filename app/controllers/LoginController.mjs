@@ -15,8 +15,9 @@ export default class LoginController {
             throw new NoAuthException('UNAUTHORIZED', HttpCode.HTTP_UNAUTHORIZED, 'Credenciales no validas')
         }
 
-        const token =await GenerarJwt.create({
-            email:usuario.email
+        const token = await GenerarJwt.create({
+            id: usuario.id,
+            email: usuario.email
         })
 
         return res.status(HttpCode.HTTP_OK).json({

@@ -1,8 +1,11 @@
 import {Server as io} from "socket.io";
 import Server from "../../configs/server.mjs";
+import Usuario from "../models/Usuario.mjs";
+import jwt from 'jsonwebtoken'
 
 let instance = null
-let count=0
+let count = 0
+
 class WS {
     constructor() {
         if (!instance)
@@ -17,11 +20,26 @@ class WS {
 
     valid() {
 
-        instance.on('connection', socket => {
-            count++
-            if(count>=2)
-                socket.disconnect(true)
-            console.log(count)
+        instance.use(async (socket, next) => {
+            try {
+                const {token} = socket.handshake.auth
+
+                if (!token) socket.disconnect()
+                const {id} = jwt.verify(token, process.env.SECRET_KEY)
+
+                const usuario = await Usuario.findOne({id: id})
+                if (usuario) {
+                    console.log("if")
+                    next()
+                } else {
+                    console.log("else")
+                    const err = new Error("Not Authorized")
+                    err.data = {content: "Intente mas tarde"}
+                    next(err)
+                }
+            } catch (e) {
+                next(e)
+            }
         })
     }
 }
