@@ -4,7 +4,6 @@ import Usuario from "../models/Usuario.mjs";
 import jwt from 'jsonwebtoken'
 
 let instance = null
-let count = 0
 
 class WS {
     constructor() {
@@ -29,10 +28,8 @@ class WS {
 
                 const usuario = await Usuario.findOne({id: id})
                 if (usuario) {
-                    console.log("if")
                     next()
                 } else {
-                    console.log("else")
                     const err = new Error("Not Authorized")
                     err.data = {content: "Intente mas tarde"}
                     next(err)
