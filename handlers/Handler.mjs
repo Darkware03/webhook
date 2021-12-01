@@ -5,13 +5,17 @@ export default class Handler {
     static logError(err) {
         // console.error(err)
     }
-
     static logErrorMiddleware(err, req, res, next) {
         Handler.logError(err)
         next(err)
     }
 
     static handlerError(err, req, res, next) {
+        const debug=process.env.APP_DEBUG==='true'
+        if(debug){
+            return res.status(err.statusCode || 500).json(err)
+        }
+
         return res.status(err.statusCode || 500).json({
             message: err.message
         })

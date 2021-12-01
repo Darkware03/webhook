@@ -12,7 +12,7 @@ class Server {
         this.app = express();
         this.server = createServer(this.app)
         this.port = process.env.PORT || 8000;
-        this.host = process.env.HOST || '10.168.241.53'
+        this.host = process.env.HOST || 'localhost'
         this.middlewares()
         return instance
     }
