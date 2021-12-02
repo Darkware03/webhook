@@ -3,8 +3,8 @@ import {Router} from "express";
 
 let Server = Router()
 
-const _config = (url, method, verb) => {
-    Server[verb](url, (req, res, next) => {
+const _config = (url, middelwares = [], method, verb) => {
+    Server[verb](url, middelwares, (req, res, next) => {
         return method(req, res).catch(e => {
             next(e)
         })
@@ -14,20 +14,20 @@ const _config = (url, method, verb) => {
 
 export default class Route {
 
-    get(url, method) {
-        return _config(url, method, 'get')
+    get(url, middelwares = [], method) {
+        return _config(url, middelwares, method, 'get')
     }
 
-    post(url, method) {
-        return _config(url, method, 'post')
+    post(url, middelwares = [], method) {
+        return _config(url, middelwares, method, 'post')
     }
 
-    put(url, method) {
-        return _config(url, method, 'put')
+    put(url, middelwares = [], method) {
+        return _config(url, middelwares, method, 'put')
     }
 
-    delete(url, method) {
-        return _config(url, method, 'delete')
+    delete(url, middelwares = [], method) {
+        return _config(url, middelwares, method, 'delete')
     }
 
     notFound(url) {

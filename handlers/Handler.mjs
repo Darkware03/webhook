@@ -3,7 +3,7 @@ import BaseError from "./BaseError.mjs";
 export default class Handler {
 
     static logError(err) {
-        // console.error(err)
+        console.error(err)
     }
     static logErrorMiddleware(err, req, res, next) {
         Handler.logError(err)

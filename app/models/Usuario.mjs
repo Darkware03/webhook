@@ -18,6 +18,9 @@ const Usuario=DB.conection().define('usuario',{
     },
     password:{
         type:Sequelize.TEXT
+    },
+    active:{
+        type:Sequelize.BOOLEAN
     }
 },{
     timestamps:false,
