@@ -31,7 +31,8 @@ export default class Route {
     }
 
     notFound(url) {
-        Server.all(url, () => {
+        Server.all(url, (req) => {
+            console.log("info",req)
             throw new NotFoundExeption()
         })
     }
