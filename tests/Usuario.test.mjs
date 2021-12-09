@@ -2,6 +2,7 @@ import request from "supertest";
 import Server from "../configs/server.mjs";
 
 const host = `${Server.host}:${Server.port}`
+console.log(host)
 
 describe('test de creacion de usuarios', () => {
     test('name test', (done) => {

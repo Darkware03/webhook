@@ -1,6 +1,8 @@
 import api from "./routes/api.mjs";
+import web from './routes/web.mjs'
 import Handler from "./handlers/Handler.mjs";
 import Server from "./configs/server.mjs";
+import NotFoundExeption from "./handlers/NotFoundExeption.mjs";
 
 export default class Main {
     constructor() {
@@ -11,10 +13,11 @@ export default class Main {
     }
 
     routes() {
-        this.server.app.get('/', (req, res)=>{
-            res.send('<H2>HOLA MUNDO</H2>')
+        this.server.app.use('/', web)
+        this.server.app.use('/api', api)
+        this.server.app.all('*', () => {
+            throw new NotFoundExeption()
         })
-        api()
     }
 
     ExceptionConfig() {

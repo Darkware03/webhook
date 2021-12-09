@@ -1,23 +1,11 @@
-import Prefix from "../app/middlewares/Prefix.mjs";
-import {usuario} from './api/usuario.mjs'
-import {auth} from "./api/auth.mjs";
-import Auth from "../app/middlewares/Auth.mjs";
+import {Router} from "express";
+import routesUsers from './api/usuario.mjs'
+import LoginController from "../app/controllers/LoginController.mjs";
 
-const initRoute = () => {
-    //creamos el prefix api
-    const api = new Prefix('/api', [Auth])
+const router = Router()
 
-    auth(api)
+router.post('/login', LoginController.login)
 
-    //llamamos a las rutas de usuario
-    usuario(api)
+router.use('/users', routesUsers)
 
-
-    //decimos que las rutas que no encuentre nos respona el not found
-    api.route.notFound('*')
-    //genera todas las rutas de api
-    api.generate()
-}
-
-
-export default initRoute
+export default router
