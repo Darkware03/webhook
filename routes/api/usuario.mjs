@@ -5,9 +5,9 @@ import Auth from "../../app/middlewares/Auth.mjs";
 import {Router} from "express";
 
 const router = Router()
-router.get('/', [Auth], UsuarioController.index)
-router.post('/', [Auth, validate({body: usuarioCreateSchema})], UsuarioController.store)
-router.put('/:id', [Auth], UsuarioController.update)
-router.delete('/:id', [Auth], UsuarioController.destroy)
+router.get('/', UsuarioController.index)
+router.post('/', [validate({body: usuarioCreateSchema})], UsuarioController.store)
+router.put('/:id', UsuarioController.update)
+router.delete('/:id', UsuarioController.destroy)
 
 export default router
