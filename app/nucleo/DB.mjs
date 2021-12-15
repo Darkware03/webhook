@@ -27,8 +27,4 @@ export default class DB {
         }
     }
 
-
-    static async close(db) {
-        db.close()
-    }
 }
