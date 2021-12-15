@@ -2,16 +2,20 @@ export const usuarioCreateSchema={
     type:'object',
     properties:{
         name:{
-            type:'string'
+            type:'string',
+            required:true
         },
         last_name:{
-            type:'string'
+            type:'string',
+            required:true
         },
         password:{
-            type:'string'
+            type:'string',
+            required:true
         },
         email:{
-            type:'string'
+            type:'string',
+            required:true
         }
     }
 }

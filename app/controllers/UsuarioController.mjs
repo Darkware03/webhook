@@ -8,7 +8,6 @@ export default class UsuarioController {
     static async index(req, res) {
         const usuarios = await Usuario.findAll()
         return res.status(HttpCode.HTTP_OK).json(usuarios)
-
     }
 
     static async store(req, res) {
@@ -26,18 +25,45 @@ export default class UsuarioController {
     }
 
     static async show(req, res) {
-        const usuario = await Usuario.findOne({id: req.params.id})
+        const usuario = await Usuario.findOne({
+            where: {
+                id: req.params.id
+            }
+        })
 
         return res.status(HttpCode.HTTP_OK).json(usuario)
     }
 
 
     static async update(req, res) {
+        const {name, last_name, email} = req.body
 
+        const usuario = await Usuario.update({
+            name, last_name, email
+        }, {
+            where: {
+                id: req.params.id
+            },
+            returning: ['name','last_name','email']
+        })
+
+
+        return res.status(HttpCode.HTTP_OK).json(usuario[1])
     }
 
     static async destroy(req, res) {
-        // return
+
+        await Usuario.update({
+            active: false
+        }, {
+            where: {
+                id: req.params.id
+            },
+        })
+
+        return res.status(HttpCode.HTTP_OK).json({
+            message:'Usuario Eliminado'
+        })
     }
 }
 

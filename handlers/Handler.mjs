@@ -3,7 +3,7 @@ import BaseError from "./BaseError.mjs";
 export default class Handler {
 
     static logError(err) {
-        console.error(err)
+        // console.error(err)
     }
 
     static logErrorMiddleware(err, req, res, next) {
@@ -20,6 +20,13 @@ export default class Handler {
         if (debug)
             return res.status(err.statusCode || 500).json(err)
 
+        if(err.name==='SequelizeValidationError')
+            return res.status(400).json(err.errors.map(row=>{
+                return {
+                    field:row.path,
+                    message:row.message
+                }
+            }))
 
         return res.status(err.statusCode || 500).json({
             message: err.message

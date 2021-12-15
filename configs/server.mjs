@@ -1,10 +1,11 @@
 import express from 'express'
 import {createServer} from "http";
+import cors from 'cors'
+import corsConfig from './cors.mjs'
 
 let instance = null
 
 class Server {
-
     constructor() {
         if (!instance) {
             instance = this
@@ -18,6 +19,7 @@ class Server {
     }
 
     middlewares() {
+        this.app.use(cors(corsConfig))
         this.app.use(express.static('public'))
         this.app.use(express.json())
     }
