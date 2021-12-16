@@ -1,4 +1,5 @@
 import BaseError from "./BaseError.mjs";
+import HttpCode from "../configs/httpCode.mjs";
 
 export default class Handler {
 
@@ -15,20 +16,20 @@ export default class Handler {
         const debug = process.env.APP_DEBUG === 'true'
 
         if (err.name && err.name === 'JsonSchemaValidation')
-            return res.status(400).json(err.validations.body)
+            return res.status(HttpCode.HTTP_BAD_REQUEST).json(err.validations.body)
 
         if (debug)
-            return res.status(err.statusCode || 500).json(err)
+            return res.status(err.statusCode || HttpCode.HTTP_INTERNAL_SERVER_ERROR).json(err)
 
-        if(err.name==='SequelizeValidationError')
-            return res.status(400).json(err.errors.map(row=>{
+        if(err.name==='SequelizeValidationError' || err.name==='SequelizeUniqueConstraintError')
+            return res.status(HttpCode.HTTP_BAD_REQUEST).json(err.errors.map(row=>{
                 return {
                     field:row.path,
                     message:row.message
                 }
             }))
 
-        return res.status(err.statusCode || 500).json({
+        return res.status(err.statusCode || HttpCode.HTTP_INTERNAL_SERVER_ERROR).json({
             message: err.message
         })
     }
