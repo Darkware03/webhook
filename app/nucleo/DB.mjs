@@ -3,12 +3,12 @@ import db_config from "../../configs/db.mjs";
 
 export default class DB {
 
-    static conection(conection = null) {
+    static connection(connection = null) {
         const predefinida = db_config.default
         let config = {}
-        if (conection)
-            config = db_config.conections[conection]
-        else config = db_config.conections[predefinida]
+        if (connection)
+            config = db_config.connections[connection]
+        else config = db_config.connections[predefinida]
 
         return new Sequelize(config.options.db_name, config.options.db_username, config.options.db_password, {
             host: config.options.db_host,
@@ -18,9 +18,9 @@ export default class DB {
         })
     }
 
-    static async testing(conection = null) {
+    static async testing(connection = null) {
         try {
-            await this.conection(conection).authenticate()
+            await this.connection(connection).authenticate()
             return true
         } catch (e) {
             return false

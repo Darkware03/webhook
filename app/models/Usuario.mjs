@@ -1,7 +1,7 @@
 import DB from "../nucleo/DB.mjs";
 import {Sequelize} from "sequelize";
 
-const Usuario = DB.conection().define('usuario', {
+const Usuario = DB.connection().define('usuario', {
     id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
@@ -28,6 +28,7 @@ const Usuario = DB.conection().define('usuario', {
     }
 }, {
     timestamps: false,
+
 })
 
 export default Usuario

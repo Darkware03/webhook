@@ -1,5 +1,5 @@
 const config = {
-    conections: {
+    connections: {
         postgres: {
             motor: 'postgres', //mysql, mariadb, sqlite, postgres
             options: {
