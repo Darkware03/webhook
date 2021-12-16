@@ -3,19 +3,14 @@ import {createServer} from "http";
 import cors from 'cors'
 import corsConfig from './cors.mjs'
 
-let instance = null
 
 class Server {
     constructor() {
-        if (!instance) {
-            instance = this
-        }
         this.app = express();
         this.server = createServer(this.app)
         this.port = process.env.PORT || 8000;
         this.host = process.env.HOST || 'localhost'
         this.middlewares()
-        return instance
     }
 
     middlewares() {
