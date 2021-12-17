@@ -38,9 +38,7 @@ paths:
                   $ref: "#/components/schemas/User"
 
 components:
-  responses:
-    $ref: "./openapi/responses.yaml"
-
   schemas:
-    User:
-      $ref: "./openapi/schemas.yaml#/User"
+    $include: ./schemas.yaml
+  responses:
+    $include: ./responses.yaml
