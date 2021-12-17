@@ -1,0 +1,53 @@
+openapi: 3.0.1
+info:
+  title: Documentación de la API de la plantilla
+  description: >-
+    Aquí se encuentra la documentación acerca de la API proveída por esta Plantilla
+    
+  version: '1.0.0'
+servers:
+  - url: //127.0.0.1:8000
+tags:
+  - name: user
+    description: Operaciones con los usuarios
+    externalDocs:
+      description: Find out more about our store
+      url: http://swagger.io
+paths:
+  /usuario:
+    post:
+      summary: Muestra la información de los usuarios
+      tags: [user]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              $ref: './user.yaml#user'
+      responses:
+        200:
+          description: new user created
+components: 
+  schemas:
+    user:
+      type: object
+      properties:
+        nombre: 
+          type: string
+          description: el nombre del usuario
+        age:
+          type: integer
+          description: la edad del usuario
+        email:
+          type: string
+          description: correo electronico del usuario
+      required:
+        - nombre
+        - age
+        - email
+      example:
+        nombre: Juan Perez
+        age: 19
+        email: juan@perez.com
+      
