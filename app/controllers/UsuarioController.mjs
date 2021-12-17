@@ -11,12 +11,12 @@ export default class UsuarioController {
     }
 
     static async store(req, res) {
-        const {name, last_name, email, password} = req.body
+        const {email, password} = req.body
         const salt = bcrypt.genSaltSync()
         const password_crypt = bcrypt.hashSync(password, salt)
 
         const usuario = await Usuario.create({
-            name, last_name, email, password: password_crypt
+            email, password: password_crypt
         })
 
         WS.emit("new_user", usuario)
@@ -44,7 +44,7 @@ export default class UsuarioController {
             where: {
                 id: req.params.id
             },
-            returning: ['name','last_name','email']
+            returning: ['name', 'last_name', 'email']
         })
 
 
@@ -62,7 +62,7 @@ export default class UsuarioController {
         })
 
         return res.status(HttpCode.HTTP_OK).json({
-            message:'Usuario Eliminado'
+            message: 'Usuario Eliminado'
         })
     }
 }

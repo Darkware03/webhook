@@ -3,6 +3,7 @@ import HttpCode from "../../configs/httpCode.mjs";
 import bcrypt from 'bcryptjs'
 import NoAuthException from "../../handlers/NoAuthException.mjs";
 import GenerarJwt from "../utils/GenerarJwt.mjs";
+import moment from "moment-timezone";
 
 export default class LoginController {
     static async login(req, res) {
@@ -10,7 +11,8 @@ export default class LoginController {
 
         const usuario = await Usuario.findOne({
             where: {
-                email
+                email,
+                is_suspended: false
             }
         })
 
@@ -21,12 +23,11 @@ export default class LoginController {
             throw new NoAuthException('UNAUTHORIZED', HttpCode.HTTP_UNAUTHORIZED, 'Credenciales no validas')
         }
 
+        await usuario.update({last_login: moment().tz('America/El_Salvador').format()})
 
         const token = await GenerarJwt.create({
             id: usuario.id,
             email: usuario.email,
-            name: usuario.username,
-            last_name: usuario.last_name
         })
 
         return res.status(HttpCode.HTTP_OK).json({

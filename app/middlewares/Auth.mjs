@@ -14,13 +14,18 @@ const Auth = async (req, res, next) => {
         const token = authorization[1]
 
         const {id} = jwt.verify(token, process.env.SECRET_KEY)
-        const usuario = await Usuario.findOne({id: id})
-        if (!usuario.active)
+
+        const usuario = await Usuario.findOne({
+            where: {id: id, is_suspended: false}
+        })
+
+        if (usuario.is_suspended)
             throw new NoAuthException()
 
         req.usuario = usuario
         next()
     } catch (err) {
+        console.log(err)
         return res.status(err.statusCode || 500).json({
             message: err.message
         })

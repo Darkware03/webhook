@@ -9,6 +9,7 @@ import Call from "../app/utils/Call.mjs";
 
 const router = Router()
 router.post('/v1/login', [validate({body: loginSchema})], Call(LoginController.login))
+router.post('/v1/refresh',  Call(LoginController.login))
 
 router.use('/v1/users', [auth], routesUsers)
 

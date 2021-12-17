@@ -10,12 +10,6 @@ Usuario.init({
         primaryKey: true,
         autoIncrement: true,
     },
-    name: {
-        type: psql.Sequelize.STRING
-    },
-    last_name: {
-        type: psql.Sequelize.STRING
-    },
     email: {
         type: psql.Sequelize.STRING,
         unique: true,
@@ -26,15 +20,24 @@ Usuario.init({
     password: {
         type: psql.Sequelize.TEXT
     },
-    active: {
-        type: psql.Sequelize.BOOLEAN
+    last_login: {
+        type: psql.Sequelize.STRING
+    },
+    is_suspended: {
+        type: psql.Sequelize.BOOLEAN,
+        defaultValue: false
+    },
+    token_valid_after: {
+        type: psql.Sequelize.DATE
     }
 }, {
-    timestamps: false,
+    timestamps: true,
+    updatedAt: false,
+    createdAt: 'created_at',
     sequelize: DB.connection(),
-    tableName: 'usuarios',
+    tableName: 'mnt_usuario',
 })
 
-await Usuario.sync({})
+// await Usuario.sync({})
 
 export default Usuario
