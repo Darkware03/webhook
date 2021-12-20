@@ -2,6 +2,9 @@ import DB from "../nucleo/DB.mjs";
 import psql from "sequelize";
 import Usuario from './Usuario.mjs'
 import UsuarioPerfil from './UsuarioPerfil.mjs'
+import Rol from './Rol.mjs'
+import PerfilRol from './PerfilRol.mjs'
+
 
 class Perfil extends psql.Model {
 }
@@ -29,6 +32,11 @@ Perfil.belongsToMany(Usuario, {
     through: UsuarioPerfil, 
     foreignKey: "id_perfil",
     otherKey: 'id_usuario'
+})
+Perfil.belongsToMany(Rol, {
+    through: PerfilRol, 
+    foreignKey: "id_perfil",
+    otherKey: 'id_rol'
 })
 
 Perfil.sync()

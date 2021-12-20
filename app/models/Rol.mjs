@@ -1,5 +1,7 @@
 import DB from "../nucleo/DB.mjs";
 import psql from "sequelize";
+import Perfil from "./Perfil.mjs";
+import PerfilRol from "./PerfilRol.mjs"
 
 class Rol extends psql.Model {
 }
@@ -21,6 +23,13 @@ Rol.init({
     tableName: 'mnt_rol',
 })
 
-// await Usuario.sync({})
+Rol.belongsToMany(Perfil, {
+    through: PerfilRol, 
+    foreignKey: "id_rol",
+    otherKey: 'id_perfil'
+})
+
+
+Rol.sync({})
 
 export default Rol; 
