@@ -1,6 +1,7 @@
 import {Router} from "express";
 import routesRoles from './api/rol.mjs'
 import routesPerfil from './api/perfil.mjs'
+import routesRutas from './api/ruta.mjs'
 import auth from "../app/middlewares/Auth.mjs";
 import Call from "../app/utils/Call.mjs";
 
@@ -13,5 +14,6 @@ router.get('/', (req, res) => {
 
 router.use('/v1/roles', [auth], Call(routesRoles))
 router.use('/v1/perfiles', [auth], Call(routesPerfil))
+router.use('/v1/rutas', [auth], Call(routesRutas))
 
 export default router
