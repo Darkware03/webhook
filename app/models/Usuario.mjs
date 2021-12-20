@@ -1,5 +1,6 @@
 import DB from "../nucleo/DB.mjs";
 import psql from "sequelize";
+import RefreshToken from "./RefreshToken.mjs";
 
 class Usuario extends psql.Model {
     toJSON() {
@@ -43,6 +44,10 @@ Usuario.init({
     createdAt: 'created_at',
     sequelize: DB.connection(),
     tableName: 'mnt_usuario',
+})
+
+Usuario.hasMany( RefreshToken,{
+    foreignKey:'id_usuario'
 })
 
 await Usuario.sync({})
