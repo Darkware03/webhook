@@ -10,7 +10,7 @@ import { fileURLToPath } from "url";
 const require = createRequire(import.meta.url);
 const __dirname = dirname(fileURLToPath(import.meta.url));
 //Se lee el archivo openapi.YAML
-const swaggerDocument = YAML.load(path.join(__dirname,'../docs-api/swagger.yaml'));
+const swaggerDocument = YAML.load(path.join(__dirname,'../docs-api/openapi.yaml'));
 const router = Router();
 
 //Se establece la ruta hacia el Swagger usando el archivo openapi.yaml
