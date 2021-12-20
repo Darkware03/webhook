@@ -1,7 +1,7 @@
 import DB from "../nucleo/DB.mjs";
 import psql from "sequelize";
-import Rol from "./Rol.mjs";
 import RutaRol from "./RutaRol.mjs"
+import Rol from "./Rol.mjs";
 
 class Ruta extends psql.Model {
 }
@@ -13,7 +13,7 @@ Ruta.init({
         autoIncrement: true,
     },
     nombre: {
-        type: psql.Sequelize.TEXT,
+        type: psql.Sequelize.STRING(50),
         allowNull: false
     },
     uri: {
@@ -27,7 +27,7 @@ Ruta.init({
         allowNull: false
     },
     icono: {
-        type: psql.Sequelize.TEXT,
+        type: psql.Sequelize.STRING(255),
     },
     orden: {
         type: psql.Sequelize.INTEGER,

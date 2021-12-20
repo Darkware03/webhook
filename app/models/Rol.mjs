@@ -17,7 +17,7 @@ Rol.init({
         autoIncrement: true,
     },
     name: {
-        type: psql.Sequelize.STRING,
+        type: psql.Sequelize.STRING(255),
         allowNull: false
     },
 }, {

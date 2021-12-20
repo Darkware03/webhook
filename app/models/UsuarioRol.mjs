@@ -1,7 +1,5 @@
 import DB from "../nucleo/DB.mjs";
 import psql from "sequelize";
-import Usuario from "./Usuario"; 
-import Rol from "./Rol"; 
 
 
 class UsuarioRol extends psql.Model {
@@ -10,9 +8,11 @@ class UsuarioRol extends psql.Model {
 UsuarioRol.init({
     id_usuario: {
         type: psql.Sequelize.INTEGER,
+        primaryKey: true
     },
     id: {
         type: psql.Sequelize.INTEGER,
+        primaryKey: true
     },
 }, {
     timestamps: false,
