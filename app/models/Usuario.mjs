@@ -1,6 +1,9 @@
 import DB from "../nucleo/DB.mjs";
 import psql from "sequelize";
 import RefreshToken from "./RefreshToken.mjs";
+import Perfil from './Perfil.mjs'
+import UsuarioPerfil from './UsuarioPerfil.mjs'
+
 
 class Usuario extends psql.Model {
     toJSON() {
@@ -48,6 +51,13 @@ Usuario.init({
 
 Usuario.hasMany( RefreshToken,{
     foreignKey:'id_usuario'
+})
+
+
+Usuario.belongsToMany( Perfil , {
+    through: UsuarioPerfil, 
+    foreignKey: "id_usuario",
+    otherKey: 'id_perfil'
 })
 
 await Usuario.sync({})
