@@ -8,7 +8,7 @@ openapi: 3.0.1
 info:
   title: Documentación de la API de la Plantilla
   description: >-
-    Esta plantilla contiene la información correspondiente a los endpoints de 
+    Aquí se encuentra la información correspondiente a los endpoints de 
     interacción con la API para facilitar el consumo de esta. (Esto es una
     plantilla para  representar el correcto funcionamiento del Swagger y
     actualmente no contiene ningun endpoint de la API, deberán agregarse cuando

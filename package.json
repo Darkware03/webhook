@@ -9,7 +9,7 @@
   "scripts": {
     "start": "nodemon app.mjs",
     "test": "jest --config=jest.config.js --forceExit",
-    "swagger": "yamlinc -o ./docs-api/unified/openapi.yaml ./docs-api/openapi.yam"
+    "swagger": "yamlinc -o ./docs-api/unified/openapi.yaml ./docs-api/openapi.yaml"
   },
   "keywords": [],
   "author": "",
