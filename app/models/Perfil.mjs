@@ -1,6 +1,7 @@
 import DB from "../nucleo/DB.mjs";
 import psql from "sequelize";
-
+import Usuario from './Usuario.mjs'
+import UsuarioPerfil from './UsuarioPerfil.mjs'
 
 class Perfil extends psql.Model {
 }
@@ -12,17 +13,24 @@ Perfil.init({
         autoIncrement: true,
     },
     nombre: {
-        type: psql.Sequelize.TEXT,
+        type: psql.Sequelize.STRING(30),
         allowNull: false
     },
     codigo: {
-        type: psql.Sequelize.TEXT,
+        type: psql.Sequelize.STRING(5),
     }
 }, {
     timestamps: false,
-    updatedAt: false,
     sequelize: DB.connection(),
     tableName: 'mnt_perfil',
 })
+
+Perfil.belongsToMany(Usuario, {
+    through: UsuarioPerfil, 
+    foreignKey: "id_perfil",
+    otherKey: 'id_usuario'
+})
+
+Perfil.sync()
 
 export default Perfil; 
