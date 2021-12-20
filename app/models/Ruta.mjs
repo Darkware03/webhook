@@ -1,6 +1,7 @@
 import DB from "../nucleo/DB.mjs";
 import psql from "sequelize";
-
+import Rol from "./Rol.mjs";
+import RutaRol from "./RutaRol.mjs"
 
 class Ruta extends psql.Model {
 }
@@ -44,4 +45,11 @@ Ruta.init({
     tableName: 'mnt_ruta',
 })
 
+Ruta.belongsToMany(Rol, {
+    through: RutaRol, 
+    foreignKey: "id_ruta",
+    otherKey: 'id_rol'
+})
+
+Ruta.sync(); 
 export default Ruta; 

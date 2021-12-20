@@ -60,6 +60,13 @@ Usuario.belongsToMany( Perfil , {
     otherKey: 'id_perfil'
 })
 
+Usuario.belongsToMany(Rol, {
+    through: UsuarioRol, 
+    foreignKey: "id_usuario",
+    otherKey: 'id_rol'
+})
+
+
 await Usuario.sync({})
 
 export default Usuario
