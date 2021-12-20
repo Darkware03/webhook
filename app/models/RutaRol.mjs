@@ -1,24 +1,27 @@
 import DB from "../nucleo/DB.mjs";
 import psql from "sequelize";
-import Usuario from "./Usuario"; 
-import Rol from "./Rol"; 
 
 
-class UsuarioRol extends psql.Model {
+class RutaRol extends psql.Model {
 }
 
-UsuarioRol.init({
-    id_usuario: {
+RutaRol.init({
+    id: {
+        type: psql.Sequelize.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+    },
+    id_ruta: {
         type: psql.Sequelize.INTEGER,
     },
-    id: {
+    id_rol: {
         type: psql.Sequelize.INTEGER,
     },
 }, {
     timestamps: false,
     updatedAt: false,
     sequelize: DB.connection(),
-    tableName: 'mnt_usuario_rol',
+    tableName: 'mnt_ruta_rol',
 })
 
-export default UsuarioRol; 
+export default RutaRol; 
