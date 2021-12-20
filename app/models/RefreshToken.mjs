@@ -1,6 +1,5 @@
 import DB from "../nucleo/DB.mjs";
 import psql from "sequelize";
-import Usuario from "./Usuario.mjs";
 
 class RefreshToken extends psql.Model {
 }
@@ -16,20 +15,19 @@ RefreshToken.init({
         type: psql.Sequelize.STRING,
     },
     id_usuario: {
-        type: psql.Sequelize.INTEGER
+        type: psql.Sequelize.INTEGER,
     },
     valid: {
         type: psql.Sequelize.DATE
-    }
+    },
 }, {
     timestamps: false,
     tableName: 'refresh_tokens',
     sequelize: DB.connection(),
 })
 
-await RefreshToken.belongsTo(Usuario, {
-    foreignKey: 'id_usuario'
-})
+
+
 
 await RefreshToken.sync()
 

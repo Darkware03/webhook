@@ -1,4 +1,4 @@
-import Usuario from "../models/Usuario.mjs";
+import {Usuario} from "../models/index.mjs";
 import HttpCode from "../../configs/httpCode.mjs";
 import bcrypt from 'bcryptjs'
 import WS from '../services/WS.mjs'
