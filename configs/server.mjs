@@ -19,6 +19,10 @@ class Server {
         this.app.use(express.json())
     }
 
+    ModelConfig() {
+
+    }
+
     start() {
         this.server.listen(this.port, this.host, () => {
             console.log(`http://${this.host}:${this.port}`);

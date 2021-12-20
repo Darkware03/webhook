@@ -2,6 +2,13 @@ import DB from "../nucleo/DB.mjs";
 import psql from "sequelize";
 
 class Usuario extends psql.Model {
+    toJSON() {
+        return {
+            id: this.id,
+            email: this.email,
+            last_login: this.last_login
+        }
+    }
 }
 
 Usuario.init({
@@ -38,6 +45,6 @@ Usuario.init({
     tableName: 'mnt_usuario',
 })
 
-// await Usuario.sync({})
+await Usuario.sync({})
 
 export default Usuario
