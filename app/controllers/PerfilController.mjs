@@ -10,55 +10,71 @@ export default class PerfilController {
     }
 
     static async store(req, res) {
-        const { nombre, codigo } = req.body
+        const {id, nombre, codigo } = req.body
+        let perfil; 
+        try {
+           perfil = await Perfil.create({
+                id,
+                nombre,
+                codigo
+            })
+            WS.emit("new_perfil", perfil)
+            return res.status(HttpCode.HTTP_CREATED).json(perfil)
+        } catch (error) {
+            console.error(error);
+            return res.status(HttpCode.HTTP_INTERNAL_SERVER_ERROR).json({"msj": "Error al procesar la petición"})
+        }
 
-        const perfil = await Perfil.create({
-            nombre,
-            codigo
-        })
-
-        WS.emit("new_perfil", perfil)
-
-        return res.status(HttpCode.HTTP_CREATED).json(perfil)
     }
 
     static async show(req, res) {
-        const perfil = await Perfil.findOne({
-            where: {
-                id: req.params.id
-            }
-        })
-
-        return res.status(HttpCode.HTTP_OK).json(perfil)
+        try {
+            const perfil = await Perfil.findOne({
+                where: {
+                    id: req.params.id
+                }
+            })
+            return res.status(HttpCode.HTTP_OK).json(perfil)
+        } catch (error) {
+            console.error(error);
+            return res.status(HttpCode.HTTP_INTERNAL_SERVER_ERROR).json({"msj": "Error al procesar la petición"})
+        }
     }
 
 
     static async update(req, res) {
         const {nombre, codigo} = req.body
-
-        const perfil = await Perfil.update({
-            nombre,
-            codigo
-        }, {
-            where: {
-                id: req.params.id
-            },
-            returning: ['nombre', 'codigo']
-        })
-
-        return res.status(HttpCode.HTTP_OK).json(perfil[1])
+        try {
+            const perfil = await Perfil.update({
+                nombre,
+                codigo
+            }, {
+                where: {
+                    id: req.params.id
+                },
+                returning: ['nombre', 'codigo']
+            })
+            return res.status(HttpCode.HTTP_OK).json(perfil[1])
+        } catch (error) {
+            console.error(error); 
+            return res.status(HttpCode.HTTP_INTERNAL_SERVER_ERROR).json({"msj": "Error al procesar la petición"})
+        }
     }
 
     static async destroy(req, res) {
-        await Perfil.destroy({
-            where: {
-                id: req.params.id
-            },
-        })
-
-        return res.status(HttpCode.HTTP_OK).json({
-            message: 'Perfil Eliminado'
-        })
+        try {
+            await Perfil.destroy({
+                where: {
+                    id: req.params.id
+                },
+            })
+            return res.status(HttpCode.HTTP_OK).json({
+                message: 'Perfil Eliminado'
+            })
+        } catch (error) {
+            console.error(error);
+            return res.status(HttpCode.HTTP_INTERNAL_SERVER_ERROR).json({"msj": "Error al procesar la petición"})
+        }
     }
 }
 

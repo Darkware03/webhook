@@ -5,58 +5,84 @@ import WS from '../services/WS.mjs'
 export default class UsuarioRolController {
 
     static async index(req, res) {
-        const usuario_roles = await UsuarioRol.findAll()
-        return res.status(HttpCode.HTTP_OK).json(usuario_roles)
+        try {
+            const usuario_roles = await UsuarioRol.findAll()
+            return res.status(HttpCode.HTTP_OK).json(usuario_roles)
+        } catch (error) {
+            console.error(error);
+            return res.status(HttpCode.HTTP_INTERNAL_SERVER_ERROR).json({"msj": "Error al procesar la petición"});
+        }
     }
 
     static async store(req, res) {
-        const { name } = req.body
+        const { id_usuario, id_rol } = req.body
 
-        const user_rol = await UsuarioRol.create({
-            name
-        })
-
-        WS.emit("new_user_rol", user_rol)
-
-        return res.status(HttpCode.HTTP_CREATED).json(user_rol)
+        try {
+            const user_rol = await UsuarioRol.create({
+                id_usuario, 
+                id_rol
+            })
+    
+            WS.emit("new_user_rol", user_rol)
+    
+            return res.status(HttpCode.HTTP_CREATED).json(user_rol)
+        } catch (error) {
+            console.error(error);
+            return res.status(HttpCode.HTTP_INTERNAL_SERVER_ERROR).json({"msj": "Error al procesar la petición"});
+        }
     }
 
     static async show(req, res) {
-        const rol = await Rol.findOne({
-            where: {
-                id: req.params.id
-            }
-        })
-
-        return res.status(HttpCode.HTTP_OK).json(rol)
+        try {
+            const user_rol = await UsuarioRol.findOne({
+                where: {
+                    id: req.params.id
+                }
+            })
+    
+            return res.status(HttpCode.HTTP_OK).json(user_rol)
+        } catch (error) {
+            console.log(error);
+            return res.status(HttpCode.HTTP_INTERNAL_SERVER_ERROR).json({"msj": "Error al procesar la petición"});
+        }
     }
 
 
     static async update(req, res) {
         const {name} = req.body
 
-        const rol = await Rol.update({
-            name
-        }, {
-            where: {
-                id: req.params.id
-            },
-            returning: ['name']
-        })
-
-        return res.status(HttpCode.HTTP_OK).json(rol[1])
+        try {
+            const user_rol = await UsuarioRol.update({
+                name
+            }, {
+                where: {
+                    id: req.params.id
+                },
+                returning: ['name']
+            })
+    
+            return res.status(HttpCode.HTTP_OK).json(user_rol[1])
+        } catch (error) {
+            console.error(error);
+            return res.status(HttpCode.HTTP_INTERNAL_SERVER_ERROR).json({"msj": "Error al procesar la petición"});
+        }
     }
 
     static async destroy(req, res) {
-        await Rol.destroy({
-            where: {
-                id: req.params.id
-            },
-        })
-
-        return res.status(HttpCode.HTTP_OK).json({
-            message: 'Rol Eliminado'
-        })
+        try {
+            await UsuarioRol.destroy({
+                where: {
+                    id: req.params.id
+                },
+            })
+    
+            return res.status(HttpCode.HTTP_OK).json({
+                message: 'Usuario-Rol Eliminado'
+            })
+        } catch (error) {
+            console.log(error);
+            return res.status(HttpCode.HTTP_INTERNAL_SERVER_ERROR).json({"msj": "Error al procesar la petición"});
+        }
     }
 }
 

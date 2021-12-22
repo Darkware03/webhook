@@ -10,7 +10,7 @@ UsuarioRol.init({
         type: psql.Sequelize.INTEGER,
         primaryKey: true
     },
-    id: {
+    id_rol: {
         type: psql.Sequelize.INTEGER,
         primaryKey: true
     },
