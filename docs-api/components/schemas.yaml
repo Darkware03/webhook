@@ -1,0 +1,12 @@
+Order:
+  $include: "./schemas/order-schema.yaml"
+Category:
+  $include: "./schemas/category-schema.yaml"
+User:
+  $include: "./schemas/user-schema.yaml"
+Tag:
+  $include: "./schemas/tag-schema.yaml"
+Pet:
+  $include: "./schemas/pet-schema.yaml"
+ApiResponse:
+  $include: "./schemas/apiresponse-schema.yaml"

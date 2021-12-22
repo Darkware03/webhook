@@ -1,0 +1,111 @@
+/pet:
+  $include: "./paths/pet-path.yaml"
+/pet/findByStatus:
+  $include: "./paths/pet-find-by-status-path.yaml"
+/pet/findByTags:
+  $include: "./paths/pet-find-by-tags.yaml"
+/pet/{petId}:
+  $include: "./paths/pet-id.yaml"
+/pet/{petId}/uploadImage:
+  $include: "./paths/pet-id-upload-image.yaml"
+/store/inventory:
+  $include: "./paths/store-inventory.yaml"
+/store/order:
+  $include: "./paths/store-order.yaml"
+/store/order/{orderId}:
+  $include: "./paths/store-order-id.yaml"
+/user:
+  $include: "./paths/user.yaml"
+/user/createWithArray:
+  $include: "./paths/user-create-with-array.yaml"
+/user/createWithList:
+  $include: "./paths/user-create-with-list.yaml"
+/user/login:
+  $include: "./paths/user-login.yaml"
+/user/logout:
+  get:
+    tags:
+      - user
+    summary: Logs out current logged in user session
+    operationId: logoutUser
+    responses:
+      default:
+        description: successful operation
+        content: {}
+/user/{username}:
+  get:
+    tags:
+      - user
+    summary: Get user by user name
+    operationId: getUserByName
+    parameters:
+      - name: username
+        in: path
+        description: "The name that needs to be fetched. Use user1 for testing. "
+        required: true
+        schema:
+          type: string
+    responses:
+      200:
+        description: successful operation
+        content:
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/User"
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      400:
+        description: Invalid username supplied
+        content: {}
+      404:
+        description: User not found
+        content: {}
+  put:
+    tags:
+      - user
+    summary: Updated user
+    description: This can only be done by the logged in user.
+    operationId: updateUser
+    parameters:
+      - name: username
+        in: path
+        description: name that need to be updated
+        required: true
+        schema:
+          type: string
+    requestBody:
+      description: Updated user object
+      content:
+        "*/*":
+          schema:
+            $ref: "#/components/schemas/User"
+      required: true
+    responses:
+      400:
+        description: Invalid user supplied
+        content: {}
+      404:
+        description: User not found
+        content: {}
+    x-codegen-request-body-name: body
+  delete:
+    tags:
+      - user
+    summary: Delete user
+    description: This can only be done by the logged in user.
+    operationId: deleteUser
+    parameters:
+      - name: username
+        in: path
+        description: The name that needs to be deleted
+        required: true
+        schema:
+          type: string
+    responses:
+      400:
+        description: Invalid username supplied
+        content: {}
+      404:
+        description: User not found
+        content: {}
