@@ -1,4 +1,4 @@
-import Ruta from "../models/Ruta";
+import Ruta from "../models/Ruta.mjs";
 import HttpCode from "../../configs/httpCode.mjs";
 import WS from '../services/WS.mjs'
 

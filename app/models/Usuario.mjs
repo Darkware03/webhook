@@ -51,20 +51,6 @@ Usuario.init({
 })
 
 
-
-Usuario.belongsToMany( Perfil , {
-    through: UsuarioPerfil, 
-    foreignKey: "id_usuario",
-    otherKey: 'id_perfil'
-})
-
-Usuario.belongsToMany(Rol, {
-    through: UsuarioRol, 
-    foreignKey: "id_usuario",
-    otherKey: 'id_rol'
-})
-
-
 Usuario.sync({})
 
 export default Usuario

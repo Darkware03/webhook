@@ -45,11 +45,6 @@ Ruta.init({
     tableName: 'mnt_ruta',
 })
 
-Ruta.belongsToMany(Rol, {
-    through: RutaRol, 
-    foreignKey: "id_ruta",
-    otherKey: 'id_rol'
-})
 
 Ruta.sync(); 
 export default Ruta; 

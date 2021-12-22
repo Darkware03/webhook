@@ -34,16 +34,7 @@ Perfil.init({
     tableName: 'mnt_perfil',
 })
 
-Perfil.belongsToMany(Usuario, {
-    through: UsuarioPerfil, 
-    foreignKey: "id_perfil",
-    otherKey: 'id_usuario'
-})
-Perfil.belongsToMany(Rol, {
-    through: PerfilRol, 
-    foreignKey: "id_perfil",
-    otherKey: 'id_rol'
-})
+
 
 Perfil.sync()
 

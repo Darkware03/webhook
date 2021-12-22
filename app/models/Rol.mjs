@@ -27,24 +27,6 @@ Rol.init({
     tableName: 'mnt_rol',
 })
 
-Rol.belongsToMany(Perfil, {
-    through: PerfilRol, 
-    foreignKey: "id_rol",
-    otherKey: 'id_perfil'
-})
-
-Rol.belongsToMany(Ruta, {
-    through: RutaRol, 
-    foreignKey: "id_rol",
-    otherKey: 'id_ruta'
-})
-
-Rol.belongsToMany(Usuario, {
-    through: UsuarioRol, 
-    foreignKey: "id_rol",
-    otherKey: 'id_usuario'
-})
-
 
 Rol.sync({})
 
