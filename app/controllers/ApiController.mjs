@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs'
 import NoAuthException from "../../handlers/NoAuthException.mjs";
 import Auth from "../utils/Auth.mjs";
 import moment from "moment-timezone";
-import RefreshToken from "../models/RefreshToken.mjs";
+import {RefreshToken} from "../models/index.mjs";
 
 
 export default class ApiController {

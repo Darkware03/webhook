@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
 import {v4 as uuid} from "uuid";
-import RefreshToken from "../models/RefreshToken.mjs";
+import {RefreshToken} from "../models/index.mjs";
 import moment from "moment-timezone";
 
 export default class Auth {
