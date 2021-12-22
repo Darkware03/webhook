@@ -1,6 +1,6 @@
 import NoAuthException from "../../handlers/NoAuthException.mjs";
 import jwt from "jsonwebtoken";
-import Usuario from "../models/Usuario.mjs";
+import {Usuario} from "../models/index.mjs";
 import HttpCode from "../../configs/httpCode.mjs";
 
 const Auth = async (req, res, next) => {

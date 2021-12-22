@@ -13,6 +13,7 @@ class Usuario extends psql.Model {
             last_login: this.last_login
         }
     }
+
 }
 
 Usuario.init({
@@ -49,9 +50,6 @@ Usuario.init({
     tableName: 'mnt_usuario',
 })
 
-Usuario.hasMany( RefreshToken,{
-    foreignKey:'id_usuario'
-})
 
 
 Usuario.belongsToMany( Perfil , {
