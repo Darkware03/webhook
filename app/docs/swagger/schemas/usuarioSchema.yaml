@@ -19,5 +19,3 @@ properties:
     type: integer
     description: User Status
     format: int32
-xml:
-  name: User

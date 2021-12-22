@@ -1,0 +1,20 @@
+post:
+  tags:
+    - usuario
+  summary: Add a new pet to the store
+  operationId: addPet
+  requestBody:
+    description: Pet object that needs to be added to the store
+    content:
+      application/json:
+        schema:
+          $ref: "#/components/schemas/Usuario"
+      application/xml:
+        schema:
+          $ref: "#/components/schemas/Usuario"
+    required: true
+  responses:
+    405:
+      description: Invalid input
+      content: {}
+  x-codegen-request-body-name: body

@@ -10,12 +10,12 @@ import { fileURLToPath } from "url";
 const require = createRequire(import.meta.url);
 const __dirname = dirname(fileURLToPath(import.meta.url));
 //Se lee el archivo openapi.YAML
-const swaggerDocument = YAML.load(path.join(__dirname,'../docs-api/unified/openapi.yaml'));
+const swaggerDocument = YAML.load(path.join(__dirname,'../app/docs/index.yaml'));
 const router = Router();
 
 //Se establece la ruta hacia el Swagger usando el archivo openapi.yaml
-router.use('/api-docs',swaggerUiExpress.serve);
-router.get('/api-docs',swaggerUiExpress.setup(swaggerDocument))
+router.use('/api/docs',swaggerUiExpress.serve);
+router.get('/api/docs',swaggerUiExpress.setup(swaggerDocument))
 
 
 export default router
