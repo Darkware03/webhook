@@ -21,4 +21,6 @@ UsuarioRol.init({
     tableName: 'mnt_usuario_rol',
 })
 
+await UsuarioRol.sync({}); 
+
 export default UsuarioRol; 

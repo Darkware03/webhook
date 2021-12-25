@@ -1,4 +1,6 @@
 import UsuarioRol from "../models/UsuarioRol.mjs";
+import Rol from "../models/Rol.mjs"
+import Usuario from "../models/Usuario.mjs";
 import HttpCode from "../../configs/httpCode.mjs";
 import WS from '../services/WS.mjs'
 
@@ -36,8 +38,9 @@ export default class UsuarioRolController {
         try {
             const user_rol = await UsuarioRol.findOne({
                 where: {
-                    id: req.params.id
-                }
+                    id_usuario: req.query.id_usuario,
+                    id_rol: req.query.id_rol
+                },                
             })
     
             return res.status(HttpCode.HTTP_OK).json(user_rol)

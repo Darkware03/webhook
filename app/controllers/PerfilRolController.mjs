@@ -20,7 +20,7 @@ export default class PerfilController {
         const perfil_rol = await PerfilRol.create({
             id_perfil, 
             id_rol
-        })
+        }, {fields: ['id_ruta', 'id_rol']})
 
         WS.emit("new_perfil_rol", perfil_rol)
         return res.status(HttpCode.HTTP_CREATED).json(perfil_rol)

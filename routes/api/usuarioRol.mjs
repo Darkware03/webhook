@@ -8,7 +8,7 @@ const router = Router()
 router.get('/', Call(UsuarioRolController.index))
 // router.post('/', [validate({body: usuarioCreateSchema})], Call(UsuarioRolController.store))
 router.post('/', Call(UsuarioRolController.store))
-router.get('/:id', Call(UsuarioRolController.show))
+router.get('/:by_id', Call(UsuarioRolController.show))
 router.put('/:id', Call(UsuarioRolController.update))
 router.delete('/:id', Call(UsuarioRolController.destroy))
 

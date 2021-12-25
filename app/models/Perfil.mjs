@@ -36,6 +36,6 @@ Perfil.init({
 
 
 
-Perfil.sync()
+await Perfil.sync({})
 
 export default Perfil; 

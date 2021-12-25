@@ -9,6 +9,7 @@ import auth from "../app/middlewares/Auth.mjs";
 import Call from "../app/utils/Call.mjs";
 
 
+
 const router = Router()
 
 router.get('/', (req, res) => {
@@ -21,5 +22,6 @@ router.use('/v1/rutas', [auth], Call(routesRutas))
 router.use('/v1/rutas_roles', [auth], Call(routesRutasRoles))
 router.use('/v1/perfiles_roles', [auth], Call(routesPerfilesRoles))
 router.use('/v1/usuarios_roles', [auth], Call(routesUsuariosRoles))
+
 
 export default router
