@@ -46,5 +46,5 @@ Ruta.init({
 })
 
 
-Ruta.sync(); 
+await Ruta.sync({}); 
 export default Ruta; 

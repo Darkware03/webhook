@@ -28,6 +28,6 @@ Rol.init({
 })
 
 
-Rol.sync({})
+await Rol.sync({})
 
 export default Rol; 

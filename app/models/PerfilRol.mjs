@@ -24,4 +24,6 @@ PerfilRol.init({
     tableName: 'mnt_perfil_rol',
 })
 
+await PerfilRol.sync({})
+
 export default PerfilRol; 
