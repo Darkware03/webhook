@@ -49,7 +49,7 @@ export default class PerfilController {
         try {
             const {id_perfil, id_rol} = req.body
 
-            const perfil_rol = await Perfil.update({
+            const perfil_rol = await PerfilRol.update({
                 id_perfil, 
                 id_rol
             }, {
