@@ -1,6 +1,4 @@
-import UsuarioRol from "../models/UsuarioRol.mjs";
-import Rol from "../models/Rol.mjs"
-import Usuario from "../models/Usuario.mjs";
+import {UsuarioRol} from "../models/index.mjs";
 import HttpCode from "../../configs/httpCode.mjs";
 import WS from '../services/WS.mjs'
 

@@ -1,4 +1,4 @@
-import RutaRol from "../models/RutaRol.mjs";
+import {RutaRol} from "../models/index.mjs";
 import HttpCode from "../../configs/httpCode.mjs";
 import WS from '../services/WS.mjs'
 

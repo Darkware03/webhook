@@ -9,8 +9,6 @@ import UsuarioPerfil from "./UsuarioPerfil.mjs";
 import UsuarioRol from "./UsuarioRol.mjs";
 
 
-
-
 RefreshToken.belongsTo(Usuario, {
     foreignKey: 'id_usuario'
 })

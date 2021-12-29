@@ -1,4 +1,4 @@
-import PerfilRol from "../models/PerfilRol.mjs";
+import {PerfilRol} from "../models/index.mjs";
 import HttpCode from "../../configs/httpCode.mjs";
 import WS from '../services/WS.mjs'
 

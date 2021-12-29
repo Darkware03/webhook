@@ -1,4 +1,4 @@
-import UsuarioPerfil from "../models/UsuarioPerfil.mjs";
+import {UsuarioPerfil} from "../models/index.mjs";
 import HttpCode from "../../configs/httpCode.mjs";
 import bcrypt from 'bcryptjs'
 import WS from '../services/WS.mjs'
