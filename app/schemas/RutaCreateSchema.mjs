@@ -1,10 +1,6 @@
 export const rutaCreateSchema={
     type:'object',
     properties:{
-        id_usuario:{
-            type:'number',
-            required:true
-        },
         nombre:{
             type:'string',
             required: true

@@ -11,7 +11,7 @@ const router = Router()
 router.post('/v1/login', [validate({body: loginSchema})], Call(ApiController.login))
 router.post('/v1/refresh',  Call(ApiController.RefreshToken))
 
-router.use('/v1/users', [auth], Call(routesUsers))
+router.use('/v1/users', [auth], routesUsers)
 
 
 

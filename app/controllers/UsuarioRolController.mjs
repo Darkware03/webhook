@@ -50,16 +50,29 @@ export default class UsuarioRolController {
 
 
     static async update(req, res) {
-        const {name} = req.body
+        console.log('update user-rol');
+        const { id_usuario, id_rol } = req.query
 
+        const user_rol_find = await UsuarioRol.findOne({
+            where: {
+                id_usuario,
+                id_rol
+            },                
+        })
+        console.log(user_rol_find);
+        if(!user_rol_find){
+            return res.status(HttpCode.HTTP_UNPROCESSABLE_ENTITY).json({mjs: "No encontrado"}); 
+        }
         try {
             const user_rol = await UsuarioRol.update({
-                name
+                id_usuario: req.body.id_usuario,
+                id_rol: req.body.id_rol
             }, {
                 where: {
-                    id: req.params.id
+                    id_usuario,
+                    id_rol
                 },
-                returning: ['name']
+                returning: ['id_usuario', 'id_rol']
             })
     
             return res.status(HttpCode.HTTP_OK).json(user_rol[1])
@@ -70,10 +83,12 @@ export default class UsuarioRolController {
     }
 
     static async destroy(req, res) {
+        const { id_usuario, id_rol } = req.query
         try {
             await UsuarioRol.destroy({
                 where: {
-                    id: req.params.id
+                    id_usuario, 
+                    id_rol 
                 },
             })
     

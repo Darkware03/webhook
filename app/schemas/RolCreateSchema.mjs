@@ -1,10 +1,6 @@
-export const rutaRolCreateSchema={
+export const rolCreateSchema={
     type:'object',
     properties:{
-        id:{
-            type:'number',
-            required:true
-        },
         name:{
             type:'string',
         },
