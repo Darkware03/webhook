@@ -46,7 +46,4 @@ Usuario.init({
     tableName: 'mnt_usuario',
 })
 
-
-await Usuario.sync({})
-
 export default Usuario
