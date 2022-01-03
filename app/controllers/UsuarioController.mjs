@@ -82,6 +82,7 @@ export default class UsuarioController {
   static async storeUserProfileRole(req, res) {
     const connection = DB.connection();
     const t = await connection.transaction();
+    let arrPerfiles=[], arrRoles=[]; 
     const {
       perfiles,
       roles,
@@ -114,13 +115,14 @@ export default class UsuarioController {
       );
 
       if (perfiles.length > 0) {
+        let exists = null;
         for (let index = 0; index < perfiles.length; index++) {
-          let exist = await Perfil.findOne({
+          exists = await Perfil.findOne({
             where: {
               id: perfiles[index],
             },
           });
-          if (exist) {
+          if (exists) {
             await UsuarioPerfil.create(
               {
                 id_perfil: perfiles[index],
@@ -128,10 +130,10 @@ export default class UsuarioController {
               },
               { transaction: t }
             );
-          } else {
-            return res
-              .status(422)
-              .json({ message: `Id perfil ${id_perfil} no encontrado` });
+            let { id, nombre } = exists;
+            arrPerfiles.push({id, nombre}); 
+          }else{
+              return res.status(422).json({"message": `No se encontro el perfil con id ${perfiles[index]}`})
           }
         }
       }
@@ -150,18 +152,29 @@ export default class UsuarioController {
               },
               { transaction: t }
             );
+            let {id, name: nombre } = exist;
+            arrRoles.push({id, nombre});
           } else {
             return res
               .status(422)
-              .json({ message: `Id Rol ${id_rol} no encontrado` });
+              .json({ message: `Id Rol ${roles[index]} no encontrado` });
           }
         }
       }
       await t.commit();
+      const { id, last_login, is_suspended} = usuario; 
+      return res.status(HttpCode.HTTP_CREATED).json({
+          id,
+          email: usuario.email,
+          last_login,
+          is_suspended,
+          perfiles: arrPerfiles,
+          roles: arrRoles
+      });
     } catch (error) {
-      console.log(error);
+        console.log(error);
       await t.rollback();
-      return res.status(500).json({ "message": error });
+      return res.status(500).json({ "message": "error" });
     }
   }
 }
