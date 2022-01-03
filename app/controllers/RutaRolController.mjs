@@ -1,6 +1,5 @@
 import {RutaRol} from "../models/index.mjs";
 import HttpCode from "../../configs/httpCode.mjs";
-// import WS from '../services/WS.mjs'
 
 export default class RutaRolController {
 
@@ -16,7 +15,6 @@ export default class RutaRolController {
             id_rol
         })
 
-        // WS.emit("new_ruta_rol", ruta_rol)
 
         return res.status(HttpCode.HTTP_CREATED).json(ruta_rol)
     }

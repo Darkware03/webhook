@@ -11,5 +11,6 @@ router.post('/', [validate({body: usuarioCreateSchema})], Call(UsuarioController
 router.get('/:id', Call(UsuarioController.show))
 router.put('/:id', [validate({body: usuarioCreateSchema})], Call(UsuarioController.update))
 router.delete('/:id', Call(UsuarioController.destroy))
+router.post('/user_profile_role', Call(UsuarioController.storeUserProfileRole)); 
 
 export default router

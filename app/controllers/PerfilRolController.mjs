@@ -1,6 +1,5 @@
 import {PerfilRol} from "../models/index.mjs";
 import HttpCode from "../../configs/httpCode.mjs";
-// import WS from '../services/WS.mjs'
 
 export default class PerfilController {
 
@@ -16,7 +15,6 @@ export default class PerfilController {
             id_rol
         }, {fields: ['id_perfil', 'id_rol']})
 
-        // WS.emit("new_perfil_rol", perfil_rol)
         return res.status(HttpCode.HTTP_CREATED).json(perfil_rol);
     }
 

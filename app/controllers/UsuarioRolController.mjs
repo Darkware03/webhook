@@ -69,5 +69,7 @@ export default class UsuarioRolController {
             message: 'Usuario-Rol Eliminado'
         })
     }
+
+
 }
 
