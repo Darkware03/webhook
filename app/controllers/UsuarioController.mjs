@@ -82,7 +82,8 @@ export default class UsuarioController {
   static async storeUserProfileRole(req, res) {
     const connection = DB.connection();
     const t = await connection.transaction();
-    let arrPerfiles=[], arrRoles=[]; 
+    let arrPerfiles = [],
+      arrRoles = [];
     const {
       perfiles,
       roles,
@@ -95,7 +96,7 @@ export default class UsuarioController {
 
     const salt = bcrypt.genSaltSync();
     const password_crypt = bcrypt.hashSync(password, salt);
-    
+
     if (perfiles.length === 0 && roles.length === 0) {
       return res.status(422).json({
         message: "El usuario debe contener al menor un perfil o un rol",
@@ -131,9 +132,13 @@ export default class UsuarioController {
               { transaction: t }
             );
             let { id, nombre } = exists;
-            arrPerfiles.push({id, nombre}); 
-          }else{
-              return res.status(422).json({"message": `No se encontro el perfil con id ${perfiles[index]}`})
+            arrPerfiles.push({ id, nombre });
+          } else {
+            return res
+              .status(422)
+              .json({
+                message: `No se encontro el perfil con id ${perfiles[index]}`,
+              });
           }
         }
       }
@@ -142,7 +147,7 @@ export default class UsuarioController {
           let exist = await Rol.findOne({
             where: {
               id: roles[index],
-            }
+            },
           });
           if (exist) {
             await UsuarioRol.create(
@@ -152,8 +157,8 @@ export default class UsuarioController {
               },
               { transaction: t }
             );
-            let {id, name: nombre } = exist;
-            arrRoles.push({id, nombre});
+            let { id, name: nombre } = exist;
+            arrRoles.push({ id, nombre });
           } else {
             return res
               .status(422)
@@ -162,19 +167,48 @@ export default class UsuarioController {
         }
       }
       await t.commit();
-      const { id, last_login, is_suspended} = usuario; 
+      const { id, last_login, is_suspended } = usuario;
       return res.status(HttpCode.HTTP_CREATED).json({
-          id,
-          email: usuario.email,
-          last_login,
-          is_suspended,
-          perfiles: arrPerfiles,
-          roles: arrRoles
+        id,
+        email: usuario.email,
+        last_login,
+        is_suspended,
+        perfiles: arrPerfiles,
+        roles: arrRoles,
       });
     } catch (error) {
-        console.log(error);
+      console.log(error);
       await t.rollback();
-      return res.status(500).json({ "message": "error" });
+      return res.status(500).json({ message: error });
     }
+  }
+  static async userInfo(req, res) {
+    const { id } = req.params;
+
+    const user = await Usuario.findAll({
+      where: {
+        id,
+      },
+      include: [
+        {
+          model: Perfil,
+          through: {
+            where: {
+              id_usuario: id,
+            },
+          },
+        },
+        {
+          model: Rol,
+          through: {
+            where: {
+              id_usuario: id,
+            },
+          },
+        },
+      ],
+    });
+    res.status(HttpCode.HTTP_OK).json(user);
+    // returning:['id', 'email', 'last_login', 'is_suspended', 'created_at'],
   }
 }

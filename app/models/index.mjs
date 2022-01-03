@@ -18,6 +18,16 @@ Usuario.hasMany(RefreshToken, {
     foreignKey: 'id_usuario'
 })
 
+Usuario.belongsToMany(Perfil, {
+    through: UsuarioPerfil, 
+    foreignKey: "id_usuario",
+    otherKey: 'id_perfil'
+})
+Usuario.belongsToMany(Rol, {
+    through: UsuarioRol, 
+    foreignKey: "id_usuario",
+    otherKey: 'id_rol'
+})
 Perfil.belongsToMany(Usuario, {
     through: UsuarioPerfil, 
     foreignKey: "id_perfil",
