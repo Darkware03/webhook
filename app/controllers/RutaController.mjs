@@ -1,6 +1,6 @@
 import {Ruta} from "../models/index.mjs";
 import HttpCode from "../../configs/httpCode.mjs";
-import WS from '../services/WS.mjs'
+// import WS from '../services/WS.mjs'
 
 export default class RutaController {
 
@@ -22,7 +22,7 @@ export default class RutaController {
             id_ruta_padre
         })
 
-        WS.emit("new_ruta", ruta)
+        // WS.emit("new_ruta", ruta)
 
         return res.status(HttpCode.HTTP_CREATED).json(ruta)
     }

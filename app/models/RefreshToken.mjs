@@ -29,6 +29,5 @@ RefreshToken.init({
 
 
 
-await RefreshToken.sync()
 
 export default RefreshToken

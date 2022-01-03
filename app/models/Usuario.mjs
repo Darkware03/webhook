@@ -51,6 +51,5 @@ Usuario.init({
 })
 
 
-await Usuario.sync({})
 
 export default Usuario

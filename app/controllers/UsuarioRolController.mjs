@@ -1,6 +1,5 @@
 import {UsuarioRol} from "../models/index.mjs";
 import HttpCode from "../../configs/httpCode.mjs";
-import WS from '../services/WS.mjs'
 
 export default class UsuarioRolController {
 
@@ -15,8 +14,6 @@ export default class UsuarioRolController {
             id_usuario, 
             id_rol
         })
-
-        WS.emit("new_user_rol", user_rol)
 
         return res.status(HttpCode.HTTP_CREATED).json(user_rol)
     }

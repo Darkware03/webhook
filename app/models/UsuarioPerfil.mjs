@@ -25,7 +25,6 @@ UsuarioPerfil.init({
     tableName: 'mnt_usuario_perfil',
 })
 
-await UsuarioPerfil.sync({});
 
 
 export default UsuarioPerfil; 

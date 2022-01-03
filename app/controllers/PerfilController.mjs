@@ -1,6 +1,6 @@
 import {Perfil} from "../models/index.mjs";
 import HttpCode from "../../configs/httpCode.mjs";
-import WS from '../services/WS.mjs'
+// import WS from '../services/WS.mjs'
 
 export default class PerfilController {
 
@@ -17,7 +17,7 @@ export default class PerfilController {
             nombre,
             codigo
         })
-        WS.emit("new_perfil", perfil)
+        // WS.emit("new_perfil", perfil)
         return res.status(HttpCode.HTTP_CREATED).json(perfil);
     }
 

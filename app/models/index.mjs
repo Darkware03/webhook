@@ -1,3 +1,4 @@
+import DB from "../nucleo/DB.mjs";
 import Usuario from "./Usuario.mjs";
 import RefreshToken from "./RefreshToken.mjs";
 import Perfil from "./Perfil.mjs";
@@ -52,6 +53,16 @@ Ruta.belongsToMany(Rol, {
     otherKey: 'id_rol'
 })
 
+PerfilRol.sync({})
+RefreshToken.sync()
+Perfil.sync({})
+Ruta.sync({}); 
+RutaRol.sync();
+Usuario.sync({})
+UsuarioPerfil.sync({});
+UsuarioRol.sync({}); 
+Ruta.sync()
+DB.connection().sync()
 
 export {
     RefreshToken, 

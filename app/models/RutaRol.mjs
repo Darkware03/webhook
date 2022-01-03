@@ -24,6 +24,5 @@ RutaRol.init({
     tableName: 'mnt_ruta_rol',
 })
 
-await RutaRol.sync();
 
 export default RutaRol; 

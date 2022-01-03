@@ -1,7 +1,7 @@
 import {UsuarioPerfil} from "../models/index.mjs";
 import HttpCode from "../../configs/httpCode.mjs";
 import bcrypt from 'bcryptjs'
-import WS from '../services/WS.mjs'
+// import WS from '../services/WS.mjs'
 
 export default class UsuarioPerfilController {
 
@@ -19,7 +19,7 @@ export default class UsuarioPerfilController {
             id_usuario
         })
 
-        WS.emit("new_usuario_perfil", usuario_perfil)
+        // WS.emit("new_usuario_perfil", usuario_perfil)
 
         return res.status(HttpCode.HTTP_CREATED).json(usuario_perfil)
     }

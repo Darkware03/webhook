@@ -1,6 +1,6 @@
 import {Rol} from "../models/index.mjs";
 import HttpCode from "../../configs/httpCode.mjs";
-import WS from '../services/WS.mjs'
+// import WS from '../services/WS.mjs'
 
 export default class RolController {
 
@@ -16,7 +16,7 @@ export default class RolController {
             name
         })
 
-        WS.emit("new_rol", rol)
+        // WS.emit("new_rol", rol)
         return res.status(HttpCode.HTTP_CREATED).json(rol);
     }
 
