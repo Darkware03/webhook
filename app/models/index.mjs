@@ -63,16 +63,16 @@ Ruta.belongsToMany(Rol, {
     otherKey: 'id_rol'
 })
 
-PerfilRol.sync({})
-RefreshToken.sync()
-Perfil.sync({})
-Ruta.sync({}); 
-RutaRol.sync();
-Usuario.sync({})
-UsuarioPerfil.sync({});
-UsuarioRol.sync({}); 
-Ruta.sync()
-DB.connection().sync()
+await PerfilRol.sync({})
+await RefreshToken.sync()
+await Perfil.sync({})
+await Ruta.sync({}); 
+await RutaRol.sync();
+await Usuario.sync({})
+await UsuarioPerfil.sync({});
+await UsuarioRol.sync({}); 
+await Ruta.sync()
+await DB.connection().sync()
 
 export {
     RefreshToken, 

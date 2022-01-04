@@ -7,12 +7,13 @@ import Call from "../../app/utils/Call.mjs";
 const router = Router()
 router.get('/', Call(UsuarioController.index))
 // router.post('/', [validate({body: usuarioCreateSchema})], Call(UsuarioController.store))
-router.post('/', [validate({body: usuarioCreateSchema})], Call(UsuarioController.store))
-router.get('/:id', Call(UsuarioController.show))
+// router.post('/', [validate({body: usuarioCreateSchema})], Call(UsuarioController.store))
+router.post('/:id_usuario/perfiles', Call(UsuarioController.userProfile))
+// router.get('/:id', Call(UsuarioController.show))
 router.put('/:id', [validate({body: usuarioCreateSchema})], Call(UsuarioController.update))
 router.delete('/:id', Call(UsuarioController.destroy))
-router.post('/user-profile-role', Call(UsuarioController.storeUserProfileRole)); 
-router.get('/user-info/:id', Call(UsuarioController.userInfo)); 
+router.post('/', Call(UsuarioController.store)); 
+router.get('/:id', Call(UsuarioController.show)); 
 
 
 export default router

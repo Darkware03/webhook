@@ -5,10 +5,8 @@ import {
   Perfil,
   Rol,
 } from "../models/index.mjs";
-import sequelize from "sequelize";
 import HttpCode from "../../configs/httpCode.mjs";
 import bcrypt from "bcryptjs";
-import WS from "../services/WS.mjs";
 import DB from "../nucleo/DB.mjs";
 
 export default class UsuarioController {
@@ -37,7 +35,7 @@ export default class UsuarioController {
 
     if (perfiles.length === 0 && roles.length === 0) {
       return res.status(422).json({
-        message: "El usuario debe contener al menor un perfil o un rol",
+        message: "El usuario debe contener al menos un perfil o un rol",
       });
     }
 
@@ -162,7 +160,7 @@ export default class UsuarioController {
     });
   }
 
-  static async userInfo(req, res) {
+  static async show(req, res) {
     const { id } = req.params;
 
     const user = await Usuario.findOne({
@@ -191,4 +189,65 @@ export default class UsuarioController {
     const { Perfils: perfiles, Rols: roles, ...usuario } = user.dataValues;
     res.status(HttpCode.HTTP_OK).json({ ...usuario, perfiles, roles });
   }
+
+  static async userProfile(req, res){
+    const { id_usuario } = req.params; 
+    const connection = DB.connection();
+    const t = await connection.transaction();
+    let arrPerfiles = [];
+    const { perfiles } = req.body;
+
+    if (perfiles.length === 0) {
+      return res.status(422).json({
+        message: "El usuario debe contener al menos un perfil",
+      });
+    }
+
+    try {
+      const user = await Usuario.findOne({
+        where: {
+          id: id_usuario
+        },
+        attributes: ['id', 'email']
+      })
+      if (perfiles.length > 0) {
+        let exists = null;
+        for (let index = 0; index < perfiles.length; index++) {
+          exists = await Perfil.findOne({
+            where: {
+              id: perfiles[index],
+            },
+          });
+          if (exists) {
+            await UsuarioPerfil.create(
+              {
+                id_perfil: perfiles[index],
+                id_usuario,
+              },
+              { transaction: t }
+            );
+            let { id, nombre } = exists;
+            arrPerfiles.push({ id, nombre });
+          } else {
+            return res.status(422).json({
+              message: `No se encontro el perfil con id ${perfiles[index]}`,
+            });
+          }
+        }
+      }
+
+      await t.commit();
+      const { id, email } = user; 
+      return res.status(HttpCode.HTTP_CREATED).json({
+        id, 
+        email, 
+        perfiles: arrPerfiles,
+      });
+    } catch (e) {
+      console.error(e);
+      await t.rollback();
+      return res.status(500).json({ message: "Error en procesar la petición" });
+    }
+  }
+
 }
