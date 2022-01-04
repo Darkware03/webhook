@@ -49,6 +49,7 @@
     "babel-preset-stage-0": "^6.24.1",
     "jest": "^27.4.3",
     "sequelize-cli": "^6.3.0",
+    "sequelize-auto": "^0.8.8",
     "superagent": "^6.1.0",
     "supertest": "^6.1.6"
   }

@@ -3,8 +3,8 @@ import psql from "sequelize";
 
 class RefreshToken extends psql.Model {
     static associate(models) {
-        this.belongsTo(models.Usuario,{
-            foreignKey:'id_usuario'
+        this.belongsTo(models.Usuario, {
+            foreignKey: 'id_usuario'
         })
     }
 }
@@ -21,9 +21,9 @@ const REFRESH_SCHEMA = {
     id_usuario: {
         type: psql.Sequelize.INTEGER,
         allowNull: false,
-        references:{
-            model:'mnt_usuario',
-            key:'id',
+        references: {
+            model: 'mnt_usuario',
+            key: 'id',
         }
     },
     valid: {
@@ -38,7 +38,6 @@ RefreshToken.init(REFRESH_SCHEMA, {
     tableName: TABLE_NAME,
     sequelize: DB.connection(),
 })
-
 
 export {
     REFRESH_SCHEMA,
