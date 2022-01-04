@@ -1,29 +1,30 @@
 import DB from "../nucleo/DB.mjs";
 import psql from "sequelize";
 
-class RefreshToken extends psql.Model {
+
+class UsuarioPerfil extends psql.Model {
 }
 
-
-RefreshToken.init({
+UsuarioPerfil.init({
     id: {
         type: psql.Sequelize.INTEGER,
         primaryKey: true,
-        autoIncrement: true
+        autoIncrement: true,
     },
-    refresh_token: {
-        type: psql.Sequelize.STRING,
+    id_perfil: {
+        type: psql.Sequelize.INTEGER,
+        allowNull: false
     },
     id_usuario: {
         type: psql.Sequelize.INTEGER,
-    },
-    valid: {
-        type: psql.Sequelize.DATE
-    },
+    }
 }, {
     timestamps: false,
-    tableName: 'refresh_tokens',
+    updatedAt: false,
     sequelize: DB.connection(),
+    tableName: 'mnt_usuario_perfil',
 })
 
-export default RefreshToken
+
+
+export default UsuarioPerfil; 

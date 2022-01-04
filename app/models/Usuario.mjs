@@ -19,14 +19,14 @@ Usuario.init({
         autoIncrement: true,
     },
     email: {
-        type: psql.Sequelize.STRING,
+        type: psql.Sequelize.STRING(255),
         unique: true,
         validate: {
             isEmail: true,
         }
     },
     password: {
-        type: psql.Sequelize.TEXT
+        type: psql.Sequelize.STRING(255)
     },
     last_login: {
         type: psql.Sequelize.STRING
