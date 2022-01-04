@@ -102,7 +102,7 @@ export default class UsuarioController {
         }
       }
       await t.commit();
-      const { id, last_login, is_suspended } = usuario;
+      const { id } = usuario;
       return res.status(HttpCode.HTTP_CREATED).json({
         id,
         email: usuario.email,

@@ -1,7 +1,5 @@
 import DB from "../nucleo/DB.mjs";
 import psql from "sequelize";
-import RutaRol from "./RutaRol.mjs"
-import Rol from "./Rol.mjs";
 
 class Ruta extends psql.Model {
 }
