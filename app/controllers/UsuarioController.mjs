@@ -125,19 +125,17 @@ export default class UsuarioController {
   }
 
   static async update(req, res) {
-    const { name, last_name, email } = req.body;
+    const { email } = req.body;
 
     const usuario = await Usuario.update(
       {
-        name,
-        last_name,
         email,
       },
       {
         where: {
           id: req.params.id,
         },
-        returning: ["name", "last_name", "email"],
+        returning: ["id", "email"],
       }
     );
 

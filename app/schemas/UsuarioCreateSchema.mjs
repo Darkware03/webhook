@@ -1,14 +1,6 @@
 export const usuarioCreateSchema={
     type:'object',
     properties:{
-        name:{
-            type:'string',
-            required:true
-        },
-        last_name:{
-            type:'string',
-            required:true
-        },
         password:{
             type:'string',
             required:true
@@ -16,6 +8,12 @@ export const usuarioCreateSchema={
         email:{
             type:'string',
             required:true
+        },
+        perfiles: {
+            type: 'array'
+        },
+        roles: {
+            type: 'array'
         }
     }
 }

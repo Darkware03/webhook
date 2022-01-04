@@ -10,9 +10,9 @@ router.post('/:id_usuario/perfiles', Call(UsuarioController.userProfile))
 router.delete('/:id_usuario/perfiles', Call(UsuarioController.destroyUserPerfil))
 router.post('/:id_usuario/roles', Call(UsuarioController.userRole))
 router.delete('/:id_usuario/roles', Call(UsuarioController.destroyUserRol))
-router.put('/:id', [validate({body: usuarioCreateSchema})], Call(UsuarioController.update))
+router.put('/:id', Call(UsuarioController.update))
 router.delete('/:id', Call(UsuarioController.destroy))
-router.post('/', Call(UsuarioController.store)); 
+router.post('/', [validate({body: usuarioCreateSchema})], Call(UsuarioController.store)); 
 router.get('/:id', Call(UsuarioController.show)); 
 
 
