@@ -9,7 +9,11 @@
   "scripts": {
     "start": "nodemon app.mjs",
     "test": "jest --config=jest.config.js --forceExit",
-    "swagger": "yamlinc -o ./app/docs/index.yaml ./app/docs/swagger/include.yaml"
+    "swagger": "yamlinc -o ./app/docs/index.yaml ./app/docs/swagger/include.yaml",
+    "migration:generate": "sequelize-cli migration:generate --name",
+    "migration:run": "sequelize-cli db:migrate",
+    "migration:revert": "sequelize-cli db:migrate:undo",
+    "migration:delete": "sequelize-cli db:migrate:undo:all"
   },
   "keywords": [],
   "author": "",
@@ -44,6 +48,7 @@
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-stage-0": "^6.24.1",
     "jest": "^27.4.3",
+    "sequelize-cli": "^6.3.0",
     "superagent": "^6.1.0",
     "supertest": "^6.1.6"
   }

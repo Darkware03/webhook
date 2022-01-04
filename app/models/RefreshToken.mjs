@@ -2,10 +2,14 @@ import DB from "../nucleo/DB.mjs";
 import psql from "sequelize";
 
 class RefreshToken extends psql.Model {
+    static associate(models) {
+        this.belongsTo(models.Usuario,{
+            foreignKey:'id_usuario'
+        })
+    }
 }
 
-
-RefreshToken.init({
+const REFRESH_SCHEMA = {
     id: {
         type: psql.Sequelize.INTEGER,
         primaryKey: true,
@@ -16,15 +20,29 @@ RefreshToken.init({
     },
     id_usuario: {
         type: psql.Sequelize.INTEGER,
+        allowNull: false,
+        references:{
+            model:'mnt_usuario',
+            key:'id',
+        }
     },
     valid: {
         type: psql.Sequelize.DATE
     },
-}, {
+}
+
+const TABLE_NAME = 'refresh_tokens'
+
+RefreshToken.init(REFRESH_SCHEMA, {
     timestamps: false,
-    tableName: 'refresh_tokens',
+    tableName: TABLE_NAME,
     sequelize: DB.connection(),
 })
 
+
+export {
+    REFRESH_SCHEMA,
+    TABLE_NAME
+}
 
 export default RefreshToken
