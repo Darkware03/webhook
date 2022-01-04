@@ -199,7 +199,7 @@ export default class UsuarioController {
 
     if (perfiles.length === 0) {
       return res.status(422).json({
-        message: "El usuario debe contener al menos un perfil",
+        message: "No se envió ningún perfil",
       });
     }
 
@@ -250,4 +250,63 @@ export default class UsuarioController {
     }
   }
 
+  static async userRole(req, res){
+    const { id_usuario } = req.params; 
+    const connection = DB.connection();
+    const t = await connection.transaction();
+    let arrRoles = [];
+    const { roles } = req.body;
+
+    if (roles.length === 0) {
+      return res.status(422).json({
+        message: "No se envió ningún rol",
+      });
+    }
+
+    try {
+      const user = await Usuario.findOne({
+        where: {
+          id: id_usuario
+        },
+        attributes: ['id', 'email']
+      })
+      if (roles.length > 0) {
+        let exists = null;
+        for (let index = 0; index < roles.length; index++) {
+          exists = await Rol.findOne({
+            where: {
+              id: roles[index],
+            },
+          });
+          if (exists) {
+            await UsuarioRol.create(
+              {
+                id_rol: roles[index],
+                id_usuario,
+              },
+              { transaction: t }
+            );
+            let { id, nombre } = exists;
+            arrRoles.push({ id, nombre });
+          } else {
+            return res.status(422).json({
+              message: `No se encontro el perfil con id ${roles[index]}`,
+            });
+          }
+        }
+      }
+
+      await t.commit();
+      const { id, email } = user; 
+      return res.status(HttpCode.HTTP_CREATED).json({
+        id, 
+        email, 
+        roles: arrRoles,
+      });
+    } catch (e) {
+      console.error(e);
+      await t.rollback();
+      return res.status(500).json({ message: "Error en procesar la petición" });
+    }
+  }
 }
