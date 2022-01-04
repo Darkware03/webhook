@@ -134,11 +134,9 @@ export default class UsuarioController {
             let { id, nombre } = exists;
             arrPerfiles.push({ id, nombre });
           } else {
-            return res
-              .status(422)
-              .json({
-                message: `No se encontro el perfil con id ${perfiles[index]}`,
-              });
+            return res.status(422).json({
+              message: `No se encontro el perfil con id ${perfiles[index]}`,
+            });
           }
         }
       }
@@ -177,38 +175,38 @@ export default class UsuarioController {
         roles: arrRoles,
       });
     } catch (error) {
-      console.log(error);
       await t.rollback();
-      return res.status(500).json({ message: error });
+      return res.status(500).json({ message: "Error en procesar la petición" });
     }
   }
+
   static async userInfo(req, res) {
     const { id } = req.params;
 
-    const user = await Usuario.findAll({
+    const user = await Usuario.findOne({
       where: {
         id,
       },
+      attributes: ["id", "email", "last_login", "is_suspended", "created_at"],
       include: [
         {
           model: Perfil,
+          attributes: ["id", "nombre"],
           through: {
-            where: {
-              id_usuario: id,
-            },
+            attributes: [],
           },
         },
         {
           model: Rol,
+          attributes: ["id", "name"],
           through: {
-            where: {
-              id_usuario: id,
-            },
+            attributes: [],
           },
         },
       ],
     });
-    res.status(HttpCode.HTTP_OK).json(user);
-    // returning:['id', 'email', 'last_login', 'is_suspended', 'created_at'],
+
+    const { Perfils: perfiles, Rols: roles, ...usuario } = user.dataValues;
+    res.status(HttpCode.HTTP_OK).json({ ...usuario, perfiles, roles });
   }
 }
