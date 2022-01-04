@@ -18,68 +18,6 @@ export default class UsuarioController {
   }
 
   static async store(req, res) {
-    const { email, password } = req.body;
-    const salt = bcrypt.genSaltSync();
-    const password_crypt = bcrypt.hashSync(password, salt);
-
-    const usuario = await Usuario.create({
-      email,
-      password: password_crypt,
-    });
-
-    WS.emit("new_user", usuario);
-
-    return res.status(HttpCode.HTTP_CREATED).json(usuario);
-  }
-
-  static async show(req, res) {
-    const usuario = await Usuario.findOne({
-      where: {
-        id: req.params.id,
-      },
-    });
-
-    return res.status(HttpCode.HTTP_OK).json(usuario);
-  }
-
-  static async update(req, res) {
-    const { name, last_name, email } = req.body;
-
-    const usuario = await Usuario.update(
-      {
-        name,
-        last_name,
-        email,
-      },
-      {
-        where: {
-          id: req.params.id,
-        },
-        returning: ["name", "last_name", "email"],
-      }
-    );
-
-    return res.status(HttpCode.HTTP_OK).json(usuario[1]);
-  }
-
-  static async destroy(req, res) {
-    await Usuario.update(
-      {
-        active: false,
-      },
-      {
-        where: {
-          id: req.params.id,
-        },
-      }
-    );
-
-    return res.status(HttpCode.HTTP_OK).json({
-      message: "Usuario Eliminado",
-    });
-  }
-
-  static async storeUserProfileRole(req, res) {
     const connection = DB.connection();
     const t = await connection.transaction();
     let arrPerfiles = [],
@@ -169,8 +107,6 @@ export default class UsuarioController {
       return res.status(HttpCode.HTTP_CREATED).json({
         id,
         email: usuario.email,
-        last_login,
-        is_suspended,
         perfiles: arrPerfiles,
         roles: arrRoles,
       });
@@ -178,6 +114,52 @@ export default class UsuarioController {
       await t.rollback();
       return res.status(500).json({ message: "Error en procesar la petición" });
     }
+  }
+  static async show(req, res) {
+    const usuario = await Usuario.findOne({
+      where: {
+        id: req.params.id,
+      },
+    });
+
+    return res.status(HttpCode.HTTP_OK).json(usuario);
+  }
+
+  static async update(req, res) {
+    const { name, last_name, email } = req.body;
+
+    const usuario = await Usuario.update(
+      {
+        name,
+        last_name,
+        email,
+      },
+      {
+        where: {
+          id: req.params.id,
+        },
+        returning: ["name", "last_name", "email"],
+      }
+    );
+
+    return res.status(HttpCode.HTTP_OK).json(usuario[1]);
+  }
+
+  static async destroy(req, res) {
+    await Usuario.update(
+      {
+        active: false,
+      },
+      {
+        where: {
+          id: req.params.id,
+        },
+      }
+    );
+
+    return res.status(HttpCode.HTTP_OK).json({
+      message: "Usuario Eliminado",
+    });
   }
 
   static async userInfo(req, res) {
@@ -187,7 +169,7 @@ export default class UsuarioController {
       where: {
         id,
       },
-      attributes: ["id", "email", "last_login", "is_suspended", "created_at"],
+      attributes: ["id", "email"],
       include: [
         {
           model: Perfil,
