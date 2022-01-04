@@ -1,3 +1,7 @@
+import HttpCode from "../../configs/httpCode.mjs";
+import bcrypt from "bcryptjs";
+import DB from "../nucleo/DB.mjs";
+import Sequelize from "sequelize";
 import {
   Usuario,
   UsuarioRol,
@@ -5,9 +9,6 @@ import {
   Perfil,
   Rol,
 } from "../models/index.mjs";
-import HttpCode from "../../configs/httpCode.mjs";
-import bcrypt from "bcryptjs";
-import DB from "../nucleo/DB.mjs";
 
 export default class UsuarioController {
   static async index(req, res) {
@@ -110,7 +111,7 @@ export default class UsuarioController {
       });
     } catch (error) {
       await t.rollback();
-      return res.status(500).json({ message: "Error en procesar la petición" });
+      return res.status(500).json({ message: error });
     }
   }
   static async show(req, res) {
@@ -186,12 +187,18 @@ export default class UsuarioController {
       ],
     });
 
+    if(!user){
+     return res.status(HttpCode.HTTP_OK).json({
+        "message": "No encontrado"
+      });
+    }
+
     const { Perfils: perfiles, Rols: roles, ...usuario } = user.dataValues;
     res.status(HttpCode.HTTP_OK).json({ ...usuario, perfiles, roles });
   }
 
-  static async userProfile(req, res){
-    const { id_usuario } = req.params; 
+  static async userProfile(req, res) {
+    const { id_usuario } = req.params;
     const connection = DB.connection();
     const t = await connection.transaction();
     let arrPerfiles = [];
@@ -206,10 +213,10 @@ export default class UsuarioController {
     try {
       const user = await Usuario.findOne({
         where: {
-          id: id_usuario
+          id: id_usuario,
         },
-        attributes: ['id', 'email']
-      })
+        attributes: ["id", "email"],
+      });
       if (perfiles.length > 0) {
         let exists = null;
         for (let index = 0; index < perfiles.length; index++) {
@@ -237,21 +244,21 @@ export default class UsuarioController {
       }
 
       await t.commit();
-      const { id, email } = user; 
+      const { id, email } = user;
       return res.status(HttpCode.HTTP_CREATED).json({
-        id, 
-        email, 
+        id,
+        email,
         perfiles: arrPerfiles,
       });
     } catch (e) {
       console.error(e);
       await t.rollback();
-      return res.status(500).json({ message: "Error en procesar la petición" });
+      return res.status(500).json({ message: e });
     }
   }
 
-  static async userRole(req, res){
-    const { id_usuario } = req.params; 
+  static async userRole(req, res) {
+    const { id_usuario } = req.params;
     const connection = DB.connection();
     const t = await connection.transaction();
     let arrRoles = [];
@@ -266,10 +273,10 @@ export default class UsuarioController {
     try {
       const user = await Usuario.findOne({
         where: {
-          id: id_usuario
+          id: id_usuario,
         },
-        attributes: ['id', 'email']
-      })
+        attributes: ["id", "email"],
+      });
       if (roles.length > 0) {
         let exists = null;
         for (let index = 0; index < roles.length; index++) {
@@ -290,17 +297,17 @@ export default class UsuarioController {
             arrRoles.push({ id, nombre });
           } else {
             return res.status(422).json({
-              message: `No se encontro el perfil con id ${roles[index]}`,
+              message: `No se encontro el rol con id ${roles[index]}`,
             });
           }
         }
       }
 
       await t.commit();
-      const { id, email } = user; 
+      const { id, email } = user;
       return res.status(HttpCode.HTTP_CREATED).json({
-        id, 
-        email, 
+        id,
+        email,
         roles: arrRoles,
       });
     } catch (e) {
@@ -308,5 +315,38 @@ export default class UsuarioController {
       await t.rollback();
       return res.status(500).json({ message: "Error en procesar la petición" });
     }
+  }
+
+  static async destroyUserPerfil(req, res) {
+    const { id_usuario } = req.params;
+    const { perfiles } = req.body;
+    if (perfiles.length && perfiles.length <= 0) {
+      return res.status(422).json({ message: "Sin perfiles" });
+    }
+    await UsuarioPerfil.destroy({
+      where: {
+        id_usuario,
+        id_perfil: {
+          [Sequelize.Op.in]: perfiles,
+        },
+      },
+    });
+    return res.status(204).json();
+  }
+  static async destroyUserRol(req, res) {
+    const { id_usuario } = req.params;
+    const { roles } = req.body;
+    if (roles.length && roles.length <= 0) {
+      return res.status(422).json({ message: "Sin roles" });
+    }
+    await UsuarioRol.destroy({
+      where: {
+        id_usuario,
+        id_rol: {
+          [Sequelize.Op.in]: roles,
+        },
+      },
+    });
+    return res.status(HttpCode.HTTP_OK).json({"message": "roles eliminados"});
   }
 }
