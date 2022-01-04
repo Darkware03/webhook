@@ -1,5 +1,9 @@
 import DB from "../nucleo/DB.mjs";
 import psql from "sequelize";
+import RefreshToken from "./RefreshToken.mjs";
+import Perfil from './Perfil.mjs'
+import UsuarioPerfil from './UsuarioPerfil.mjs'
+
 
 class Usuario extends psql.Model {
     toJSON() {
@@ -19,14 +23,14 @@ Usuario.init({
         autoIncrement: true,
     },
     email: {
-        type: psql.Sequelize.STRING,
+        type: psql.Sequelize.STRING(255),
         unique: true,
         validate: {
             isEmail: true,
         }
     },
     password: {
-        type: psql.Sequelize.TEXT
+        type: psql.Sequelize.STRING(255)
     },
     last_login: {
         type: psql.Sequelize.STRING
@@ -47,6 +51,5 @@ Usuario.init({
 })
 
 
-await Usuario.sync({})
 
 export default Usuario
