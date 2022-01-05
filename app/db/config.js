@@ -1,17 +1,21 @@
+require('dotenv').config(); 
 const DIALECT = 'postgres'
+console.log(process.env.DB_DATABASE)
 module.exports = {
     development: {
-        "username": "admin",
-        "password": "admin",
-        "database": "db_caleb",
-        "host": "127.0.0.1",
+        "username": process.env.DB_USERNAME || 'username',
+        "password": process.env.DB_PASSWORD || 'password',
+        "database": process.env.DB_DATABASE || 'api_node',
+        "host": process.env.DB_HOST || 'localhost',
+        "port": process.env.DB_PORT || 5432,
         "dialect": DIALECT
     },
     production: {
-        "username": "admin",
-        "password": "admin",
-        "database": "db_caleb",
-        "host": "127.0.0.1",
+        "username": process.env.DB_USERNAME || 'username',
+        "password": process.env.DB_PASSWORD || 'password',
+        "database": process.env.DB_DATABASE || 'api_node',
+        "host": process.env.DB_HOST || 'localhost',
+        "port": process.env.DB_PORT || 5432,
         "dialect": DIALECT
     }
 }
