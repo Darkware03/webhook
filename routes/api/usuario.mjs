@@ -16,4 +16,5 @@ router.post('/', [validate({body: usuarioCreateSchema})], Call(UsuarioController
 router.get('/:id', Call(UsuarioController.show)); 
 
 
+
 export default router
