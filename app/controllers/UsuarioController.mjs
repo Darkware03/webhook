@@ -17,7 +17,6 @@ export default class UsuarioController {
   }
 
   static async store(req, res) {
-
     const connection = DB.connection();
     const t = await connection.transaction();
     const { perfiles, roles, email, password, is_suspended } = req.body;
@@ -44,20 +43,19 @@ export default class UsuarioController {
       await usuario.addPerfils(perfiles, {
         transaction: t,
       });
-      
+
       await usuario.addRols(roles, { transaction: t });
-      const user_pf = await usuario.getPerfils({transaction:t});
-      const user_rl = await usuario.getRols({transaction:t});
-      
+      const user_pf = await usuario.getPerfils({ transaction: t });
+      const user_rl = await usuario.getRols({ transaction: t });
+
       await t.commit();
-      
+
       return res.status(HttpCode.HTTP_CREATED).json({
         id: usuario.id,
         email: usuario.email,
-        "perfiles":user_pf,
-        "roles":user_rl,
+        perfiles: user_pf,
+        roles: user_rl,
       });
-
     } catch (error) {
       console.log(error);
       await t.rollback();
@@ -149,39 +147,13 @@ export default class UsuarioController {
     }
 
     try {
-
-      if (perfiles.length > 0) {
-        let exists = null;
-        for (let index = 0; index < perfiles.length; index++) {
-          exists = await Perfil.findOne({
-            where: {
-              id: perfiles[index],
-            },
-          });
-          if (exists) {
-            await UsuarioPerfil.create(
-              {
-                id_perfil: perfiles[index],
-                id_usuario,
-              },
-              { transaction: t }
-            );
-            let { id, nombre } = exists;
-            arrPerfiles.push({ id, nombre });
-          } else {
-            return res.status(422).json({
-              message: `No se encontro el perfil con id ${perfiles[index]}`,
-            });
-          }
-        }
-      }
+      const user = await Usuario.findOne({ where: { id: id_usuario } });
+      const user_profils = await user.addPerfils(perfiles);
 
       await t.commit();
-      const { id, email } = user;
       return res.status(HttpCode.HTTP_CREATED).json({
-        id,
-        email,
-        perfiles: arrPerfiles,
+        user,
+        user_profils,
       });
     } catch (e) {
       console.error(e);
@@ -194,7 +166,7 @@ export default class UsuarioController {
     const { id_usuario } = req.params;
     const connection = DB.connection();
     const t = await connection.transaction();
-    let arrRoles = [];
+
     const { roles } = req.body;
 
     if (roles.length === 0) {
@@ -203,45 +175,15 @@ export default class UsuarioController {
       });
     }
 
+    console.log(roles);
+
     try {
-      const user = await Usuario.findOne({
-        where: {
-          id: id_usuario,
-        },
-        attributes: ["id", "email"],
-      });
-      if (roles.length > 0) {
-        let exists = null;
-        for (let index = 0; index < roles.length; index++) {
-          exists = await Rol.findOne({
-            where: {
-              id: roles[index],
-            },
-          });
-          if (exists) {
-            await UsuarioRol.create(
-              {
-                id_rol: roles[index],
-                id_usuario,
-              },
-              { transaction: t }
-            );
-            let { id, nombre } = exists;
-            arrRoles.push({ id, nombre });
-          } else {
-            return res.status(422).json({
-              message: `No se encontro el rol con id ${roles[index]}`,
-            });
-          }
-        }
-      }
+      const user = await Usuario.findOne({ where: { id: id_usuario } });
+      const user_rols = await user.addRols(roles);
 
       await t.commit();
-      const { id, email } = user;
       return res.status(HttpCode.HTTP_CREATED).json({
-        id,
-        email,
-        roles: arrRoles,
+        user_rols,
       });
     } catch (e) {
       console.error(e);
