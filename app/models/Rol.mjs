@@ -1,21 +1,27 @@
 import DB from "../nucleo/DB.mjs";
 import psql from "sequelize";
+import Ruta from "./Ruta.mjs";
+import RutaRol from "./RutaRol.mjs";
+import Perfil from "./Perfil.mjs";
+import PerfilRol from "./PerfilRol.mjs";
+import Usuario from "./Usuario.mjs";
+import UsuarioRol from "./UsuarioRol.mjs";
 
 class Rol extends psql.Model {
-    static associate(models) {
-        this.belongsToMany(models.Ruta, {
-            through: models.RutaRol,
+    static associate() {
+        this.belongsToMany(Ruta, {
+            through: RutaRol,
             foreignKey: "id_rol",
             otherKey: 'id_ruta'
         })
-        this.belongsToMany(models.Perfil, {
-            through: models.PerfilRol,
+        this.belongsToMany(Perfil, {
+            through: PerfilRol,
             foreignKey: "id_rol",
             otherKey: 'id_perfil'
         })
 
-        this.belongsToMany(models.Usuario, {
-            through: models.UsuarioRol,
+        this.belongsToMany(Usuario, {
+            through: UsuarioRol,
             foreignKey: "id_rol",
             otherKey: 'id_usuario'
         })

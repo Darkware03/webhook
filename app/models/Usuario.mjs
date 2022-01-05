@@ -1,5 +1,10 @@
 import DB from "../nucleo/DB.mjs";
 import psql from "sequelize";
+import Rol from "./Rol.mjs";
+import UsuarioRol from "./UsuarioRol.mjs";
+import RefreshToken from "./RefreshToken.mjs";
+import Perfil from "./Perfil.mjs";
+import UsuarioPerfil from "./UsuarioPerfil.mjs";
 
 const UsuarioSchema = {
     id: {
@@ -14,17 +19,17 @@ const UsuarioSchema = {
 }
 
 class Usuario extends psql.Model {
-    static associate(models) {
-        this.belongsToMany(models.Rol, {
-            through: models.UsuarioRol,
+    static associate() {
+        this.belongsToMany(Rol, {
+            through: UsuarioRol,
             foreignKey: "id_usuario",
             otherKey: 'id_rol'
         })
-        this.hasMany(models.RefreshToken, {
+        this.hasMany(RefreshToken, {
             foreignKey: 'id_usuario'
         })
-        this.belongsToMany(models.Perfil, {
-            through: models.UsuarioPerfil,
+        this.belongsToMany(Perfil, {
+            through: UsuarioPerfil,
             foreignKey: "id_usuario",
             otherKey: 'id_perfil'
         })

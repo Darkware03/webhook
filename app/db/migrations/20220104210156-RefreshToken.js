@@ -18,7 +18,9 @@ module.exports = {
                 references:{
                     model:'mnt_usuario',
                     key:'id',
-                }
+                },
+                onUpdate:'CASCADE',
+                onDelete:'RESTRICT'
             },
             valid: {
                 type: psql.Sequelize.DATE

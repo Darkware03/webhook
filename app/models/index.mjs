@@ -8,11 +8,11 @@ import RutaRol from "./RutaRol.mjs";
 import UsuarioPerfil from "./UsuarioPerfil.mjs";
 import UsuarioRol from "./UsuarioRol.mjs";
 
-Usuario.associate({Rol, UsuarioRol, RefreshToken, Perfil, UsuarioPerfil})
-RefreshToken.associate({Usuario})
-Perfil.associate({Usuario, UsuarioPerfil, Rol, PerfilRol})
-Rol.associate({Ruta, RutaRol, Perfil, PerfilRol, UsuarioRol, Usuario})
-Ruta.associate({RutaRol, Rol})
+Usuario.associate()
+RefreshToken.associate()
+Perfil.associate()
+Rol.associate()
+Ruta.associate()
 
 export {
     RefreshToken,

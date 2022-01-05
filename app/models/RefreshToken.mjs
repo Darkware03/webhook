@@ -1,9 +1,10 @@
 import DB from "../nucleo/DB.mjs";
 import psql from "sequelize";
+import Usuario from "./Usuario.mjs";
 
 class RefreshToken extends psql.Model {
-    static associate(models) {
-        this.belongsTo(models.Usuario, {
+    static associate() {
+        this.belongsTo(Usuario, {
             foreignKey: 'id_usuario'
         })
     }
