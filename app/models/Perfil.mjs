@@ -2,6 +2,19 @@ import DB from "../nucleo/DB.mjs";
 import psql from "sequelize";
 
 class Perfil extends psql.Model {
+    static associate(models) {
+        this.belongsToMany(models.Usuario, {
+            through: models.UsuarioPerfil,
+            foreignKey: "id_perfil",
+            otherKey: 'id_usuario'
+        })
+
+        this.belongsToMany(models.Rol, {
+            through: models.PerfilRol,
+            foreignKey: "id_perfil",
+            otherKey: 'id_rol'
+        })
+    }
 }
 
 Perfil.init({
@@ -24,6 +37,4 @@ Perfil.init({
 })
 
 
-
-
-export default Perfil; 
+export default Perfil;

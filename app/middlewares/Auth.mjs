@@ -7,10 +7,11 @@ const Auth = async (req, res, next) => {
     try {
         let authorization = req.headers.authorization
         if (!authorization)
-            new NoAuthException()
+            next(new NoAuthException())
+
         authorization = authorization.split(' ')
         if (authorization.length < 2)
-            new NoAuthException()
+            next(new NoAuthException())
 
         const token = authorization[1]
 
@@ -21,7 +22,7 @@ const Auth = async (req, res, next) => {
         })
 
         if (usuario.is_suspended)
-            new NoAuthException()
+            next(new NoAuthException())
 
         req.usuario = usuario
         next()
@@ -31,9 +32,6 @@ const Auth = async (req, res, next) => {
                 message: 'No authenticado'
             })
         }
-        return res.status(err.statusCode || 500).json({
-            message: err
-        })
     }
 }
 

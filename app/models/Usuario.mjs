@@ -14,6 +14,22 @@ const UsuarioSchema = {
 }
 
 class Usuario extends psql.Model {
+    static associate(models) {
+        this.belongsToMany(models.Rol, {
+            through: models.UsuarioRol,
+            foreignKey: "id_usuario",
+            otherKey: 'id_rol'
+        })
+        this.hasMany(models.RefreshToken, {
+            foreignKey: 'id_usuario'
+        })
+        this.belongsToMany(models.Perfil, {
+            through: models.UsuarioPerfil,
+            foreignKey: "id_usuario",
+            otherKey: 'id_perfil'
+        })
+    }
+
     toJSON() {
         return {
             id: this.id,

@@ -1,4 +1,4 @@
-import {Perfil} from "../models/index.mjs";
+import {Perfil, Rol} from "../models/index.mjs";
 import HttpCode from "../../configs/httpCode.mjs";
 
 export default class PerfilController {
@@ -9,8 +9,8 @@ export default class PerfilController {
     }
 
     static async store(req, res) {
-        const {id, nombre, codigo } = req.body
-        let perfil; 
+        const {id, nombre, codigo} = req.body
+        let perfil;
         perfil = await Perfil.create({
             id,
             nombre,

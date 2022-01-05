@@ -4,7 +4,7 @@ import HttpCode from "../configs/httpCode.mjs";
 export default class Handler {
 
     static logError(err) {
-        console.error(err)
+        // console.error(err)
     }
 
     static logErrorMiddleware(err, req, res, next) {

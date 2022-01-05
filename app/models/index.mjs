@@ -8,53 +8,11 @@ import RutaRol from "./RutaRol.mjs";
 import UsuarioPerfil from "./UsuarioPerfil.mjs";
 import UsuarioRol from "./UsuarioRol.mjs";
 
+Usuario.associate({Rol, UsuarioRol, RefreshToken, Perfil, UsuarioPerfil})
 RefreshToken.associate({Usuario})
-
-Usuario.belongsToMany(Perfil, {
-    through: UsuarioPerfil,
-    foreignKey: "id_usuario",
-    otherKey: 'id_perfil'
-})
-Usuario.belongsToMany(Rol, {
-    through: UsuarioRol,
-    foreignKey: "id_usuario",
-    otherKey: 'id_rol'
-})
-Perfil.belongsToMany(Usuario, {
-    through: UsuarioPerfil,
-    foreignKey: "id_perfil",
-    otherKey: 'id_usuario'
-})
-Perfil.belongsToMany(Rol, {
-    through: PerfilRol,
-    foreignKey: "id_perfil",
-    otherKey: 'id_rol'
-})
-
-Rol.belongsToMany(Perfil, {
-    through: PerfilRol,
-    foreignKey: "id_rol",
-    otherKey: 'id_perfil'
-})
-
-Rol.belongsToMany(Ruta, {
-    through: RutaRol,
-    foreignKey: "id_rol",
-    otherKey: 'id_ruta'
-})
-
-Rol.belongsToMany(Usuario, {
-    through: UsuarioRol,
-    foreignKey: "id_rol",
-    otherKey: 'id_usuario'
-})
-
-Ruta.belongsToMany(Rol, {
-    through: RutaRol,
-    foreignKey: "id_ruta",
-    otherKey: 'id_rol'
-})
-
+Perfil.associate({Usuario, UsuarioPerfil, Rol, PerfilRol})
+Rol.associate({Ruta, RutaRol, Perfil, PerfilRol, UsuarioRol, Usuario})
+Ruta.associate({RutaRol, Rol})
 
 export {
     RefreshToken,

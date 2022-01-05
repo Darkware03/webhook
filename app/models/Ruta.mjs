@@ -2,6 +2,13 @@ import DB from "../nucleo/DB.mjs";
 import psql from "sequelize";
 
 class Ruta extends psql.Model {
+    static associate(models) {
+        this.belongsToMany(models.Rol, {
+            through: models.RutaRol,
+            foreignKey: "id_ruta",
+            otherKey: 'id_rol'
+        })
+    }
 }
 
 Ruta.init({
