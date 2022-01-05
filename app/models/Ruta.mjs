@@ -38,7 +38,6 @@ Ruta.init({
     },
 }, {
     timestamps: false,
-    updatedAt: false,
     sequelize: DB.connection(),
     tableName: 'mnt_ruta',
 })

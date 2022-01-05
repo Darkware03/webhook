@@ -1,11 +1,5 @@
 import DB from "../nucleo/DB.mjs";
 import psql from "sequelize";
-import Perfil from "./Perfil.mjs";
-import PerfilRol from "./PerfilRol.mjs"
-import Ruta from "./Ruta.mjs"
-import RutaRol from "./RutaRol.mjs"
-import UsuarioRol from "./UsuarioRol.mjs"
-
 
 class Rol extends psql.Model {
 }
@@ -22,11 +16,8 @@ Rol.init({
     },
 }, {
     timestamps: false,
-    updatedAt: false,
     sequelize: DB.connection(),
     tableName: 'mnt_rol',
 })
-
-
 
 export default Rol; 
