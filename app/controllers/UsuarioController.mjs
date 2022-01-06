@@ -54,14 +54,39 @@ export default class UsuarioController {
         id: dataValues.id,
         name: dataValues.name,
       }));
-
+      const id_usuario = usuario.id; 
       await t.commit();
+
+      const us = await Usuario.findOne({
+        where:{
+          id: id_usuario
+        },
+        include: [
+          {
+            model: Perfil,
+            attributes: ['id', 'nombre'],
+            through: {
+              attributes: []
+            }
+          },
+          {
+            model: Rol,
+            attributes: ['id', 'name'],
+            through: {
+              attributes: []
+            }
+          }
+        ]
+      })
+      const { Perfils: perfiles2, Rols: roles2 } = us.dataValues;
 
       return res.status(HttpCode.HTTP_CREATED).json({
         id: usuario.id,
         email: usuario.email,
         perfiles: arrPerfiles,
         roles: arrRoles,
+        perfiles2,
+        roles2
       });
     } catch (e) {
       await t.rollback();
