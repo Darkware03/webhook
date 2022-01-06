@@ -6,9 +6,9 @@ import Call from "../../app/utils/Call.mjs";
 
 const router = Router()
 router.get('/', Call(UsuarioController.index))
-router.post('/:id_usuario/perfiles', Call(UsuarioController.userProfile))
+router.post('/:id_usuario/perfiles', Call(UsuarioController.addUserProfile))
 router.delete('/:id_usuario/perfiles', Call(UsuarioController.destroyUserPerfil))
-router.post('/:id_usuario/roles', Call(UsuarioController.userRole))
+router.post('/:id_usuario/roles', Call(UsuarioController.addUserRole))
 router.delete('/:id_usuario/roles', Call(UsuarioController.destroyUserRol))
 router.put('/:id', Call(UsuarioController.update))
 router.delete('/:id', Call(UsuarioController.destroy))

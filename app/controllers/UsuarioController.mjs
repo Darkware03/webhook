@@ -20,7 +20,6 @@ export default class UsuarioController {
     const connection = DB.connection();
     const t = await connection.transaction();
     const { perfiles, roles, email, password, is_suspended } = req.body;
-
     const salt = bcrypt.genSaltSync();
     const password_crypt = bcrypt.hashSync(password, salt);
 
@@ -32,34 +31,41 @@ export default class UsuarioController {
 
     try {
       const usuario = await Usuario.create(
-        {
-          email,
-          is_suspended,
-          password: password_crypt,
-        },
+        { email, is_suspended, password: password_crypt },
         { transaction: t }
       );
 
-      await usuario.addPerfils(perfiles, {
+      await usuario.addPerfils(perfiles, { transaction: t });
+
+      const pf = await usuario.getPerfils({
         transaction: t,
+        attributes: ["id", "nombre"],
       });
 
+      let arrPerfiles = pf.map(({ dataValues }) => ({
+        id: dataValues.id,
+        nombre: dataValues.nombre,
+      }));
+
       await usuario.addRols(roles, { transaction: t });
-      const user_pf = await usuario.getPerfils({ transaction: t });
-      const user_rl = await usuario.getRols({ transaction: t });
+      let rl = await usuario.getRols({ transaction: t });
+
+      let arrRoles = rl.map(({ dataValues }) => ({
+        id: dataValues.id,
+        name: dataValues.name,
+      }));
 
       await t.commit();
 
       return res.status(HttpCode.HTTP_CREATED).json({
         id: usuario.id,
         email: usuario.email,
-        perfiles: user_pf,
-        roles: user_rl,
+        perfiles: arrPerfiles,
+        roles: arrRoles,
       });
-    } catch (error) {
-      console.log(error);
+    } catch (e) {
       await t.rollback();
-      return res.status(500).json({ message: error });
+      return res.status(500).json({ message: e });
     }
   }
 
@@ -134,10 +140,8 @@ export default class UsuarioController {
     res.status(HttpCode.HTTP_OK).json({ ...usuario, perfiles, roles });
   }
 
-  static async userProfile(req, res) {
+  static async addUserProfile(req, res) {
     const { id_usuario } = req.params;
-    const connection = DB.connection();
-    const t = await connection.transaction();
     const { perfiles } = req.body;
 
     if (perfiles.length === 0) {
@@ -145,28 +149,17 @@ export default class UsuarioController {
         message: "No se envió ningún perfil",
       });
     }
+    const user = await Usuario.findOne({ where: { id: id_usuario } });
+    const user_profils = await user.addPerfils(perfiles);
 
-    try {
-      const user = await Usuario.findOne({ where: { id: id_usuario } });
-      const user_profils = await user.addPerfils(perfiles);
-
-      await t.commit();
-      return res.status(HttpCode.HTTP_CREATED).json({
-        user,
-        user_profils,
-      });
-    } catch (e) {
-      console.error(e);
-      await t.rollback();
-      return res.status(500).json({ message: e });
-    }
+    return res.status(HttpCode.HTTP_CREATED).json({
+      user,
+      user_profils,
+    });
   }
 
-  static async userRole(req, res) {
+  static async addUserRole(req, res) {
     const { id_usuario } = req.params;
-    const connection = DB.connection();
-    const t = await connection.transaction();
-
     const { roles } = req.body;
 
     if (roles.length === 0) {
@@ -174,22 +167,12 @@ export default class UsuarioController {
         message: "No se envió ningún rol",
       });
     }
+    const user = await Usuario.findOne({ where: { id: id_usuario } });
+    const user_rols = await user.addRols(roles);
 
-    console.log(roles);
-
-    try {
-      const user = await Usuario.findOne({ where: { id: id_usuario } });
-      const user_rols = await user.addRols(roles);
-
-      await t.commit();
-      return res.status(HttpCode.HTTP_CREATED).json({
-        user_rols,
-      });
-    } catch (e) {
-      console.error(e);
-      await t.rollback();
-      return res.status(500).json({ message: "Error en procesar la petición" });
-    }
+    return res.status(HttpCode.HTTP_CREATED).json({
+      user_rols,
+    });
   }
 
   static async destroyUserPerfil(req, res) {
@@ -206,7 +189,9 @@ export default class UsuarioController {
         },
       },
     });
-    return res.status(204).json();
+    return res
+      .status(HttpCode.HTTP_OK)
+      .json({ message: "Perfiles eliminados" });
   }
 
   static async destroyUserRol(req, res) {
