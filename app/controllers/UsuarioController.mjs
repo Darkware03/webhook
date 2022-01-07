@@ -2,7 +2,9 @@ import HttpCode from "../../configs/httpCode.mjs";
 import bcrypt from "bcryptjs";
 import DB from "../nucleo/DB.mjs";
 import Sequelize from "sequelize";
-import BadRequestException from "../../handlers/BadRequestException.mjs"
+import BadRequestException from "../../handlers/BadRequestException.mjs"; 
+import NotFoundException from "../../handlers/NotFoundExeption.mjs"
+
 import {
   Usuario,
   UsuarioRol,
@@ -95,9 +97,7 @@ export default class UsuarioController {
     const user = await getById(id);
 
     if (!user) {
-      return res.status(HttpCode.HTTP_OK).json({
-        message: "No encontrado",
-      });
+      throw new NotFoundException(); 
     }
     const { Perfils: perfiles, Rols: roles, ...usuario } = user.dataValues;
     res.status(HttpCode.HTTP_OK).json({ ...usuario, perfiles, roles });
