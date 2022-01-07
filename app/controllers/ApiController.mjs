@@ -70,6 +70,11 @@ export default class ApiController {
         })
 
         const newRefreshToken = await Auth.refresh_token(refreshTokenExist.Usuario)
+
+        await refreshTokenExist.update({
+            valid:moment().add(process.env.REFRESH_TOKEN_INVALID_EXPIRATION_TIME, process.env.REFRESH_TOKEN_INVALID_EXPIRATION_TYPE).tz('America/El_Salvador').format()
+        })
+
         return res.status(HttpCode.HTTP_OK).json({
             token,
             refresh_token: newRefreshToken,
