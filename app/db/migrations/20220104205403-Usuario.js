@@ -28,12 +28,16 @@ module.exports = {
                 },
                 token_valid_after: {
                     type: psql.Sequelize.DATE
+                },
+                created_at: {
+                    type: psql.Sequelize.DATE,
+                    defaultValue: new Date()
                 }
             }
         )
     },
 
     down: async (queryInterface) => {
-      await queryInterface.dropTable('mnt_usuario')
+        await queryInterface.dropTable('mnt_usuario')
     }
 };

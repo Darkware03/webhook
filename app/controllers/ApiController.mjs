@@ -43,30 +43,44 @@ export default class ApiController {
     }
 
     static async RefreshToken(req, res) {
-        let roles = [];
         const refreshTokenExist = await RefreshToken.findOne({
             where: {
-                refresh_token:req.body.refresh_token
+                refresh_token: req.body.refresh_token
             },
-            include: [{model:Usuario,include: [Rol, {model:Perfil, include: [Rol]}]}]
+            attributes: [],
+            include: [
+                {
+                    model: Usuario,
+                    attributes: ['id', 'email', 'last_login'],
+                    include: [{
+                        model: Rol,
+                        attributes: ['name'],
+                        through: {attributes: []}
+                    }, {
+                        model: Perfil,
+                        attributes: {exclude: ['nombre', 'codigo']},
+                        through: {attributes: []},
+                        include: [{
+                            model: Rol,
+                            attributes: ['name'],
+                            through: {attributes: []}
+                        }]
+                    }]
+                }]
         })
-        for (let i = 0; i < refreshTokenExist.Usuario.Perfils.length; i++){
-            for (let e = 0; e < refreshTokenExist.Usuario.Perfils[i].Rols.length; e++){
-                roles.push(refreshTokenExist.Usuario.Perfils[i].Rols[e].name)
-            }
-        }
-        for (let i = 0; i < refreshTokenExist.Usuario.Rols.length; i++){
-           if (! (roles.find(rolename => rolename === refreshTokenExist.Usuario.Rols[i].name))){
-               roles.push(refreshTokenExist.Usuario.Rols[i].name)
-           }
-        }
-        if (! refreshTokenExist) throw new BaseError('NOT_FOUND',HttpCode.HTTP_BAD_REQUEST,'Error al realizar la peticion...')
-        const tokenValidTime =new Date(moment(refreshTokenExist.valid).format()).getTime();
+
+        if (!refreshTokenExist) throw new BaseError('NOT_FOUND', HttpCode.HTTP_BAD_REQUEST, 'Error al realizar la peticion...')
+
+        const roles_perfiles = refreshTokenExist.Usuario.Perfils.reduce((acumulador, valor) => acumulador = [...valor.Rols], [])
+
+        let roles = new Set(refreshTokenExist.Usuario.Rols.concat(roles_perfiles).map(row => row.name))
+
+        const tokenValidTime = new Date(moment(refreshTokenExist.valid).format()).getTime();
         const nowTime = new Date(moment().tz('America/El_Salvador').format()).getTime();
         if (tokenValidTime < nowTime) throw new NoAuthException('UNAUTHORIZED', HttpCode.HTTP_UNAUTHORIZED, 'El refresh token porporcionado no es valido')
         const token = await Auth.createToken({
             email: refreshTokenExist.Usuario.email,
-            roles: roles,
+            roles: [...roles],
         })
 
         const newRefreshToken = await Auth.refresh_token(refreshTokenExist.Usuario)
