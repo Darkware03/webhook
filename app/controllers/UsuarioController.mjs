@@ -2,6 +2,7 @@ import HttpCode from "../../configs/httpCode.mjs";
 import bcrypt from "bcryptjs";
 import DB from "../nucleo/DB.mjs";
 import Sequelize from "sequelize";
+import BadRequestException from "../../handlers/BadRequestException.mjs"
 import {
   Usuario,
   UsuarioRol,
@@ -24,9 +25,7 @@ export default class UsuarioController {
     const password_crypt = bcrypt.hashSync(password, salt);
 
     if (perfiles.length === 0 && roles.length === 0) {
-      return res.status(422).json({
-        message: "El usuario debe contener al menos un perfil o un rol",
-      });
+      throw new BadRequestException('BAD_REQUEST', 400, 'El usuario debe tener al menos un perfil o un rol'); 
     }
 
     try {
@@ -109,9 +108,7 @@ export default class UsuarioController {
     const { perfiles } = req.body;
 
     if (perfiles.length === 0) {
-      return res.status(422).json({
-        message: "No se envió ningún perfil",
-      });
+      throw new BadRequestException('BAD_REQUEST', 400, 'No se envío ningún perfil'); 
     }
     const user = await Usuario.findOne({ where: { id: id_usuario } });
     const user_profils = await user.addPerfils(perfiles);
@@ -127,9 +124,7 @@ export default class UsuarioController {
     const { roles } = req.body;
 
     if (roles.length === 0) {
-      return res.status(422).json({
-        message: "No se envió ningún rol",
-      });
+      throw new BadRequestException('BAD_REQUEST', 400, 'No se envío ningún rol'); 
     }
     const user = await Usuario.findOne({ where: { id: id_usuario } });
     const user_rols = await user.addRols(roles);
@@ -143,7 +138,7 @@ export default class UsuarioController {
     const { id_usuario } = req.params;
     const { perfiles } = req.body;
     if (perfiles.length && perfiles.length <= 0) {
-      return res.status(422).json({ message: "Sin perfiles" });
+      throw new BadRequestException('BAD_REQUEST', 400, 'No se envío ningún perfil'); 
     }
     await UsuarioPerfil.destroy({
       where: {
@@ -162,7 +157,7 @@ export default class UsuarioController {
     const { id_usuario } = req.params;
     const { roles } = req.body;
     if (roles.length && roles.length <= 0) {
-      return res.status(422).json({ message: "Sin roles" });
+      throw new BadRequestException('BAD_REQUEST', 400, 'No se envío ningún rol'); 
     }
     await UsuarioRol.destroy({
       where: {
