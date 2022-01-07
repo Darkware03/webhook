@@ -36,59 +36,21 @@ export default class UsuarioController {
       );
 
       await usuario.addPerfils(perfiles, { transaction: t });
-
-      const pf = await usuario.getPerfils({
-        transaction: t,
-        attributes: ["id", "nombre"],
-      });
-
-      let arrPerfiles = pf.map(({ dataValues }) => ({
-        id: dataValues.id,
-        nombre: dataValues.nombre,
-      }));
-
       await usuario.addRols(roles, { transaction: t });
-      let rl = await usuario.getRols({ transaction: t });
-
-      let arrRoles = rl.map(({ dataValues }) => ({
-        id: dataValues.id,
-        name: dataValues.name,
-      }));
-      const id_usuario = usuario.id; 
+      const id_usuario = usuario.id;
       await t.commit();
 
-      const us = await Usuario.findOne({
-        where:{
-          id: id_usuario
-        },
-        include: [
-          {
-            model: Perfil,
-            attributes: ['id', 'nombre'],
-            through: {
-              attributes: []
-            }
-          },
-          {
-            model: Rol,
-            attributes: ['id', 'name'],
-            through: {
-              attributes: []
-            }
-          }
-        ]
-      })
-      const { Perfils: perfiles2, Rols: roles2 } = us.dataValues;
+      const us = await getById(id_usuario);
+      const { Perfils, Rols } = us.dataValues;
 
       return res.status(HttpCode.HTTP_CREATED).json({
         id: usuario.id,
         email: usuario.email,
-        perfiles: arrPerfiles,
-        roles: arrRoles,
-        perfiles2,
-        roles2
+        perfiles: Perfils,
+        roles: Rols
       });
     } catch (e) {
+      console.log(e);
       await t.rollback();
       return res.status(500).json({ message: e });
     }
@@ -131,36 +93,13 @@ export default class UsuarioController {
 
   static async show(req, res) {
     const { id } = req.params;
-
-    const user = await Usuario.findOne({
-      where: {
-        id,
-      },
-      attributes: ["id", "email"],
-      include: [
-        {
-          model: Perfil,
-          attributes: ["id", "nombre"],
-          through: {
-            attributes: [],
-          },
-        },
-        {
-          model: Rol,
-          attributes: ["id", "name"],
-          through: {
-            attributes: [],
-          },
-        },
-      ],
-    });
+    const user = await getById(id);
 
     if (!user) {
       return res.status(HttpCode.HTTP_OK).json({
         message: "No encontrado",
       });
     }
-
     const { Perfils: perfiles, Rols: roles, ...usuario } = user.dataValues;
     res.status(HttpCode.HTTP_OK).json({ ...usuario, perfiles, roles });
   }
@@ -235,4 +174,29 @@ export default class UsuarioController {
     });
     return res.status(HttpCode.HTTP_OK).json({ message: "roles eliminados" });
   }
+}
+
+function getById(id) {
+  return Usuario.findOne({
+    where: {
+      id,
+    },
+    attributes: ["id", "email"],
+    include: [
+      {
+        model: Perfil,
+        attributes: ["id", "nombre"],
+        through: {
+          attributes: [],
+        },
+      },
+      {
+        model: Rol,
+        attributes: ["id", "name"],
+        through: {
+          attributes: [],
+        },
+      },
+    ],
+  });
 }
