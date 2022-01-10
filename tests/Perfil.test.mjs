@@ -17,8 +17,8 @@ beforeAll((done) => {
     })
 })
 
-describe('test de get usarios', () => {
-    test('get Index Usuario', (done) => {
+describe('test de creacion de usuarios', () => {
+    test('name test', (done) => {
         request(host)
             .get('/api/v1/users')
             .set('Authorization', `Bearer ${token}`)
@@ -30,22 +30,3 @@ describe('test de get usarios', () => {
         })
     })
 })
-
-
-/*describe("test de post de usario a la hora de crearlos", () => {
-    test("post Store Usuarios", (done) => {
-        request(host)
-            .post('/api/v1/users')
-            .send({
-                "email":"first_test@mail.com",
-                "password":"admin"
-            })
-            .set('Authorization', `Bearer ${token}`)
-            .then(response => {
-                expect(response.statusCode).toBe(201)
-                done()
-            }).catch(err => {
-            done(err)
-        })
-    })
-})*/
