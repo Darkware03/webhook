@@ -22,7 +22,7 @@ export default class UsuarioController {
   static async store(req, res) {
     const connection = DB.connection();
     const t = await connection.transaction();
-    const { perfiles, roles, email, password, is_suspended } = req.body;
+    const { perfiles=[], roles=[], email, password, is_suspended } = req.body;
     const salt = bcrypt.genSaltSync();
     const password_crypt = bcrypt.hashSync(password, salt);
 
