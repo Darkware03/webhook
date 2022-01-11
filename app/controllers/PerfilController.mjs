@@ -1,5 +1,6 @@
 import {Perfil, Rol} from "../models/index.mjs";
 import HttpCode from "../../configs/httpCode.mjs";
+import UnprocessableEntityException from "../../handlers/UnprocessableEntityException.mjs";
 
 export default class PerfilController {
 
@@ -20,9 +21,13 @@ export default class PerfilController {
     }
 
     static async show(req, res) {
+        const { id } = req.params; 
+        if(isNaN(id))
+            throw new UnprocessableEntityException("UNPROCESSABLE_ENTITY", 422, "El parámetro no es un id válido");
+  
         const perfil = await Perfil.findOne({
             where: {
-                id: req.params.id
+                id
             }
         })
         return res.status(HttpCode.HTTP_OK).json(perfil);
@@ -44,9 +49,13 @@ export default class PerfilController {
     }
 
     static async destroy(req, res) {
+        const { id } = req.params; 
+        if(isNaN(id))
+            throw new UnprocessableEntityException("UNPROCESSABLE_ENTITY", 422, "El parámetro no es un id válido");
+
         await Perfil.destroy({
             where: {
-                id: req.params.id
+                id
             },
         })
         return res.status(HttpCode.HTTP_OK).json({

@@ -1,5 +1,6 @@
 import {UsuarioRol} from "../models/index.mjs";
 import HttpCode from "../../configs/httpCode.mjs";
+import UnprocessableEntityException from "../../handlers/UnprocessableEntityException.mjs";
 
 export default class UsuarioRolController {
 
@@ -19,10 +20,15 @@ export default class UsuarioRolController {
     }
 
     static async show(req, res) {
+        const { id_usuario, id_rol } = req.query; 
+
+        if(isNaN(id_usuario) || isNaN(id_rol))
+            throw new UnprocessableEntityException("UNPROCESSABLE_ENTITY", 422, "El parámetro no es un id válido");
+
         const user_rol = await UsuarioRol.findOne({
             where: {
-                id_usuario: req.query.id_usuario,
-                id_rol: req.query.id_rol
+                id_usuario,
+                id_rol
             },                
         })
 
@@ -31,7 +37,10 @@ export default class UsuarioRolController {
 
 
     static async update(req, res) {
-        const { id_usuario, id_rol } = req.query
+        const { id_usuario, id_rol } = req.query; 
+
+        if(isNaN(id_usuario) || isNaN(id_rol))
+            throw new UnprocessableEntityException("UNPROCESSABLE_ENTITY", 422, "El parámetro no es un id válido");
 
         const user_rol_find = await UsuarioRol.findOne({
             where: {
@@ -57,7 +66,10 @@ export default class UsuarioRolController {
     }
 
     static async destroy(req, res) {
-        const { id_usuario, id_rol } = req.query
+        const { id_usuario, id_rol } = req.query; 
+        if(isNaN(id_usuario) || isNaN(id_rol))
+            throw new UnprocessableEntityException("UNPROCESSABLE_ENTITY", 422, "El parámetro no es un id válido");
+
         await UsuarioRol.destroy({
             where: {
                 id_usuario, 
