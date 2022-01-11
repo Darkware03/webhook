@@ -32,13 +32,14 @@ describe('test de get usarios', () => {
 })
 
 
-/*describe("test de post de usario a la hora de crearlos", () => {
+describe("test de post de usario a la hora de crearlos", () => {
     test("post Store Usuarios", (done) => {
         request(host)
             .post('/api/v1/users')
             .send({
                 "email":"first_test@mail.com",
-                "password":"admin"
+                "password":"admin",
+                "roles":[1]
             })
             .set('Authorization', `Bearer ${token}`)
             .then(response => {
@@ -47,5 +48,18 @@ describe('test de get usarios', () => {
             }).catch(err => {
             done(err)
         })
+
+        request(host)
+            .post('/api/v1/users')
+            .send({
+                "email":"first_test@mail.com"
+            })
+            .set('Authorization', `Bearer ${token}`)
+            .then(response => {
+                expect(response.statusCode).toBe(400)
+                done()
+            }).catch(err => {
+            done(err)
+        })
     })
-})*/
+})
