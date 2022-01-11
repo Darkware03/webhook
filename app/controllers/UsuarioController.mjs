@@ -2,8 +2,8 @@ import HttpCode from "../../configs/httpCode.mjs";
 import bcrypt from "bcryptjs";
 import DB from "../nucleo/DB.mjs";
 import Sequelize from "sequelize";
-import BadRequestException from "../../handlers/BadRequestException.mjs"; 
-import NotFoundException from "../../handlers/NotFoundExeption.mjs"
+import BadRequestException from "../../handlers/BadRequestException.mjs";
+import NotFoundException from "../../handlers/NotFoundExeption.mjs";
 
 import {
   Usuario,
@@ -22,15 +22,27 @@ export default class UsuarioController {
   static async store(req, res) {
     const connection = DB.connection();
     const t = await connection.transaction();
-    const { perfiles=[], roles=[], email, password, is_suspended } = req.body;
+    let { perfiles, roles, email, password, is_suspended} = req.body;
     const salt = bcrypt.genSaltSync();
     const password_crypt = bcrypt.hashSync(password, salt);
 
-    if (perfiles.length === 0 && roles.length === 0) {
-      throw new BadRequestException('BAD_REQUEST', 400, 'El usuario debe tener al menos un perfil o un rol'); 
-    }
-
     try {
+      
+      if(perfiles){
+        for (let index = 0; index < perfiles.length; index++) {
+          let perfil = await Perfil.findOne({where:{id:perfiles[index]}}); 
+          if(!perfil)
+            throw new NotFoundException("NOT_FOUND", 404, `No se encontró el perfil con id ${perfiles[index]}`)
+        }
+      }
+      if(roles){
+        for (let index = 0; index < roles.length; index++) {
+          let rol = await Rol.findOne({where:{id:roles[index]}}); 
+          if(!rol)
+            throw new NotFoundException("NOT_FOUND", 404, `No se encontró el rol con id ${roles[index]}`)
+        }
+      }
+
       const usuario = await Usuario.create(
         { email, is_suspended, password: password_crypt },
         { transaction: t }
@@ -48,12 +60,11 @@ export default class UsuarioController {
         id: usuario.id,
         email: usuario.email,
         perfiles: Perfils,
-        roles: Rols
+        roles: Rols,
       });
     } catch (e) {
-      console.log(e);
       await t.rollback();
-      return res.status(500).json({ message: e });
+      throw e;
     }
   }
 
@@ -97,7 +108,7 @@ export default class UsuarioController {
     const user = await getById(id);
 
     if (!user) {
-      throw new NotFoundException(); 
+      throw new NotFoundException();
     }
     const { Perfils: perfiles, Rols: roles, ...usuario } = user.dataValues;
     res.status(HttpCode.HTTP_OK).json({ ...usuario, perfiles, roles });
@@ -108,7 +119,11 @@ export default class UsuarioController {
     const { perfiles } = req.body;
 
     if (perfiles.length === 0) {
-      throw new BadRequestException('BAD_REQUEST', 400, 'No se envío ningún perfil'); 
+      throw new BadRequestException(
+        "BAD_REQUEST",
+        400,
+        "No se envío ningún perfil"
+      );
     }
     const user = await Usuario.findOne({ where: { id: id_usuario } });
     const user_profils = await user.addPerfils(perfiles);
@@ -124,7 +139,11 @@ export default class UsuarioController {
     const { roles } = req.body;
 
     if (roles.length === 0) {
-      throw new BadRequestException('BAD_REQUEST', 400, 'No se envío ningún rol'); 
+      throw new BadRequestException(
+        "BAD_REQUEST",
+        400,
+        "No se envío ningún rol"
+      );
     }
     const user = await Usuario.findOne({ where: { id: id_usuario } });
     const user_rols = await user.addRols(roles);
@@ -138,7 +157,11 @@ export default class UsuarioController {
     const { id_usuario } = req.params;
     const { perfiles } = req.body;
     if (perfiles.length && perfiles.length <= 0) {
-      throw new BadRequestException('BAD_REQUEST', 400, 'No se envío ningún perfil'); 
+      throw new BadRequestException(
+        "BAD_REQUEST",
+        400,
+        "No se envío ningún perfil"
+      );
     }
     await UsuarioPerfil.destroy({
       where: {
@@ -157,7 +180,11 @@ export default class UsuarioController {
     const { id_usuario } = req.params;
     const { roles } = req.body;
     if (roles.length && roles.length <= 0) {
-      throw new BadRequestException('BAD_REQUEST', 400, 'No se envío ningún rol'); 
+      throw new BadRequestException(
+        "BAD_REQUEST",
+        400,
+        "No se envío ningún rol"
+      );
     }
     await UsuarioRol.destroy({
       where: {
