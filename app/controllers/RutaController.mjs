@@ -1,6 +1,7 @@
 import {Ruta, RutaRol, Rol} from "../models/index.mjs";
 import HttpCode from "../../configs/httpCode.mjs";
-import DB from "../nucleo/DB.mjs";
+import UnprocessableEntityException from "../../handlers/UnprocessableEntityException.mjs";
+
 
 export default class RutaController {
 
@@ -25,9 +26,14 @@ export default class RutaController {
     }
 
     static async show(req, res) {
+        const { id } = req.params; 
+
+        if(isNaN(id))
+            throw new UnprocessableEntityException("UNPROCESSABLE_ENTITY", 422, "El parámetro no es un id válido");
+
         const ruta = await Ruta.findOne({
             where: {
-                id: req.params.id
+                id
             }
         })
 
@@ -58,9 +64,12 @@ export default class RutaController {
     }
 
     static async destroy(req, res) {
+        const { id } = req.params; 
+        if(isNaN(id))
+            throw new UnprocessableEntityException("UNPROCESSABLE_ENTITY", 422, "El parámetro no es un id válido");
         await Ruta.destroy({
             where: {
-                id: req.params.id
+                id
             },
         })
 

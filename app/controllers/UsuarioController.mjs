@@ -4,6 +4,8 @@ import DB from "../nucleo/DB.mjs";
 import Sequelize from "sequelize";
 import BadRequestException from "../../handlers/BadRequestException.mjs";
 import NotFoundException from "../../handlers/NotFoundExeption.mjs";
+import UnprocessableEntityException from "../../handlers/UnprocessableEntityException.mjs";
+
 
 import {
   Usuario,
@@ -87,13 +89,18 @@ export default class UsuarioController {
   }
 
   static async destroy(req, res) {
+    const { id } = req.params; 
+
+    if(isNaN(id))
+      throw new UnprocessableEntityException("UNPROCESSABLE_ENTITY", 422, "El parámetro no es un id válido")
+    
     await Usuario.update(
       {
         active: false,
       },
       {
         where: {
-          id: req.params.id,
+          id,
         },
       }
     );
@@ -105,7 +112,10 @@ export default class UsuarioController {
 
   static async show(req, res) {
     const { id } = req.params;
-    const user = await getById(id);
+    if(isNaN(id))
+      throw new UnprocessableEntityException("UNPROCESSABLE_ENTITY", 422, "El parámetro no es un id válido")
+    
+      const user = await getById(id);
 
     if (!user) {
       throw new NotFoundException();
@@ -116,6 +126,9 @@ export default class UsuarioController {
 
   static async addUserProfile(req, res) {
     const { id_usuario } = req.params;
+    if(isNaN(id))
+      throw new UnprocessableEntityException("UNPROCESSABLE_ENTITY", 422, "El parametro no es un id válido");
+
     const { perfiles } = req.body;
 
     if (perfiles.length === 0) {
@@ -137,6 +150,10 @@ export default class UsuarioController {
   static async addUserRole(req, res) {
     const { id_usuario } = req.params;
     const { roles } = req.body;
+    
+    if(isNaN(id))
+      throw new UnprocessableEntityException("UNPROCESSABLE_ENTITY", 422, "El parametro no es un id válido");
+
 
     if (roles.length === 0) {
       throw new BadRequestException(
@@ -156,6 +173,10 @@ export default class UsuarioController {
   static async destroyUserPerfil(req, res) {
     const { id_usuario } = req.params;
     const { perfiles } = req.body;
+
+    if(isNaN(id_usuario))
+      throw new UnprocessableEntityException("UNPROCESSABLE_ENTITY", 422, "El parametro no es un id válido")
+    
     if (perfiles.length && perfiles.length <= 0) {
       throw new BadRequestException(
         "BAD_REQUEST",
@@ -179,6 +200,10 @@ export default class UsuarioController {
   static async destroyUserRol(req, res) {
     const { id_usuario } = req.params;
     const { roles } = req.body;
+  
+    if(isNaN(id))
+      throw new UnprocessableEntityException("UNPROCESSABLE_ENTITY", 422, "El parametro no es un id válido");
+
     if (roles.length && roles.length <= 0) {
       throw new BadRequestException(
         "BAD_REQUEST",
