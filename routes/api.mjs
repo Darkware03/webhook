@@ -12,7 +12,7 @@ import routesRutasRoles from './api/rutaRol.mjs';
 import routesPerfilesRoles from './api/perfilRol.mjs';
 import routesUsuariosRoles from './api/usuarioRol.mjs';
 import routesUsuariosPerfiles from './api/usuarioPerfil.mjs';
-
+import swagger from './swagger.mjs';
 
 
 const router = Router()
@@ -26,6 +26,7 @@ router.use('/v1/rutas_roles', [auth], routesRutasRoles)
 router.use('/v1/perfiles_roles', [auth], routesPerfilesRoles)
 router.use('/v1/usuarios_roles', [auth], routesUsuariosRoles)
 router.use('/v1/usuarios_perfiles', [auth], routesUsuariosPerfiles)
+router.use('/docs',swagger)
 
 
 export default router

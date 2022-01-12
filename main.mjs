@@ -3,7 +3,6 @@ import web from './routes/web.mjs'
 import Handler from "./handlers/Handler.mjs";
 import Server from "./configs/server.mjs";
 import NotFoundExeption from "./handlers/NotFoundExeption.mjs";
-import swagger from "./routes/swagger.mjs";
 export default class Main {
     constructor() {
         this.server = Server
@@ -17,7 +16,6 @@ export default class Main {
     routes() {
         this.server.app.use('/', web)
         this.server.app.use('/api', api)
-        this.server.app.use('/',swagger)
         this.server.app.all('*', () => {
             throw new NotFoundExeption()
         })

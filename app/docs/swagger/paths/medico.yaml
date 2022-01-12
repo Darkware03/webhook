@@ -1,0 +1,16 @@
+get:
+  tags:
+    - medico
+  summary: Muestra todos los medicos
+post:
+  tags:
+    - medico
+  summary: Añade un medico
+put:
+  tags:
+    - medico
+  summary: Actualiza la información de un medico
+delete:
+  tags:
+    - medico
+  summary: Elimina a un medico

@@ -1,0 +1,16 @@
+get:
+  tags:
+    - hospital
+  summary: Muestra los Hospitales
+post:
+  tags:
+    - hospital
+  summary: Añade un nuevo Hospital
+put:
+  tags:
+    - hospital
+  summary: Actualiza la información de un Hospital
+delete:
+  tags:
+    - hospital
+  summary: Elimina un Hospital
