@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import moment from 'moment-timezone';
 import {
   Usuario, Perfil, Rol, RefreshToken,
+// eslint-disable-next-line import/no-unresolved
 } from '../models/index.mjs';
 import HttpCode from '../../configs/httpCode.mjs';
 import NoAuthException from '../../handlers/NoAuthException.mjs';
