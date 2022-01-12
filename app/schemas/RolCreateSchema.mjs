@@ -1,8 +1,10 @@
-export const rolCreateSchema={
-    type:'object',
-    properties:{
-        name:{
-            type:'string',
-        },
-    }
-}
+const rolCreateSchema = {
+  type: 'object',
+  properties: {
+    name: {
+      type: 'string',
+    },
+  },
+};
+
+export default rolCreateSchema;

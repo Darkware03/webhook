@@ -1,11 +1,11 @@
 const presets = [
-    [
-        "@babel/preset-env"
-    ]
+  [
+    '@babel/preset-env',
+  ],
 ];
 
 const plugins = [
-    ["@babel/transform-runtime"]
-]
+  ['@babel/transform-runtime'],
+];
 
-module.exports = {presets, plugins};
+module.exports = { presets, plugins };
