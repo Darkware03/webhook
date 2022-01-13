@@ -1,33 +1,91 @@
-post:
-  tags:
-    - usuario
-  summary: Añade un nuevo usuario
-  operationId: addUser
-  requestBody:
-    description: Objeto Usuario que será agregado al servicio
-    content:
-      application/json:
-        schema:
-          $ref: "#/components/schemas/Usuario"
-      application/xml:
-        schema:
-          $ref: "#/components/schemas/Usuario"
-    required: true
-  responses:
-    405:
-      description: Invalid input
-      content: {}
-  x-codegen-request-body-name: body
-get:
-  tags:
-    - usuario
-  summary: Muestra los usuarios almacenados
-put:
-  tags:
-    - usuario
-  summary: Actualiza la información de un usuario
-delete:
-  tags:
-    - usuario
-  summary: Elimina un usuario
-area: development
+
+/api/v1/users:
+  post:
+    tags:
+      - usuario
+    summary: Añade un nuevo usuario
+    operationId: addUser
+    requestBody:
+      description: Objeto Usuario que será agregado al servicio
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Usuario"
+      required: true
+    responses:
+      200:
+        description: OK
+      400:
+        description: Bad Request
+        content: {}
+      401:
+        description: Unauthorized
+        content: {}
+      404:
+        description: Not Found
+      405:
+        description: Not Allowed
+        content: {}
+      500:
+        description: Internal Server Error
+        content: {}
+    x-codegen-request-body-name: body
+
+  get:
+    tags:
+      - usuario
+    summary: Muestra todos los usuarios
+    operationId: users
+    produces:
+      - application/json
+    responses:
+      200:
+      401:
+        description: Usuario no auntenticado
+
+  put:
+    tags:
+      - usuario
+    summary: Actualiza la información de un usuario
+  delete:
+    tags:
+      - usuario
+    summary: Elimina un usuario
+
+api/v1/users/{id}:
+  get:
+   tags:
+      - usuario
+    summary: Muestra usuario por id
+    parameters:
+      - in: path
+        name: id
+        required: true
+        type: integer
+        minimum: 1
+        description: 
+    responses:
+      200:
+        description: Un objeto usuario
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                email:
+                  type: string
+                perfiles:
+                  type: object
+                  properties: {}
+                roles:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+area: api
+
+

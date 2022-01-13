@@ -1,0 +1,19 @@
+/rol:
+  post:
+    tags:
+      - rol
+    summary: Añade un nuevo rol
+    operationId: addRol
+    requestBody: 
+      description: Objeto Rol que será agregado al servicio
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Rol"
+      required: true
+    responses:
+      200:
+        description: 
+        content: 
+    x-codegen-request-body-name: body
+  area: api
