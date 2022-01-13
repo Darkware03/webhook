@@ -25,6 +25,14 @@ for (const pat in swaggerDocumentPublic.paths) {
   }
 }
 
+// eslint-disable-next-line no-restricted-syntax
+for (const pat in swaggerDocument.paths) {
+  // comprueba si existe una propiedad "area: development"
+  if (swaggerDocument.paths[pat].area === 'api') {
+    delete swaggerDocument.paths[pat];
+  }
+}
+
 // Se establece la ruta hacia el Swagger Interno
 router.use('/local', swaggerUiExpress.serveFiles(swaggerDocument), swaggerUiExpress.setup(swaggerDocument));
 // Se establece la ruta hacia el swagger publico

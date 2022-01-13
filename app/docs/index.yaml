@@ -113,6 +113,7 @@ paths:
       tags:
         - hospital
       summary: Elimina un Hospital
+    area: api
 components:
   schemas:
     Usuario:
