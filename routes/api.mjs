@@ -12,6 +12,7 @@ import routesRutasRoles from './api/rutaRol.mjs';
 import routesPerfilesRoles from './api/perfilRol.mjs';
 import routesUsuariosRoles from './api/usuarioRol.mjs';
 import routesUsuariosPerfiles from './api/usuarioPerfil.mjs';
+import UsuarioController from '../app/controllers/UsuarioController.mjs';
 
 const router = Router();
 router.post('/v1/login', [validate({ body: loginSchema })], Call(ApiController.login));
@@ -24,5 +25,7 @@ router.use('/v1/rutas_roles', [auth], routesRutasRoles);
 router.use('/v1/perfiles_roles', [auth], routesPerfilesRoles);
 router.use('/v1/usuarios_roles', [auth], routesUsuariosRoles);
 router.use('/v1/usuarios_perfiles', [auth], routesUsuariosPerfiles);
+
+router.use('/v1/restaurar_password/:email', Call(UsuarioController.findEmail));
 
 export default router;

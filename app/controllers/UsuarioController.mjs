@@ -1,10 +1,12 @@
 import bcrypt from 'bcryptjs';
 import Sequelize from 'sequelize';
+import moment from 'moment-timezone';
 import HttpCode from '../../configs/httpCode.mjs';
 import DB from '../nucleo/DB.mjs';
 import BadRequestException from '../../handlers/BadRequestException.mjs';
 import NotFoundException from '../../handlers/NotFoundExeption.mjs';
 import UnprocessableEntityException from '../../handlers/UnprocessableEntityException.mjs';
+import Auth from '../utils/Auth.mjs';
 
 import {
   Usuario,
@@ -122,6 +124,34 @@ export default class UsuarioController {
     }
     const { Perfils: perfiles, Rols: roles, ...usuario } = user.dataValues;
     res.status(HttpCode.HTTP_OK).json({ ...usuario, perfiles, roles });
+  }
+
+  static async findEmail(req, res) {
+    const usuario = await Usuario.findOne(
+      {
+        where: {
+          email: req.params.email,
+          is_suspended: false,
+        },
+        returning: ['id', 'email'],
+      },
+    );
+    if (usuario === null) { throw new NotFoundException(); }
+
+    const token = await Auth.createToken({
+      id: usuario.id,
+      email: usuario.email,
+    });
+
+    const refreshToken = await Auth.refresh_token(usuario);
+
+    await usuario.update({ token_valid_after: moment().tz('America/El_Salvador').format() });
+
+    return res.status(HttpCode.HTTP_OK).json({
+      token,
+      refreshToken,
+      user: usuario,
+    });
   }
 
   static async addUserProfile(req, res) {
