@@ -1,60 +1,63 @@
-import {RutaRol} from "../models/index.mjs";
-import HttpCode from "../../configs/httpCode.mjs";
+import { RutaRol } from '../models/index.mjs';
+import HttpCode from '../../configs/httpCode.mjs';
+import UnprocessableEntityException from '../../handlers/UnprocessableEntityException.mjs';
 
 export default class RutaRolController {
+  static async index(req, res) {
+    const rutasRoles = await RutaRol.findAll();
+    return res.status(HttpCode.HTTP_OK).json(rutasRoles);
+  }
 
-    static async index(req, res) {
-        const rutasRoles = await RutaRol.findAll()
-        return res.status(HttpCode.HTTP_OK).json(rutasRoles)
-    }
+  static async store(req, res) {
+    const { id_ruta: idRuta, id_rol: idRol } = req.body;
+    const rutaRol = await RutaRol.create({
+      idRuta,
+      idRol,
+    });
 
-    static async store(req, res) {
-        const { id_ruta, id_rol } = req.body
-        const ruta_rol = await RutaRol.create({
-            id_ruta, 
-            id_rol
-        })
+    return res.status(HttpCode.HTTP_CREATED).json(rutaRol);
+  }
 
+  static async show(req, res) {
+    const { id } = req.params;
+    if (Number.isNaN(id)) throw new UnprocessableEntityException('UNPROCESSABLE_ENTITY', 422, 'El parámetro no es un id válido');
 
-        return res.status(HttpCode.HTTP_CREATED).json(ruta_rol)
-    }
+    const rutaRol = await RutaRol.findOne({
+      where: {
+        id,
+      },
+    });
 
-    static async show(req, res) {
-        const ruta_rol = await RutaRol.findOne({
-            where: {
-                id: req.params.id
-            }
-        })
+    return res.status(HttpCode.HTTP_OK).json(rutaRol);
+  }
 
-        return res.status(HttpCode.HTTP_OK).json(ruta_rol)
-    }
+  static async update(req, res) {
+    const { id_ruta: idRuta, id_rol: idRol } = req.body;
+    const rutaRol = await RutaRol.update({
+      idRuta,
+      idRol,
+    }, {
+      where: {
+        id: req.params.id,
+      },
+      returning: ['id_ruta', 'id_rol'],
+    });
 
+    return res.status(HttpCode.HTTP_OK).json(rutaRol[1]);
+  }
 
-    static async update(req, res) {
-        const { id_ruta, id_rol } = req.body
-        const ruta_rol = await RutaRol.update({
-            id_ruta, 
-            id_rol
-        }, {
-            where: {
-                id: req.params.id
-            },
-            returning: ['id_ruta', 'id_rol']
-        })
+  static async destroy(req, res) {
+    const { id } = req.params;
+    if (Number.isNaN(id)) throw new UnprocessableEntityException('UNPROCESSABLE_ENTITY', 422, 'El parámetro no es un id válido');
 
-        return res.status(HttpCode.HTTP_OK).json(ruta_rol[1])
-    }
+    await RutaRol.destroy({
+      where: {
+        id,
+      },
+    });
 
-    static async destroy(req, res) {
-        await RutaRol.destroy({
-            where: {
-                id: req.params.id
-            },
-        })
-
-        return res.status(HttpCode.HTTP_OK).json({
-            message: 'Ruta_Rol Eliminado'
-        })
-    }
+    return res.status(HttpCode.HTTP_OK).json({
+      message: 'Ruta_Rol Eliminado',
+    });
+  }
 }
-

@@ -1,45 +1,46 @@
-import {Server as io} from "socket.io";
-import Server from "../../configs/server.mjs";
-import Usuario from "../models/Usuario.mjs";
-import jwt from 'jsonwebtoken'
+import { Server as IO } from 'socket.io';
+import jwt from 'jsonwebtoken';
+import Server from '../../configs/server.mjs';
+import Usuario from '../models/Usuario.mjs';
 
-let instance = null
+let instance = null;
 
 class WS {
-    constructor() {
-        if (!instance)
-            instance = new io(Server.server, {
-                cors: {
-                    origin: '*'
-                }
-            })
-        this.valid()
-        return instance
+  constructor() {
+    if (!instance) {
+      instance = new IO(Server.server, {
+        cors: {
+          origin: '*',
+        },
+      });
     }
+    this.valid();
+    // eslint-disable-next-line no-constructor-return
+    return instance;
+  }
 
-    valid() {
+  // eslint-disable-next-line class-methods-use-this
+  valid() {
+    instance.use(async (socket, next) => {
+      try {
+        const { token } = socket.handshake.auth;
 
-        instance.use(async (socket, next) => {
-            try {
-                const {token} = socket.handshake.auth
+        if (!token) socket.disconnect();
+        const { id } = jwt.verify(token, process.env.SECRET_KEY);
 
-                if (!token) socket.disconnect()
-                const {id} = jwt.verify(token, process.env.SECRET_KEY)
-
-                const usuario = await Usuario.findOne({id: id})
-                if (usuario) {
-                    next()
-                } else {
-                    const err = new Error("Not Authorized")
-                    err.data = {content: "Intente mas tarde"}
-                    next(err)
-                }
-            } catch (e) {
-                next(e)
-            }
-        })
-    }
+        const usuario = await Usuario.findOne({ id });
+        if (usuario) {
+          next();
+        } else {
+          const err = new Error('Not Authorized');
+          err.data = { content: 'Intente mas tarde' };
+          next(err);
+        }
+      } catch (e) {
+        next(e);
+      }
+    });
+  }
 }
 
-export default new WS()
-
+export default new WS();

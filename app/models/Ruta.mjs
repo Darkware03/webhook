@@ -1,55 +1,55 @@
-import DB from "../nucleo/DB.mjs";
-import psql from "sequelize";
-import Rol from "./Rol.mjs";
-import RutaRol from "./RutaRol.mjs";
+import psql from 'sequelize';
+import DB from '../nucleo/DB.mjs';
+// eslint-disable-next-line import/no-cycle
+import Rol from './Rol.mjs';
+import RutaRol from './RutaRol.mjs';
 
 class Ruta extends psql.Model {
-    static associate() {
-        this.belongsToMany(Rol, {
-            through: RutaRol,
-            foreignKey: "id_ruta",
-            otherKey: 'id_rol'
-        })
-    }
+  static associate() {
+    this.belongsToMany(Rol, {
+      through: RutaRol,
+      foreignKey: 'id_ruta',
+      otherKey: 'id_rol',
+    });
+  }
 }
 
 Ruta.init({
-    id: {
-        type: psql.Sequelize.INTEGER,
-        primaryKey: true,
-        autoIncrement: true,
-    },
-    nombre: {
-        type: psql.Sequelize.STRING(50),
-        allowNull: false
-    },
-    uri: {
-        type: psql.Sequelize.TEXT,
-    },
-    nombre_uri: {
-        type: psql.Sequelize.TEXT,
-    },
-    mostrar: {
-        type: psql.Sequelize.BOOLEAN,
-        allowNull: false
-    },
-    icono: {
-        type: psql.Sequelize.STRING(255),
-    },
-    orden: {
-        type: psql.Sequelize.INTEGER,
-    },
-    publico: {
-        type: psql.Sequelize.BOOLEAN,
-    },
-    id_ruta_padre: {
-        type: psql.Sequelize.INTEGER,
-    },
+  id: {
+    type: psql.Sequelize.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  },
+  nombre: {
+    type: psql.Sequelize.STRING(50),
+    allowNull: false,
+  },
+  uri: {
+    type: psql.Sequelize.TEXT,
+  },
+  nombre_uri: {
+    type: psql.Sequelize.TEXT,
+  },
+  mostrar: {
+    type: psql.Sequelize.BOOLEAN,
+    allowNull: false,
+  },
+  icono: {
+    type: psql.Sequelize.STRING(255),
+  },
+  orden: {
+    type: psql.Sequelize.INTEGER,
+  },
+  publico: {
+    type: psql.Sequelize.BOOLEAN,
+  },
+  id_ruta_padre: {
+    type: psql.Sequelize.INTEGER,
+  },
 }, {
-    timestamps: false,
-    sequelize: DB.connection(),
-    tableName: 'mnt_ruta',
-})
+  timestamps: false,
+  sequelize: DB.connection(),
+  tableName: 'mnt_ruta',
+});
 
-
-export default Ruta; 
+export default Ruta;
