@@ -42,6 +42,7 @@ export default class Mailer {
       };
       await transporter.sendMail(mailConfig, (error, info) => {
         if (error) {
+          console.log(error);
           return false;
         }
         console.log(`Email sent: ${info.response}`);

@@ -3,6 +3,7 @@ import { Router } from 'express';
 import UsuarioController from '../../app/controllers/UsuarioController.mjs';
 import usuarioCreateSchema from '../../app/schemas/UsuarioCreateSchema.mjs';
 import Call from '../../app/utils/Call.mjs';
+import recoveryPasswordSchema from '../../app/schemas/RecoveryPasswordSchema.mjs';
 
 const router = Router();
 router.get('/', Call(UsuarioController.index));
@@ -14,5 +15,6 @@ router.put('/:id', Call(UsuarioController.update));
 router.delete('/:id', Call(UsuarioController.destroy));
 router.post('/', [validate({ body: usuarioCreateSchema })], Call(UsuarioController.store));
 router.get('/:id', Call(UsuarioController.show));
+router.put('/recoveryPassword/changePassword', [validate({ body: recoveryPasswordSchema })], Call(UsuarioController.updateRecoveryPassword));
 
 export default router;

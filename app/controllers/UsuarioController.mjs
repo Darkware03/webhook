@@ -1,6 +1,8 @@
+/* eslint-disable no-unused-vars */
 import bcrypt from 'bcryptjs';
 import Sequelize from 'sequelize';
 import moment from 'moment-timezone';
+import jwt from 'jsonwebtoken';
 import HttpCode from '../../configs/httpCode.mjs';
 import DB from '../nucleo/DB.mjs';
 import BadRequestException from '../../handlers/BadRequestException.mjs';
@@ -15,6 +17,7 @@ import {
   Perfil,
   Rol,
 } from '../models/index.mjs';
+import Mailer from '../services/mailer.mjs';
 
 export default class UsuarioController {
   static async index(req, res) {
@@ -92,6 +95,34 @@ export default class UsuarioController {
     return res.status(HttpCode.HTTP_OK).json(usuario[1]);
   }
 
+  static async updateRecoveryPassword(req, res) {
+    const { password, confirmPassword, token } = req.body;
+
+    const salt = bcrypt.genSaltSync();
+    const passwordCrypt = bcrypt.hashSync(password, salt);
+
+    if (password !== confirmPassword) { throw new NotFoundException('NOT_FOUND', 400, 'Error! Contraseña incorrecta'); }
+
+    const decoded = jwt.decode(token, process.env.SECRET_KEY);
+
+    const usuario = await Usuario.update(
+      {
+        password: passwordCrypt,
+      },
+      {
+        where: {
+          id: decoded.id,
+        },
+      },
+    );
+
+    await Usuario.update({ token_valid_after: moment().tz('America/El_Salvador').format() }, { where: { id: decoded.id } });
+
+    return res.status(HttpCode.HTTP_CREATED).json({
+      message: 'contraseña actualizada',
+    });
+  }
+
   static async destroy(req, res) {
     const { id } = req.params;
 
@@ -126,7 +157,7 @@ export default class UsuarioController {
     res.status(HttpCode.HTTP_OK).json({ ...usuario, perfiles, roles });
   }
 
-  static async findEmail(req, res) {
+  static async sendEmail(req, res) {
     const usuario = await Usuario.findOne(
       {
         where: {
@@ -143,15 +174,18 @@ export default class UsuarioController {
       email: usuario.email,
     });
 
+    // eslint-disable-next-line no-unused-vars
     const refreshToken = await Auth.refresh_token(usuario);
 
-    await usuario.update({ token_valid_after: moment().tz('America/El_Salvador').format() });
+    await usuario.update({ token_valid_after: moment().tz('America/El_Salvador').format() }, { where: { id: usuario.id } });
 
-    return res.status(HttpCode.HTTP_OK).json({
-      token,
-      refreshToken,
-      user: usuario,
-    });
+    const uri = `${process.env.URL}/api/recovery_password/${token}`;
+
+    if (!Mailer.sendMail(usuario.email, `Ingrese al siguiente enlace: ${uri}`, 'Restablecer Contraseña', '¿Olvidaste tu contraseña?')) {
+      console.log('No se envio');
+    }
+
+    return res.status(HttpCode.HTTP_OK).json({ message: 'El correo ha sido enviado' });
   }
 
   static async addUserProfile(req, res) {

@@ -26,6 +26,6 @@ router.use('/v1/perfiles_roles', [auth], routesPerfilesRoles);
 router.use('/v1/usuarios_roles', [auth], routesUsuariosRoles);
 router.use('/v1/usuarios_perfiles', [auth], routesUsuariosPerfiles);
 
-router.use('/v1/restaurar_password/:email', Call(UsuarioController.findEmail));
+router.use('/v1/restaurar_password/:email', Call(UsuarioController.sendEmail));
 
 export default router;
