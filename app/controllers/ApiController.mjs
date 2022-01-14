@@ -124,7 +124,7 @@ export default class ApiController {
     const uri = `${process.env.URL}/api/recovery_password/${token}`;
 
     if (!Mailer.sendMail(usuario.email, `Ingrese al siguiente enlace: ${uri}`, 'Restablecer Contraseña', '¿Olvidaste tu contraseña?')) {
-      console.log('No se envio');
+      throw new NotFoundException('NOT_FOUND', 400, 'Error! Hubo un problema al enviar el correo, intente nuevamente.');
     }
 
     return res.status(HttpCode.HTTP_OK).json({ message: 'El correo ha sido enviado' });
