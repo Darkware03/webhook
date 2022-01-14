@@ -241,7 +241,7 @@ export default class UsuarioController {
     });
     const msg = 'Se le comunica que su contraseña ha sido modificada exitosamente';
 
-    Mailer.sendMail(req.usuario.email, msg, 'Cambio de contraseña', 'Contraseña modificada');
+    await Mailer.sendMail(req.usuario.email, msg, 'Cambio de contraseña', 'Contraseña modificada');
     return res.status(HttpCode.HTTP_OK).json({ message: 'Contraseña actualizada con exito' });
   }
 
@@ -286,7 +286,7 @@ export default class UsuarioController {
             </mj-column>
           </mj-section>
         `;
-    Mailer.sendMail(email, menssage, 'Cambio de email', 'Confirmacion de cambio de correo electronico');
+    await Mailer.sendMail(email, menssage, 'Cambio de email', 'Confirmacion de cambio de correo electronico');
 
     return res.status(HttpCode.HTTP_OK).json({ message: 'Correo electronico actualizado con exito' });
   }
