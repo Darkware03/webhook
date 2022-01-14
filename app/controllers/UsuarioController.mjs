@@ -164,7 +164,6 @@ export default class UsuarioController {
           email: req.params.email,
           is_suspended: false,
         },
-        returning: ['id', 'email'],
       },
     );
     if (usuario === null) { throw new NotFoundException(); }
