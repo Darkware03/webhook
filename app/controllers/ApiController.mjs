@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 import moment from 'moment-timezone';
 import jwt from 'jsonwebtoken';
 import {
-  Usuario, Perfil, Rol, RefreshToken,
+  Usuario, RefreshToken,
 // eslint-disable-next-line import/no-unresolved
 } from '../models/index.mjs';
 import HttpCode from '../../configs/httpCode.mjs';
@@ -51,48 +51,32 @@ export default class ApiController {
       where: {
         refresh_token: req.body.refresh_token,
       },
-      attributes: [],
+      attributes: ['id'],
       include: [
         {
           model: Usuario,
           attributes: ['id', 'email', 'last_login'],
-          include: [{
-            model: Rol,
-            attributes: ['name'],
-            through: { attributes: [] },
-          }, {
-            model: Perfil,
-            attributes: { exclude: ['nombre', 'codigo'] },
-            through: { attributes: [] },
-            include: [{
-              model: Rol,
-              attributes: ['name'],
-              through: { attributes: [] },
-            }],
-          }],
         }],
     });
 
     if (!refreshTokenExist) throw new BaseError('NOT_FOUND', HttpCode.HTTP_BAD_REQUEST, 'Error al realizar la peticion...');
-
-    const rolesPerfiles = refreshTokenExist.Usuario.Perfils.reduce((acumulador, valor) => [...valor.Rols], []);
-
-    const roles = new Set(refreshTokenExist.Usuario.Rols.concat(rolesPerfiles).map((row) => row.name));
-
+    const roles = await getRols.roles(refreshTokenExist.Usuario.id);
     const tokenValidTime = new Date(moment(refreshTokenExist.valid).format()).getTime();
     const nowTime = new Date(moment().tz('America/El_Salvador').format()).getTime();
     if (tokenValidTime < nowTime) throw new NoAuthException('UNAUTHORIZED', HttpCode.HTTP_UNAUTHORIZED, 'El refresh token porporcionado no es valido');
     const token = await Auth.createToken({
+      id: refreshTokenExist.Usuario.id,
       email: refreshTokenExist.Usuario.email,
-      roles: [...roles],
+      roles,
     });
 
     const newRefreshToken = await Auth.refresh_token(refreshTokenExist.Usuario);
-
     await refreshTokenExist.update({
       valid: moment().add(process.env.REFRESH_TOKEN_INVALID_EXPIRATION_TIME, process.env.REFRESH_TOKEN_INVALID_EXPIRATION_TYPE).tz('America/El_Salvador').format(),
     });
-
+    await Usuario.update({
+      token_valid_after: moment().add(process.env.REFRESH_TOKEN_INVALID_EXPIRATION_TIME, process.env.REFRESH_TOKEN_INVALID_EXPIRATION_TYPE).tz('America/El_Salvador').format(),
+    }, { where: { id: refreshTokenExist.Usuario.id } });
     return res.status(HttpCode.HTTP_OK).json({
       token,
       refresh_token: newRefreshToken,

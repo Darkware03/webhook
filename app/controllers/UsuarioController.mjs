@@ -1,11 +1,13 @@
 /* eslint-disable no-unused-vars */
 import bcrypt from 'bcryptjs';
 import Sequelize from 'sequelize';
+import moment from 'moment-timezone';
 import HttpCode from '../../configs/httpCode.mjs';
 import DB from '../nucleo/DB.mjs';
 import BadRequestException from '../../handlers/BadRequestException.mjs';
 import NotFoundException from '../../handlers/NotFoundExeption.mjs';
 import UnprocessableEntityException from '../../handlers/UnprocessableEntityException.mjs';
+import Mailer from '../services/mailer.mjs';
 
 import {
   Usuario,
@@ -75,7 +77,6 @@ export default class UsuarioController {
 
   static async update(req, res) {
     const { email } = req.body;
-
     const usuario = await Usuario.update(
       {
         email,
@@ -87,7 +88,6 @@ export default class UsuarioController {
         returning: ['id', 'email'],
       },
     );
-
     return res.status(HttpCode.HTTP_OK).json(usuario[1]);
   }
 
@@ -216,5 +216,78 @@ export default class UsuarioController {
       },
     });
     return res.status(HttpCode.HTTP_OK).json({ message: 'roles eliminados' });
+  }
+
+  static async updatePassword(req, res) {
+    // eslint-disable-next-line camelcase
+    const { password_actual, password, confirm_password } = req.body;
+    if (!bcrypt.compareSync(password_actual, req.usuario.password)) { throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'La contraseña proporcionada no es correcta'); }
+    // eslint-disable-next-line camelcase
+    if (password_actual === password) { throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'La nueva contraseña no puede ser igual que la anterior'); }
+    // eslint-disable-next-line camelcase
+    if (password !== confirm_password) { throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'Las contraseñas no coinciden'); }
+
+    const salt = bcrypt.genSaltSync();
+    const passwordCrypt = bcrypt.hashSync(password, salt);
+
+    await Usuario.update({
+      password: passwordCrypt,
+      token_valid_after: moment().tz('America/El_Salvador').format(),
+    }, {
+      where: {
+        id: req.usuario.id,
+      },
+      returning: ['id', 'email'],
+    });
+    const msg = 'Se le comunica que su contraseña ha sido modificada exitosamente';
+
+    Mailer.sendMail(req.usuario.email, msg, 'Cambio de contraseña', 'Contraseña modificada');
+    return res.status(HttpCode.HTTP_OK).json({ message: 'Contraseña actualizada con exito' });
+  }
+
+  static async updateEmail(req, res) {
+    const { email } = req.body;
+
+    await Usuario.update(
+      {
+        email,
+        token_valid_after: moment().tz('America/El_Salvador').format(),
+      },
+      {
+        where: {
+          id: req.usuario.id,
+        },
+        returning: ['id', 'email'],
+      },
+    );
+    // Envio de notificacion por correo electronico
+    const menssage = `
+          <mj-section border-left="1px solid #aaaaaa" border-right="1px solid #aaaaaa" padding="20px" border-bottom="1px solid #aaaaaa">
+            <mj-column>
+              <mj-table>
+                <tr>
+                  <mj-text align="center">
+                    <td style="padding: 0 15px;" align="center" font-weight="bold" font-size="17px">
+                      <mj-group>
+                        <mj-text >
+                          Estimado usuario se le comunica que el correo: <mj-text font-style="oblique"> ${req.usuario.email} </mj-text>
+                        </mj-text>
+                        <mj-text>
+                          ha sido cambiado satisfactoriamente. 
+                        </mj-text> 
+                        <mj-text>
+                          Desde este momento este correo manejará la cuenta en donde solicito el cambio
+                        </mj-text>
+                      </mj-group>
+                    </td>
+                  </mj-text>
+                </tr>
+              </mj-table>
+            </mj-column>
+          </mj-section>
+        `;
+    Mailer.sendMail(email, menssage, 'Cambio de email', 'Confirmacion de cambio de correo electronico');
+
+    return res.status(HttpCode.HTTP_OK).json({ message: 'Correo electronico actualizado con exito' });
   }
 }
