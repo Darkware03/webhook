@@ -15,6 +15,6 @@ router.put('/:id', Call(UsuarioController.update));
 router.delete('/:id', Call(UsuarioController.destroy));
 router.post('/', [validate({ body: usuarioCreateSchema })], Call(UsuarioController.store));
 router.get('/:id', Call(UsuarioController.show));
-router.put('/recoveryPassword/changePassword', [validate({ body: recoveryPasswordSchema })], Call(UsuarioController.updateRecoveryPassword));
+router.put('/recoveryPassword/changePassword', [validate({ body: recoveryPasswordSchema })], Call(UsuarioController.recoveryPassword));
 
 export default router;

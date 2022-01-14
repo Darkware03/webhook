@@ -4,6 +4,7 @@ const recoveryPasswordSchema = {
     password: {
       type: 'string',
       required: true,
+      // eslint-disable-next-line no-useless-escape
       pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&\-_.])([A-Za-z\d$@$!%*?&]|[^ ]){8,15}$',
     },
     confirmPassword: {
