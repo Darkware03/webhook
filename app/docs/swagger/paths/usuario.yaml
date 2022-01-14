@@ -1,10 +1,10 @@
 post:
   tags:
     - usuario
-  summary: Add a new pet to the store
-  operationId: addPet
+  summary: Añade un nuevo usuario
+  operationId: addUser
   requestBody:
-    description: Pet object that needs to be added to the store
+    description: Objeto Usuario que será agregado al servicio
     content:
       application/json:
         schema:
@@ -18,3 +18,16 @@ post:
       description: Invalid input
       content: {}
   x-codegen-request-body-name: body
+get:
+  tags:
+    - usuario
+  summary: Muestra los usuarios almacenados
+put:
+  tags:
+    - usuario
+  summary: Actualiza la información de un usuario
+delete:
+  tags:
+    - usuario
+  summary: Elimina un usuario
+area: development

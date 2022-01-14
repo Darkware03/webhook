@@ -16,8 +16,9 @@ externalDocs:
   description: Find out more about Swagger
   url: http://swagger.io
 servers:
-  - url: https://petstore.swagger.io/v2
-  - url: http://petstore.swagger.io/v2
+  - url: https://localhost:8000/api
+  - url: http://localhost:8000/api/v1
+
 paths:
   $include: "paths/paths.yaml"
 components:

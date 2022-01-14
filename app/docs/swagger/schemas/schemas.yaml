@@ -1,2 +1,8 @@
 Usuario:
   $include: "usuarioSchema.yaml"
+Proveedor:
+  $include: "proveedorSchema.yaml"
+Medico:
+  $include: "medicoSchema.yaml"
+Hospital:
+  $include: "hospitalSchema.yaml"
