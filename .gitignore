@@ -4,6 +4,4 @@ node_modules/
 package-lock.json
 .eslintcache
 .eslintrc.js
-.vscode
 .sequelizerc
-webpack.config.js

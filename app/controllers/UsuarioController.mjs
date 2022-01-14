@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import bcrypt from 'bcryptjs';
 import Sequelize from 'sequelize';
 import moment from 'moment-timezone';

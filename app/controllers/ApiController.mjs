@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import moment from 'moment-timezone';
+import jwt from 'jsonwebtoken';
 import {
   Usuario, RefreshToken,
 // eslint-disable-next-line import/no-unresolved
@@ -8,7 +9,9 @@ import HttpCode from '../../configs/httpCode.mjs';
 import NoAuthException from '../../handlers/NoAuthException.mjs';
 import Auth from '../utils/Auth.mjs';
 import BaseError from '../../handlers/BaseError.mjs';
-import getRols from '../services/getRols.mjs';
+import NotFoundException from '../../handlers/NotFoundExeption.mjs';
+import Mailer from '../services/mailer.mjs';
+import UnprocessableEntityException from '../../handlers/UnprocessableEntityException.mjs';
 
 export default class ApiController {
   static async login(req, res) {
@@ -78,6 +81,64 @@ export default class ApiController {
       token,
       refresh_token: newRefreshToken,
       user: refreshTokenExist.Usuario,
+    });
+  }
+
+  static async recoveryPasswordSendEmail(req, res) {
+    const usuario = await Usuario.findOne(
+      {
+        where: {
+          email: req.params.email,
+          is_suspended: false,
+        },
+      },
+    );
+    if (usuario === null) { throw new UnprocessableEntityException('UNPROCESSABLE_ENTITY', 422, 'El parametro no es un correo valido'); }
+
+    const token = await Auth.createToken({
+      id: usuario.id,
+      email: usuario.email,
+    });
+
+    // eslint-disable-next-line no-unused-vars
+    const refreshToken = await Auth.refresh_token(usuario);
+
+    await usuario.update({ token_valid_after: moment().tz('America/El_Salvador').format() }, { where: { id: usuario.id } });
+
+    const uri = `${process.env.URL}/api/recovery_password/${token}`;
+
+    if (!Mailer.sendMail(usuario.email, `Ingrese al siguiente enlace: ${uri}`, 'Restablecer Contraseña', '¿Olvidaste tu contraseña?')) {
+      throw new NotFoundException('NOT_FOUND', 400, 'Error! Hubo un problema al enviar el correo, intente nuevamente.');
+    }
+
+    return res.status(HttpCode.HTTP_OK).json({ message: 'El correo ha sido enviado' });
+  }
+
+  static async recoveryPassword(req, res) {
+    const { password, confirmPassword, token } = req.body;
+
+    const salt = bcrypt.genSaltSync();
+    const passwordCrypt = bcrypt.hashSync(password, salt);
+
+    if (password !== confirmPassword) { throw new NotFoundException('NOT_FOUND', 400, 'Error! Contraseña incorrecta'); }
+
+    const decoded = jwt.decode(token, process.env.SECRET_KEY);
+
+    // eslint-disable-next-line no-unused-vars
+    const usuario = await Usuario.update(
+      {
+        password: passwordCrypt,
+        token_valid_after: moment().tz('America/El_Salvador').format(),
+      },
+      {
+        where: {
+          id: decoded.id,
+        },
+      },
+    );
+
+    return res.status(HttpCode.HTTP_CREATED).json({
+      message: 'contraseña actualizada',
     });
   }
 }

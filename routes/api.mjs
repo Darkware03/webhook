@@ -12,6 +12,7 @@ import routesRutasRoles from './api/rutaRol.mjs';
 import routesPerfilesRoles from './api/perfilRol.mjs';
 import routesUsuariosRoles from './api/usuarioRol.mjs';
 import routesUsuariosPerfiles from './api/usuarioPerfil.mjs';
+import recoveryPasswordSchema from '../app/schemas/RecoveryPasswordSchema.mjs';
 
 const router = Router();
 router.post('/v1/login', [validate({ body: loginSchema })], Call(ApiController.login));
@@ -24,5 +25,7 @@ router.use('/v1/rutas_roles', [auth], routesRutasRoles);
 router.use('/v1/perfiles_roles', [auth], routesPerfilesRoles);
 router.use('/v1/usuarios_roles', [auth], routesUsuariosRoles);
 router.use('/v1/usuarios_perfiles', [auth], routesUsuariosPerfiles);
+router.put('/v1/recoveryPassword/changePassword', [validate({ body: recoveryPasswordSchema })], Call(ApiController.recoveryPassword));
+router.use('/v1/recoveryPassword/sendEmail/:email', Call(ApiController.recoveryPasswordSendEmail));
 
 export default router;
