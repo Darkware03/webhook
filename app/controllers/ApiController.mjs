@@ -12,6 +12,7 @@ import BaseError from '../../handlers/BaseError.mjs';
 import NotFoundException from '../../handlers/NotFoundExeption.mjs';
 import Mailer from '../services/mailer.mjs';
 import UnprocessableEntityException from '../../handlers/UnprocessableEntityException.mjs';
+import getRols from '../services/getRols.mjs';
 
 export default class ApiController {
   static async login(req, res) {
