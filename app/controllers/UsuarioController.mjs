@@ -1,12 +1,10 @@
 import bcrypt from 'bcryptjs';
 import Sequelize from 'sequelize';
-import moment from 'moment-timezone';
 import HttpCode from '../../configs/httpCode.mjs';
 import DB from '../nucleo/DB.mjs';
 import BadRequestException from '../../handlers/BadRequestException.mjs';
 import NotFoundException from '../../handlers/NotFoundExeption.mjs';
 import UnprocessableEntityException from '../../handlers/UnprocessableEntityException.mjs';
-import Mailer from '../services/mailer.mjs';
 
 import {
   Usuario,
@@ -76,6 +74,7 @@ export default class UsuarioController {
 
   static async update(req, res) {
     const { email } = req.body;
+
     const usuario = await Usuario.update(
       {
         email,
@@ -87,6 +86,7 @@ export default class UsuarioController {
         returning: ['id', 'email'],
       },
     );
+
     return res.status(HttpCode.HTTP_OK).json(usuario[1]);
   }
 
@@ -215,44 +215,5 @@ export default class UsuarioController {
       },
     });
     return res.status(HttpCode.HTTP_OK).json({ message: 'roles eliminados' });
-  }
-
-  static async updateEmail(req, res) {
-    const { email } = req.body;
-
-    await Usuario.update(
-      {
-        email,
-        token_valid_after: moment().tz('America/El_Salvador').format(),
-      },
-      {
-        where: {
-          id: req.usuario.id,
-        },
-        returning: ['id', 'email'],
-      },
-    ).then((usuario) => {
-      // Envio de notificacion por correo electronico
-      const menssage = `
-          <mj-section border-left="1px solid #aaaaaa" border-right="1px solid #aaaaaa" padding="20px" border-bottom="1px solid #aaaaaa">
-            <mj-column>
-              <mj-table>
-                <tr>
-                  <mj-text align="center">
-                    <td style="padding: 0 15px;" align="center" font-weight="bold" font-size="17px">
-                      Estimado usuario se le comunica que el correo: <b>${req.usuario.email}</b> <br> 
-                      ha sido cambiado satisfactoriamente. 
-                      <br> Desde este momento este correo manejará la cuenta en donde solicito el cambio
-                      <br><br>Atentamente. </td>
-                  </mj-text>
-                </tr>
-              </mj-table>
-            </mj-column>
-          </mj-section>
-        `;
-      Mailer.sendMail(email, menssage, 'Cambio de email', 'Confirmacion de cambio de correo electronico');
-
-      return res.status(HttpCode.HTTP_OK).json(usuario[1]);
-    });
   }
 }
