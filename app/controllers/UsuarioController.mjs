@@ -217,6 +217,33 @@ export default class UsuarioController {
     return res.status(HttpCode.HTTP_OK).json({ message: 'roles eliminados' });
   }
 
+  static async updatePassword(req, res) {
+    // eslint-disable-next-line camelcase
+    const { password_actual, password, confirm_password } = req.body;
+    if (!bcrypt.compareSync(password_actual, req.usuario.password)) { throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'La contraseña proporcionada no es correcta'); }
+    // eslint-disable-next-line camelcase
+    if (password_actual === password) { throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'La nueva contraseña no puede ser igual que la anterior'); }
+    // eslint-disable-next-line camelcase
+    if (password !== confirm_password) { throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'Las contraseñas no coinciden'); }
+
+    const salt = bcrypt.genSaltSync();
+    const passwordCrypt = bcrypt.hashSync(password, salt);
+
+    await Usuario.update({
+      password: passwordCrypt,
+      token_valid_after: moment().tz('America/El_Salvador').format(),
+    }, {
+      where: {
+        id: req.usuario.id,
+      },
+      returning: ['id', 'email'],
+    });
+    const msg = 'Se le comunica que su contraseña ha sido modificada exitosamente';
+
+    Mailer.sendMail(req.usuario.email, msg, 'Cambio de contraseña', 'Contraseña modificada');
+    return res.status(HttpCode.HTTP_OK).json({ message: 'Contraseña actualizada con exito' });
+  }
+
   static async updateEmail(req, res) {
     const { email } = req.body;
 
