@@ -3,42 +3,47 @@ const usuarioCreateSchema = {
   properties: {
     password: {
       type: 'string',
-      required: true,
+      errorMessage: {
+        type: 'La contraseña del usuario debe ser de tipo alfanumerico',
+      },
     },
     email: {
       type: 'string',
-      required: true,
+      errorMessage: {
+        type: 'El email del usuario debe ser de tipo alfanumerico',
+      },
     },
     perfiles: {
-      required: false,
       type: 'array',
       uniqueItems: true,
       minItems: 1,
       items: {
         type: 'integer',
       },
-
+      errorMessage: {
+        type: 'El id del perfil debe ser de tipo entero',
+      },
     },
     roles: {
-      required: false,
       type: 'array',
       uniqueItems: true,
       minItems: 1,
       items: {
         type: 'integer',
-        unique: true,
+      },
+      errorMessage: {
+        type: 'El id del rol debe ser de tipo entero',
       },
     },
   },
-  anyOf: [
-    {
-      required: ['roles'],
+  oneOf: [{ required: ['roles'], errorMessage: { required: 'Debe poseer un rol o un pefil' } }, { required: ['perfiles'], errorMessage: { required: 'Debe poseer un rol o un pefil' } }],
+  required: ['password', 'email'],
+  errorMessage: {
+    required: {
+      password: 'El campo de contraseña del usuario es requerido',
+      email: 'El campo de email del usuario es requerido',
     },
-    {
-      required: ['perfiles'],
-    },
-  ],
-
+  },
 };
 
 export default usuarioCreateSchema;
