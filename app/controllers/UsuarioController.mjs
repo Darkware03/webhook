@@ -231,28 +231,35 @@ export default class UsuarioController {
         },
         returning: ['id', 'email'],
       },
-    ).then((usuario) => {
-      // Envio de notificacion por correo electronico
-      const menssage = `
+    );
+    // Envio de notificacion por correo electronico
+    const menssage = `
           <mj-section border-left="1px solid #aaaaaa" border-right="1px solid #aaaaaa" padding="20px" border-bottom="1px solid #aaaaaa">
             <mj-column>
               <mj-table>
                 <tr>
                   <mj-text align="center">
                     <td style="padding: 0 15px;" align="center" font-weight="bold" font-size="17px">
-                      Estimado usuario se le comunica que el correo: <b>${req.usuario.email}</b> <br> 
-                      ha sido cambiado satisfactoriamente. 
-                      <br> Desde este momento este correo manejará la cuenta en donde solicito el cambio
-                      <br><br>Atentamente. </td>
+                      <mj-group>
+                        <mj-text >
+                          Estimado usuario se le comunica que el correo: <mj-text font-style="oblique"> ${req.usuario.email} </mj-text>
+                        </mj-text>
+                        <mj-text>
+                          ha sido cambiado satisfactoriamente. 
+                        </mj-text> 
+                        <mj-text>
+                          Desde este momento este correo manejará la cuenta en donde solicito el cambio
+                        </mj-text>
+                      </mj-group>
+                    </td>
                   </mj-text>
                 </tr>
               </mj-table>
             </mj-column>
           </mj-section>
         `;
-      Mailer.sendMail(email, menssage, 'Cambio de email', 'Confirmacion de cambio de correo electronico');
+    Mailer.sendMail(email, menssage, 'Cambio de email', 'Confirmacion de cambio de correo electronico');
 
-      return res.status(HttpCode.HTTP_OK).json(usuario[1]);
-    });
+    return res.status(HttpCode.HTTP_OK).json({ message: 'Correo electronico actualizado con exito' });
   }
 }
