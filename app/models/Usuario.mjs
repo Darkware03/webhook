@@ -8,6 +8,9 @@ import RefreshToken from './RefreshToken.mjs';
 // eslint-disable-next-line import/no-cycle
 import Perfil from './Perfil.mjs';
 import UsuarioPerfil from './UsuarioPerfil.mjs';
+// eslint-disable-next-line import/no-cycle
+import MetodoAutenticacion from './MetodoAutenticacion.mjs';
+import MetodoAutenticacionUsuario from './MetodoAutenticacionUsuario.mjs';
 
 const UsuarioSchema = {
   id: {
@@ -28,6 +31,11 @@ class Usuario extends psql.Model {
       through: UsuarioRol,
       foreignKey: 'id_usuario',
       otherKey: 'id_rol',
+    });
+    this.belongsToMany(MetodoAutenticacion, {
+      through: MetodoAutenticacionUsuario,
+      foreignKey: 'id_usuario',
+      otherKey: 'id_metodo',
     });
     this.hasMany(RefreshToken, {
       foreignKey: 'id_usuario',

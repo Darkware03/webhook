@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import speakeasy from 'speakeasy';
 import getRols from './getRols.mjs';
 
 export default class Security {
@@ -14,5 +15,26 @@ export default class Security {
       if (havePermision) return true;
       return false;
     }
+  }
+
+  static async generateTwoFactorAuthCode(email) {
+    const secretKey = await speakeasy.generateSecret({
+      name: `${process.env.SISTEM_NAME} ${email}`,
+      issuer: process.env.SISTEM_NAME,
+    });
+    return {
+      secret_code: secretKey.base32,
+      qrCode: secretKey.otpauth_url,
+    };
+  }
+
+  static async verifyTwoFactorAuthCode(code, secretKey, time = null) {
+    return speakeasy.totp.verify({
+      secret: secretKey,
+      encoding: 'base32',
+      token: code,
+      window: 1,
+      time,
+    });
   }
 }
