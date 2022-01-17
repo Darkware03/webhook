@@ -63,13 +63,13 @@ export default class ApiController {
 
   // eslint-disable-next-line camelcase
   static async twoFactorAuthLoginChoose(req, res, next) {
-    // eslint-disable-next-line camelcase
-    let { id_metodo } = req.body;
+    // eslint-disable-next-line camelcase,prefer-const
+    let { id_metodo, email } = req.body;
     let { authorization } = req.headers;
     authorization = authorization.split(' ');
     if (!authorization.length < 2) {
       const receivedToken = authorization[1];
-      const { id, email } = jwt.verify(receivedToken, process.env.SECRET_KEY);
+      const { id } = jwt.verify(receivedToken, process.env.SECRET_KEY);
       // eslint-disable-next-line camelcase
       if (!id_metodo || id_metodo == null || id_metodo === '') {
         const getPrimaryMethod = await MetodoAutenticacionUsuario.findOne({ where: { id_usuario: id, is_primary: true } });
