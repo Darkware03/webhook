@@ -17,6 +17,6 @@ router.delete('/:id', Call(UsuarioController.destroy));
 router.post('/', [validate({ body: usuarioCreateSchema })], Call(UsuarioController.store));
 router.get('/:id', Call(UsuarioController.show));
 router.put('/update/password', [validate({ body: usuarioPasswordUpdate })], Call(UsuarioController.updatePassword));
-router.put('/update/mail', [validate({ body: usuarioUpdateEmailSchema })], Call(UsuarioController.updateEmail));
+router.put('/update/email', [validate({ body: usuarioUpdateEmailSchema })], Call(UsuarioController.updateEmail));
 
 export default router;
