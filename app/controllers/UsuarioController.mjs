@@ -262,13 +262,10 @@ export default class UsuarioController {
   }
 
   static async updatePassword(req, res) {
-    // eslint-disable-next-line camelcase
-    const { password_actual, password, confirm_password } = req.body;
-    if (!bcrypt.compareSync(password_actual, req.usuario.password)) { throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'La contraseña proporcionada no es correcta'); }
-    // eslint-disable-next-line camelcase
-    if (password_actual === password) { throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'La nueva contraseña no puede ser igual que la anterior'); }
-    // eslint-disable-next-line camelcase
-    if (password !== confirm_password) { throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'Las contraseñas no coinciden'); }
+    const { password_actual: passwordActual, password, confirm_password: confirmPassword } = req.body;
+    if (!bcrypt.compareSync(passwordActual, req.usuario.password)) { throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'La contraseña proporcionada no es correcta'); }
+    if (passwordActual === password) { throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'La nueva contraseña no puede ser igual que la anterior'); }
+    if (password !== confirmPassword) { throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'Las contraseñas no coinciden'); }
 
     const salt = bcrypt.genSaltSync();
     const passwordCrypt = bcrypt.hashSync(password, salt);
@@ -280,9 +277,12 @@ export default class UsuarioController {
       where: {
         id: req.usuario.id,
       },
-      returning: ['id', 'email'],
     });
-    const msg = 'Se le comunica que su contraseña ha sido modificada exitosamente';
+    const msg = `
+      <p><span>Estimado/a usuario</span></p>
+      <p><span>Se le informa que acaba de cambiar la contraseña de su cuenta de manera exitosa</span></p>
+      <p><span>En caso de no haber realizado el cambio de contraseña, por favor contacte inmediatamente al administrador</span></p>
+    `;
 
     await Mailer.sendMail(req.usuario.email, msg, 'Cambio de contraseña', 'Contraseña modificada');
     return res.status(HttpCode.HTTP_OK).json({ message: 'Contraseña actualizada con exito' });
