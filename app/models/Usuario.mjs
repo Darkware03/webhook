@@ -23,6 +23,7 @@ const UsuarioSchema = {
   last_login: { type: psql.Sequelize.STRING },
   is_suspended: { type: psql.Sequelize.BOOLEAN },
   token_valid_after: { type: psql.Sequelize.DATE },
+  two_factor_status: { type: psql.Sequelize.BOOLEAN },
 };
 
 class Usuario extends psql.Model {

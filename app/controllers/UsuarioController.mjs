@@ -29,6 +29,9 @@ export default class UsuarioController {
   }
 
   static async store(req, res) {
+    if (!await Security.isGranted(req, 'SUPER-ADMIN')) {
+      throw new NotFoundException('NOT_FOUND', 404, 'ERROR NO SE HA AUTENTICADO');
+    }
     const connection = DB.connection();
     const t = await connection.transaction();
     const {
@@ -71,7 +74,7 @@ export default class UsuarioController {
         is_primary: true,
         secret_key: newToken.secret_code,
         temporal_key: null,
-      });
+      }, { transaction: t });
       await t.commit();
 
       const us = await Usuario.getById(idUsuario);

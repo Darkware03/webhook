@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import moment from 'moment-timezone';
 import jwt from 'jsonwebtoken';
 import speakeasy from 'speakeasy';
+import { Op } from 'sequelize';
 import {
   Usuario, RefreshToken,
 // eslint-disable-next-line import/no-unresolved
@@ -15,14 +16,16 @@ import UnprocessableEntityException from '../../handlers/UnprocessableEntityExce
 import getRols from '../services/getRols.mjs';
 import MetodoAutenticacionUsuario from '../models/MetodoAutenticacionUsuario.mjs';
 import Security from '../services/security.mjs';
+import MetodoAutenticacion from '../models/MetodoAutenticacion.mjs';
 
 export default class ApiController {
   static async confirmUser(req, res) {
     const { token } = req.params;
     if (token) {
-      const { id } = jwt.verify(token, process.env.SECRET_KEY);
-      if (id) {
-        await Usuario.update({ is_suspended: false }, { where: { id } });
+      const { idUsuario } = jwt.verify(token, process.env.SECRET_KEY);
+      console.log(idUsuario);
+      if (idUsuario) {
+        await Usuario.update({ is_suspended: false }, { where: { id: idUsuario } });
         res.status(HttpCode.HTTP_OK).send({ message: 'El usuario ha sido verificado con exito' });
       } else {
         throw NotFoundException('NOT_FOUND', HttpCode.HTTP_BAD_REQUEST, 'Error al realizar la peticion...');
@@ -38,6 +41,14 @@ export default class ApiController {
         email,
         is_suspended: false,
       },
+      attributes: ['id', 'email', 'password'],
+      // eslint-disable-next-line max-len
+      include: [{
+        // eslint-disable-next-line max-len
+        model: MetodoAutenticacion,
+        attributes: ['id', 'nombre', 'icono'],
+        through: { attributes: ['is_primary'], where: { secret_key: { [Op.ne]: null } } },
+      }],
     });
 
     if (!usuario) throw new NoAuthException('UNAUTHORIZED', HttpCode.HTTP_UNAUTHORIZED, 'Credenciales no validas');
@@ -46,30 +57,34 @@ export default class ApiController {
     if (!validPassword) {
       throw new NoAuthException('UNAUTHORIZED', HttpCode.HTTP_UNAUTHORIZED, 'Credenciales no validas');
     }
+    await usuario.update({ last_login: moment().tz('America/El_Salvador').format(), two_factor_status: false });
+    // eslint-disable-next-line no-use-before-define
 
-    await usuario.update({ last_login: moment().tz('America/El_Salvador').format() });
+    console.log(usuario.MetodoAutenticacions);
 
+    const metodosAutenticacion = usuario.MetodoAutenticacions.map((row) => ({
+      nombre: row.nombre, descripcion: row.descripcion, icono: row.icono, id: row.id, is_primary: row.MetodoAutenticacionUsuario.is_primary,
+    }));
     const token = await Auth.createToken({
       id: usuario.id,
       email: usuario.email,
     });
-    const refreshToken = await Auth.refresh_token(usuario);
+
     return res.status(HttpCode.HTTP_OK).json({
       token,
-      refreshToken,
-      user: usuario,
+      metodos_autenticacion: metodosAutenticacion,
     });
   }
 
   // eslint-disable-next-line camelcase
   static async twoFactorAuthLoginChoose(req, res, next) {
     // eslint-disable-next-line camelcase,prefer-const
-    let { id_metodo, email } = req.body;
+    let { id_metodo } = req.body;
     let { authorization } = req.headers;
     authorization = authorization.split(' ');
     if (!authorization.length < 2) {
       const receivedToken = authorization[1];
-      const { id } = jwt.verify(receivedToken, process.env.SECRET_KEY);
+      const { id, email } = jwt.verify(receivedToken, process.env.SECRET_KEY);
       // eslint-disable-next-line camelcase
       if (!id_metodo || id_metodo == null || id_metodo === '') {
         const getPrimaryMethod = await MetodoAutenticacionUsuario.findOne({ where: { id_usuario: id, is_primary: true } });
@@ -114,7 +129,7 @@ export default class ApiController {
       });
       let timeToCodeValid = null;
       // eslint-disable-next-line camelcase,no-unused-expressions
-      if (Number(id_metodo) === 1)timeToCodeValid = process.env.GOOGLE_AUTH_TIME_EMAIL;
+      if (Number(metodoAutenticacion.id_metodo) === 1)timeToCodeValid = process.env.GOOGLE_AUTH_TIME_EMAIL;
       const isCodeValid = await Security.verifyTwoFactorAuthCode(codigo, metodoAutenticacion.secret_key, timeToCodeValid);
       if (!isCodeValid) throw new NoAuthException('UNAUTHORIZED', HttpCode.HTTP_UNAUTHORIZED, 'El codigo proporcionado no es valido');
       const roles = getRols.roles(id);
@@ -124,6 +139,7 @@ export default class ApiController {
         roles,
         email: usuario.email,
       });
+      usuario.update({ two_factor_status: true });
       res.status(HttpCode.HTTP_OK).send({
         token,
         refreshToken,

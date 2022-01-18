@@ -10,7 +10,6 @@ module.exports = {
       },
       id_usuario: {
         type: psql.Sequelize.INTEGER,
-        primaryKey: true,
         references: {
           model: 'mnt_usuario',
           key: 'id',
@@ -18,7 +17,6 @@ module.exports = {
       },
       id_metodo: {
         type: psql.Sequelize.INTEGER,
-        primaryKey: true,
         references: {
           model: 'mnt_metodo_autenticacion',
           key: 'id',

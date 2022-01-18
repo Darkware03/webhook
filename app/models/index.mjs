@@ -25,4 +25,5 @@ export {
   RutaRol,
   UsuarioPerfil,
   UsuarioRol,
+  MetodoAutenticacion,
 };
