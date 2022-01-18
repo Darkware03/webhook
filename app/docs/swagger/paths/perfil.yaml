@@ -1,19 +1,19 @@
-/api/v1/roles:
+/api/v1/perfiles:
   post:
     tags:
-      - rol
-    summary: Añade un nuevo rol
-    operationId: addRol
+      - perfil
+    summary: Añade un nuevo perfil
+    operationId: addPerfil
     requestBody:
-      description: Objeto Rol que será agregado al servicio
+      description: Objeto Perfil que será agregado al servicio
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/Rol"
+            $ref: "#/components/schemas/Perfil"
       required: true
     responses:
       201:
-        description: Rol agregado
+        description: Perfil agregado
         content:
           application/json:
             schema:
@@ -21,7 +21,9 @@
               properties:
                 id:
                   type: integer
-                name:
+                nombre:
+                  type: string
+                codigo:
                   type: string
       400:
         description: Bad Request
@@ -47,14 +49,14 @@
   x-codegen-request-body-name: body
   get:
     tags:
-      - rol
-    summary: Muestra roles
-    operationId: roles
+      - perfil
+    summary: Muestra perfiles
+    operationId: perfiles
     produces:
       - application/json
     responses:
       200:
-        description: Roles
+        description: Perfiles
         content:
           application/json:
             schema:
@@ -62,7 +64,9 @@
               properties:
                 id:
                   type: integer
-                name: 
+                nombre:
+                  type: string
+                codigo:
                   type: string
       401:
         description: Unauthorized
@@ -81,7 +85,7 @@
         content:
   area: development
 
-api/v1/roles/{id}:
+api/v1/perfiles/{id}:
   parameters:
   - in: path
     name: id
@@ -91,12 +95,12 @@ api/v1/roles/{id}:
     description: 
   get:
     tags:
-      - rol
-    summary: Muestra Rol por id
+      - perfil
+    summary: Muestra perfil por id
     operationId: viewRol
     responses:
       200:
-        description: Un objeto rol
+        description: Un objeto perfil
         content:
           application/json:
             schema:
@@ -104,8 +108,10 @@ api/v1/roles/{id}:
               properties:
                 id:
                   type: integer
-                email:
-                  type: name
+                nombre:
+                  type: string
+                codigo:
+                  type: string
       401:
         description: Unauthorized
         content:
@@ -123,9 +129,9 @@ api/v1/roles/{id}:
         content:
   put:
     tags:
-      - rol
-    summary: Actualiza rol
-    operationId: editRol
+      - perfil
+    summary: Actualiza perfil
+    operationId: editPerfil
     parameters:
       - in: path
         name: id
@@ -137,11 +143,11 @@ api/v1/roles/{id}:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/Rol"
+            $ref: "#/components/schemas/Perfil"
       required: true
     responses:
-      200:
-        description: Rol actualizado
+      201:
+        description: Perfil actualizado
         content:
           application/json:
             schema:
@@ -149,6 +155,10 @@ api/v1/roles/{id}:
               properties:
                 id:
                   type: integer
+                nombre:
+                  type: string
+                codigo:
+                  type: string
       400:
         description: Bad Request
         content:
@@ -173,9 +183,9 @@ api/v1/roles/{id}:
   x-codegen-request-body-name: body
   delete:
     tags:
-      - rol
-    summary: Elimina rol
-    operationId: deleteRol
+      - perfil
+    summary: Elimina perfil
+    operationId: deletePerfil
     responses:
       200:
         description: Rol eliminado

@@ -1,4 +1,3 @@
-
 /api/v1/users:
   post:
     tags:
@@ -13,57 +12,104 @@
             $ref: "#/components/schemas/Usuario"
       required: true
     responses:
-      200:
-        description: OK
+      201:
+        description: Usuario agregado
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                email:
+                  type: string
+                perfiles:
+                  type: object
+                  properties: 
+                    id: 
+                      type: integer
+                    name:
+                      type: string
+                roles:
+                  type: object
+                  properties: 
+                    id: 
+                      type: integer
+                    name:
+                      type: string
       400:
         description: Bad Request
-        content: {}
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
       401:
         description: Unauthorized
-        content: {}
-      404:
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/Error"
+      403:
         description: Not Found
-      405:
-        description: Not Allowed
-        content: {}
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/Error"
       500:
         description: Internal Server Error
-        content: {}
-    x-codegen-request-body-name: body
-
+        content:
+  x-codegen-request-body-name: body
   get:
     tags:
       - usuario
-    summary: Muestra todos los usuarios
+    summary: Muestra Usuarios
     operationId: users
     produces:
       - application/json
     responses:
       200:
+        description: Usuarios
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                email: 
+                  type: string
+                last_login:
+                  type: string
       401:
-        description: Usuario no auntenticado
-
-  put:
-    tags:
-      - usuario
-    summary: Actualiza la información de un usuario
-  delete:
-    tags:
-      - usuario
-    summary: Elimina un usuario
+        description: Unauthorized
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/Error"
+      403:
+        description: Not Found
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/Error"
+      500:
+        description: Internal Server Error
+        content:
+  area: development
 
 api/v1/users/{id}:
+  parameters:
+  - in: path
+    name: id
+    required: true
+    type: integer
+    minimum: 1
+    description: 
   get:
-   tags:
+    tags:
       - usuario
     summary: Muestra usuario por id
-    parameters:
-      - in: path
-        name: id
-        required: true
-        type: integer
-        minimum: 1
-        description: 
+    operationId: viewUser
     responses:
       200:
         description: Un objeto usuario
@@ -86,6 +132,295 @@ api/v1/users/{id}:
                       type: integer
                     name:
                       type: string
-area: api
+      401:
+        description: Unauthorized
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/Error"
+      403:
+        description: Not Found
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/Error"
+      500:
+        description: Internal Server Error
+        content:
+  put:
+    tags:
+      - usuario
+    summary: Actualiza usuario
+    operationId: editUser
+    parameters:
+      - in: path
+        name: id
+        required: true
+        type: integer
+        minimum: 1
+        description: 
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Usuario"
+      required: true
+    responses:
+      200:
+        description: Usuario actualizado
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                email:
+                  type: string
+      400:
+        description: Bad Request
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      401:
+        description: Unauthorized
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/Error"
+      403:
+        description: Not Found
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/Error"
+      500:
+        description: Internal Server Error
+        content:
+  x-codegen-request-body-name: body
+  delete:
+    tags:
+      - usuario
+    summary: Elimina usuario
+    operationId: deleteUser
+    responses:
+      200:
+        description: Usuario eliminado
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+      401:
+        description: Unauthorized
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/Error"
+      403:
+        description: Not Found
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/Error"
+      500:
+        description: Internal Server Error
+        content:
+  area: development
 
 
+api/v1/users/{id}/perfiles:
+  parameters:
+  - in: path
+    name: id
+    required: true
+    type: integer
+    minimum: 1
+    description: 
+  post:
+    tags:
+      - usuario
+    summary: Asigna perfiles a usuario
+    operationId: addUserProfile
+    requestBody:
+      content:
+        application/json:
+          schema:
+              type: array
+              items:
+                type: integer
+      required: true
+    responses:
+      200:
+        description: Un objeto perfil a usuario
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    email:
+                      type: string
+                    last_login:
+                      type: string
+                userProfils:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    id_usuario:
+                      type: integer
+                    id_perfil:
+                      type: integer
+      401:
+        description: Unauthorized
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/Error"
+      403:
+        description: Not Found
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/Error"
+      500:
+        description: Internal Server Error
+        content:
+  delete:
+    tags:
+      - usuario
+    summary: Elimina perfiles
+    operationId: destroyUserPerfil
+    responses:
+      200:
+        description: Perfiles de usuarios eliminados
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+      401:
+        description: Unauthorized
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/Error"
+      403:
+        description: Not Found
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/Error"
+      500:
+        description: Internal Server Error
+        content:
+  area: development
+
+
+
+
+api/v1/users/{id}/roles:
+  parameters:
+  - in: path
+    name: id
+    required: true
+    type: integer
+    minimum: 1
+    description: 
+  post:
+    tags:
+      - usuario
+    summary: Asigna rol a usuario
+    operationId: addUserRol
+    requestBody:
+      content:
+        application/json:
+          schema:
+              type: array
+              items:
+                type: integer
+      required: true
+    responses:
+      200:
+        description: Un objeto rol a usuario
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    email:
+                      type: string
+                    last_login:
+                      type: string
+                userProfils:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    id_usuario:
+                      type: integer
+                    id_perfil:
+                      type: integer
+      401:
+        description: Unauthorized
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/Error"
+      403:
+        description: Not Found
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/Error"
+      500:
+        description: Internal Server Error
+        content:
+  delete:
+    tags:
+      - usuario
+    summary: Elimina roles
+    operationId: destroyUserRol
+    responses:
+      200:
+        description: Roles de usuarios eliminados
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+      401:
+        description: Unauthorized
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/Error"
+      403:
+        description: Not Found
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/Error"
+      500:
+        description: Internal Server Error
+        content:
+  area: development
+
+ 

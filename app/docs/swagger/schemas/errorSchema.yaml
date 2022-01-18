@@ -1,8 +1,6 @@
 type: object
 properties:
-  id:
-    type: integer
-  nombre:
+  key:
     type: string
-  codigo:
+  message:
     type: string

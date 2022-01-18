@@ -2,7 +2,13 @@ Usuario:
   $include: "usuarioSchema.yaml"
 Login:
   $include: "loginSchema.yaml"
-Rol:
-  $include: "rolSchema.yaml"
 Perfil:
   $include: "perfilSchema.yaml"
+Rol:
+  $include: "rolSchema.yaml"
+Perfiles:
+$include: "perfilesSchemas.yaml"
+Roles:
+  $include: "rolesSchemas.yaml"
+Error:
+  $include: "errorSchema.yaml"

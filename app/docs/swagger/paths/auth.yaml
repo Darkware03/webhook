@@ -45,6 +45,7 @@
         content: {}
 
     x-codegen-request-body-name: body
+  area: api
 /refresh_token:
   post:
     tags:
@@ -93,4 +94,4 @@
 
     x-codegen-request-body-name: body
 
-area: api
+  area: api
