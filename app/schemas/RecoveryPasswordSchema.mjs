@@ -13,10 +13,6 @@ const recoveryPasswordSchema = {
       // eslint-disable-next-line no-useless-escape
       pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[$@#$!%*?&\-_.:])([A-Za-z\d$@$!%*?&]|[^ \d]){8,20}',
     },
-    token: {
-      type: 'string',
-      required: true,
-    },
   },
 };
 

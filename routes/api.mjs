@@ -16,6 +16,9 @@ import recoveryPasswordSchema from '../app/schemas/RecoveryPasswordSchema.mjs';
 
 const router = Router();
 router.post('/v1/login', [validate({ body: loginSchema })], Call(ApiController.login));
+router.post('/v1/2fa', Call(ApiController.twoFactorAuthLoginChoose));
+router.post('/v1/2fa/check', Call(ApiController.verifyTwoFactorAuthLogin));
+router.get('/v1/verificar-usuario/:token', Call(ApiController.confirmUser));
 router.post('/v1/refresh', Call(ApiController.RefreshToken));
 router.use('/v1/users', [auth], routesUsers);
 router.use('/v1/perfiles', [auth], routesPerfil);

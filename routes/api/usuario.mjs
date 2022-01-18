@@ -18,5 +18,7 @@ router.post('/', [validate({ body: usuarioCreateSchema })], Call(UsuarioControll
 router.get('/:id', Call(UsuarioController.show));
 router.put('/update/password', [validate({ body: usuarioPasswordUpdate })], Call(UsuarioController.updatePassword));
 router.put('/update/mail', [validate({ body: usuarioUpdateEmailSchema })], Call(UsuarioController.updateEmail));
+router.post('/2fa/add', Call(UsuarioController.storeMethodUser));
+router.post('/2fa/add/verify', Call(UsuarioController.verifyNewMethodUser));
 
 export default router;
