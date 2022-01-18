@@ -66,8 +66,7 @@ export default class UsuarioController {
       await usuario.addPerfils(perfiles, { transaction: t });
       await usuario.addRols(roles, { transaction: t });
       const idUsuario = usuario.id;
-      const newToken = Security.generateTwoFactorAuthCode(usuario.email);
-
+      const newToken = await Security.generateTwoFactorAuthCode(usuario.email);
       await MetodoAutenticacionUsuario.create({
         id_usuario: usuario.id,
         id_metodo: 1,
