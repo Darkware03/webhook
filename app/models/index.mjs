@@ -7,13 +7,14 @@ import Ruta from './Ruta.mjs';
 import RutaRol from './RutaRol.mjs';
 import UsuarioPerfil from './UsuarioPerfil.mjs';
 import UsuarioRol from './UsuarioRol.mjs';
+import MetodoAutenticacion from './MetodoAutenticacion.mjs';
 
 Usuario.associate();
 RefreshToken.associate();
 Perfil.associate();
 Rol.associate();
 Ruta.associate();
-
+MetodoAutenticacion.associate();
 export {
   RefreshToken,
   Usuario,
@@ -24,4 +25,5 @@ export {
   RutaRol,
   UsuarioPerfil,
   UsuarioRol,
+  MetodoAutenticacion,
 };

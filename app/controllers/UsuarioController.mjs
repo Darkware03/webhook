@@ -2,6 +2,8 @@
 import bcrypt from 'bcryptjs';
 import Sequelize from 'sequelize';
 import moment from 'moment-timezone';
+import speakeasy, { totp, hotp, generateSecret } from 'speakeasy';
+import { toDataURL } from 'qrcode';
 import HttpCode from '../../configs/httpCode.mjs';
 import DB from '../nucleo/DB.mjs';
 import BadRequestException from '../../handlers/BadRequestException.mjs';
@@ -16,6 +18,9 @@ import {
   Perfil,
   Rol,
 } from '../models/index.mjs';
+import MetodoAutenticacionUsuario from '../models/MetodoAutenticacionUsuario.mjs';
+import Auth from '../utils/Auth.mjs';
+import Security from '../services/security.mjs';
 
 export default class UsuarioController {
   static async index(req, res) {
@@ -24,6 +29,9 @@ export default class UsuarioController {
   }
 
   static async store(req, res) {
+    if (!await Security.isGranted(req, 'SUPER-ADMIN')) {
+      throw new NotFoundException('NOT_FOUND', 404, 'ERROR NO SE HA AUTENTICADO');
+    }
     const connection = DB.connection();
     const t = await connection.transaction();
     const {
@@ -51,18 +59,53 @@ export default class UsuarioController {
       }
 
       const usuario = await Usuario.create(
-        { email, password: passwordCrypt },
+        { email, password: passwordCrypt, is_suspended: true },
         { transaction: t },
       );
 
       await usuario.addPerfils(perfiles, { transaction: t });
       await usuario.addRols(roles, { transaction: t });
       const idUsuario = usuario.id;
+      const newToken = Security.generateTwoFactorAuthCode(usuario.email);
+
+      await MetodoAutenticacionUsuario.create({
+        id_usuario: usuario.id,
+        id_metodo: 1,
+        is_primary: true,
+        secret_key: newToken.secret_code,
+        temporal_key: null,
+      }, { transaction: t });
       await t.commit();
 
       const us = await Usuario.getById(idUsuario);
       const { Perfils, Rols } = us.dataValues;
-
+      const token = await Auth.createToken({ idUsuario });
+      // eslint-disable-next-line max-len
+      const htmlForEmail = `
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-image src="https://next.salud.gob.sv/index.php/s/AHEMQ38JR93fnXQ/download" width="350px"></mj-image>
+            <mj-button width="80%" padding="5px 10px" font-size="20px" background-color="#175efb" border-radius="99px">
+               <mj-text  align="center" font-weight="bold"  color="#ffffff" >
+                 Hola ${usuario.email}
+              </mj-text>
+           </mj-button>
+        <mj-spacer css-class="primary"></mj-spacer>
+        <mj-divider border-width="3px" border-color="#175efb" />
+        <mj-text  align="center" font-weight="bold" font-size="12px">
+         Para verificar tu cuenta debes de hacer click en el siguiente enlace:
+        </mj-text>
+        <mj-button background-color="#175efb" href="${process.env.FRONT_URL}/verificar/${token}">
+          VERIFICAR MI CUENTA
+        </mj-button>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>`;
+      // eslint-disable-next-line max-len
+      await Mailer.sendMail(usuario.email, null, 'Verificacion de correo electronico', null, htmlForEmail);
       return res.status(HttpCode.HTTP_CREATED).json({
         id: usuario.id,
         email: usuario.email,
@@ -283,5 +326,66 @@ export default class UsuarioController {
         `;
     await Mailer.sendMail(email, menssage, 'Cambio de email', 'Confirmacion de cambio de correo electronico');
     return res.status(HttpCode.HTTP_OK).json({ message: 'Correo electronico actualizado con exito' });
+  }
+
+  static async storeMethodUser(req, res) {
+    // eslint-disable-next-line camelcase
+    const { id_metodo } = req.body;
+    // eslint-disable-next-line camelcase
+    const existMethod = await MetodoAutenticacionUsuario.findOne({
+      where: {
+        id_usuario: req.usuario.id,
+        // eslint-disable-next-line camelcase
+        id_metodo,
+      },
+    });
+    const newToken = await Security.generateTwoFactorAuthCode(req.usuario.email);
+    if (!existMethod) {
+      await MetodoAutenticacionUsuario.create({
+        // eslint-disable-next-line camelcase
+        id_metodo,
+        id_usuario: req.usuario.id,
+        is_primary: false,
+        temporal_key: newToken.secret_code,
+      });
+      // eslint-disable-next-line camelcase
+      if (Number(id_metodo) === 2) {
+        return res.status(HttpCode.HTTP_OK).send({ message: 'Favor valide el nuevo metodo de autenticacion, escanee el codigo qr', codigoQr: await toDataURL(newToken.qrCode) });
+      }
+      const verificationCode = speakeasy.totp({
+        secret: newToken.secret_code,
+        encoding: 'base32',
+        time: process.env.GOOGLE_AUTH_TIME_EMAIL,
+      });
+      await Mailer.sendMail(req.usuario.email, verificationCode, 'Codigo de verificacion', 'Su codigo de verificacion es:');
+      return res.status(HttpCode.HTTP_OK).send({ message: 'Favor valide el nuevo metodo de autenticacion, revise su correo electronico' });
+    }
+    await existMethod.update({ temporal_key: newToken.secret_code });
+    // eslint-disable-next-line camelcase,max-len
+    if (Number(id_metodo) === 2) return res.status(HttpCode.HTTP_OK).send({ message: 'Favor valide el nuevo metodo de autenticacion, escanee el codigo qr', codigoQr: await toDataURL(newToken.qrCode) });
+    return res.status(HttpCode.HTTP_OK).send({ message: 'Favor valide el nuevo metodo de autenticacion, revise su correo electronico' });
+  }
+
+  static async verifyNewMethodUser(req, res) {
+    // eslint-disable-next-line camelcase
+    const { id_metodo, codigo } = req.body;
+    let timeToCodeValid = null;
+    // eslint-disable-next-line camelcase,no-unused-expressions
+    if (Number(id_metodo) === 1)timeToCodeValid = process.env.GOOGLE_AUTH_TIME_EMAIL;
+    const methodUser = await MetodoAutenticacionUsuario.findOne({
+      where: {
+        id_usuario: req.usuario.id,
+        // eslint-disable-next-line camelcase
+        id_metodo,
+      },
+    });
+    if (!methodUser) throw new NotFoundException('NOT_FOUND', HttpCode.HTTP_BAD_REQUEST, 'El usuario no tiene este metodo de autenticacion asociado');
+    const isValidCode = await Security.verifyTwoFactorAuthCode(codigo, methodUser.temporal_key, timeToCodeValid);
+    if (isValidCode) {
+      await methodUser.update({ secret_key: methodUser.temporal_key, temporal_key: null });
+      await Mailer.sendMail(req.usuario.email, 'Se ha cambiado el metodo de autenticacion', 'Metodo de autenticacion cambiado', 'ALERTA!');
+      return res.status(HttpCode.HTTP_OK).send({ message: 'Se ha modificado el metodo de autenticacion con exito!' });
+    }
+    throw new NotFoundException('NOT_FOUND', HttpCode.HTTP_BAD_REQUEST, 'El codigo proporcionado no es valido');
   }
 }
