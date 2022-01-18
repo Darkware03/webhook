@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import moment from 'moment-timezone';
 import jwt from 'jsonwebtoken';
+
 import {
   Usuario, RefreshToken,
 // eslint-disable-next-line import/no-unresolved
@@ -106,9 +107,32 @@ export default class ApiController {
 
     await usuario.update({ token_valid_after: moment().tz('America/El_Salvador').format() }, { where: { id: usuario.id } });
 
-    const uri = `${process.env.URL}/api/recovery_password/${token}`;
-
-    if (!Mailer.sendMail(usuario.email, `Ingrese al siguiente enlace: ${uri}`, 'Restablecer Contraseña', '¿Olvidaste tu contraseña?')) {
+    const uri = `http://${process.env.URL}/api/recovery_password/${token}`;
+    const message = `
+    <mj-section>
+      <mj-column >
+        <mj-text font-size="20px"><h1>¿Una nueva contraseña?</h1>
+            <p>No hay problema, haz clic al siguiente boton y crea una nueva.</p>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section>
+      
+      <mj-column>
+        
+        <mj-button href=" ${uri}" width="80%" padding="5px 10px" font-size="20px" background-color="#175efb" border-radius="99px">
+          Cambiar contraseña
+         </mj-button>
+      </mj-column>
+    </mj-section>
+    <mj-section>
+      <mj-column >
+        <mj-text >
+          <p>Si no solicitaste el cambio de contraseña, ignora este correo. Tu contraseña continuará siendo la misma.</p>
+         </mj-text>
+      </mj-column>
+    </mj-section>`;
+    if (!Mailer.sendMail(usuario.email, message, 'Restablecer Contraseña', '¿Olvidaste tu contraseña?')) {
       throw new NotFoundException('NOT_FOUND', 400, 'Error! Hubo un problema al enviar el correo, intente nuevamente.');
     }
 

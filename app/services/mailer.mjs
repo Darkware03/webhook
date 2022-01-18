@@ -28,7 +28,6 @@ export default class Mailer {
         <mj-spacer css-class="primary"></mj-spacer>
         <mj-divider border-width="3px" border-color="#175efb" />
         <mj-text  align="center" font-weight="bold" font-size="17px">${message}</mj-text>
-
       </mj-column>
     </mj-section>
   </mj-body>
