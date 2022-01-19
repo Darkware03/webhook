@@ -5,7 +5,7 @@ import speakeasy from 'speakeasy';
 import { Op } from 'sequelize';
 import {
   Usuario, RefreshToken,
-// eslint-disable-next-line import/no-unresolved
+  // eslint-disable-next-line import/no-unresolved
 } from '../models/index.mjs';
 import HttpCode from '../../configs/httpCode.mjs';
 import NoAuthException from '../../handlers/NoAuthException.mjs';
@@ -39,9 +39,8 @@ export default class ApiController {
     const usuario = await Usuario.findOne({
       where: {
         email,
-        is_suspended: false,
       },
-      attributes: ['id', 'email', 'password'],
+      attributes: ['id', 'email', 'password', 'is_suspended'],
       // eslint-disable-next-line max-len
       include: [{
         // eslint-disable-next-line max-len
@@ -57,9 +56,44 @@ export default class ApiController {
     if (!validPassword) {
       throw new NoAuthException('UNAUTHORIZED', HttpCode.HTTP_UNAUTHORIZED, 'Credenciales no validas');
     }
+
+    if (usuario.is_suspended) {
+      const idUsuario = usuario.id;
+      const token = await Auth.createToken({ idUsuario });
+      // eslint-disable-next-line max-len
+      const htmlForEmail = `
+<mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-image src="https://next.salud.gob.sv/index.php/s/AHEMQ38JR93fnXQ/download" width="350px"></mj-image>
+            <mj-button width="80%" padding="5px 10px" font-size="20px" background-color="#175efb" border-radius="99px">
+               <mj-text  align="center" font-weight="bold"  color="#ffffff" >
+                 Hola ${usuario.email}
+              </mj-text>
+           </mj-button>
+        <mj-spacer css-class="primary"></mj-spacer>
+        <mj-divider border-width="3px" border-color="#175efb" />
+        <mj-text  align="center" font-weight="bold" font-size="12px">
+         Para verificar tu cuenta debes de hacer click en el siguiente enlace:
+        </mj-text>
+        <mj-button background-color="#175efb" href="${process.env.FRONT_URL}/verificar/${token}">
+          VERIFICAR MI CUENTA
+        </mj-button>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>`;
+      // eslint-disable-next-line max-len
+      await Mailer.sendMail(usuario.email, null, 'Verificacion de correo electronico', null, htmlForEmail);
+      return res.status(HttpCode.HTTP_OK).json({
+        message: 'Su cuenta se encuentra suspendida, por favor verificarla por medio del correo que se le ha enviado',
+      });
+    }
     await usuario.update({ last_login: moment().tz('America/El_Salvador').format(), two_factor_status: false });
     // eslint-disable-next-line no-use-before-define
 
+    // eslint-disable-next-line no-console
     console.log(usuario.MetodoAutenticacions);
 
     const metodosAutenticacion = usuario.MetodoAutenticacions.map((row) => ({
@@ -129,7 +163,7 @@ export default class ApiController {
       });
       let timeToCodeValid = null;
       // eslint-disable-next-line camelcase,no-unused-expressions
-      if (Number(metodoAutenticacion.id_metodo) === 1)timeToCodeValid = process.env.GOOGLE_AUTH_TIME_EMAIL;
+      if (Number(metodoAutenticacion.id_metodo) === 1) timeToCodeValid = process.env.GOOGLE_AUTH_TIME_EMAIL;
       const isCodeValid = await Security.verifyTwoFactorAuthCode(codigo, metodoAutenticacion.secret_key, timeToCodeValid);
       if (!isCodeValid) throw new NoAuthException('UNAUTHORIZED', HttpCode.HTTP_UNAUTHORIZED, 'El codigo proporcionado no es valido');
       const roles = getRols.roles(id);

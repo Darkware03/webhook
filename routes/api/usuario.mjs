@@ -20,8 +20,8 @@ router.put('/:id', Call(UsuarioController.update));
 router.delete('/:id', Call(UsuarioController.destroy));
 router.post('/', [validate(usuarioCreateSchema)], Call(UsuarioController.store));
 router.get('/:id', Call(UsuarioController.show));
-router.put('/update/password', [validate({ body: usuarioPasswordUpdate })], Call(UsuarioController.updatePassword));
-router.put('/update/email', [validate({ body: usuarioUpdateEmailSchema })], Call(UsuarioController.updateEmail));
+router.put('/update/password', [validate(usuarioPasswordUpdate)], Call(UsuarioController.updatePassword));
+router.put('/update/email', [validate(usuarioUpdateEmailSchema)], Call(UsuarioController.updateEmail));
 router.post('/2fa/add', Call(UsuarioController.storeMethodUser));
 router.post('/2fa/add/verify', Call(UsuarioController.verifyNewMethodUser));
 
