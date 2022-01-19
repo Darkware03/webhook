@@ -2,7 +2,6 @@
   post:
     tags:
       - rol
-    summary: Añade un nuevo rol
     operationId: addRol
     requestBody:
       description: Objeto Rol que será agregado al servicio
@@ -48,7 +47,6 @@
   get:
     tags:
       - rol
-    summary: Muestra roles
     operationId: roles
     produces:
       - application/json
@@ -92,7 +90,6 @@ api/v1/roles/{id}:
   get:
     tags:
       - rol
-    summary: Muestra Rol por id
     operationId: viewRol
     responses:
       200:
@@ -124,7 +121,6 @@ api/v1/roles/{id}:
   put:
     tags:
       - rol
-    summary: Actualiza rol
     operationId: editRol
     parameters:
       - in: path
@@ -174,7 +170,6 @@ api/v1/roles/{id}:
   delete:
     tags:
       - rol
-    summary: Elimina rol
     operationId: deleteRol
     responses:
       200:

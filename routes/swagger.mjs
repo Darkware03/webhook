@@ -32,10 +32,14 @@ for (const pat in swaggerDocument.paths) {
     delete swaggerDocument.paths[pat];
   }
 }
-
 // Se establece la ruta hacia el Swagger Interno
 router.use('/local', swaggerUiExpress.serveFiles(swaggerDocument), swaggerUiExpress.setup(swaggerDocument));
 // Se establece la ruta hacia el swagger publico
 router.use('/docs', swaggerUiExpress.serveFiles(swaggerDocumentPublic), swaggerUiExpress.setup(swaggerDocumentPublic));
+// Ruta del archivo json de la documentacion
+router.use('/api/doc.json', (req, res) => {
+  res.header('Content-Type', 'application/json');
+  res.sendFile(path.join(__dirname, '../app/docs/index.json'));
+});
 
 export default router;
