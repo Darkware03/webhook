@@ -1,0 +1,205 @@
+/api/v1/roles:
+  post:
+    tags:
+      - rol
+    summary: Añade un nuevo rol
+    operationId: addRol
+    requestBody:
+      description: Objeto Rol que será agregado al servicio
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Rol"
+      required: true
+    responses:
+      201:
+        description: Rol agregado
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+      400:
+        description: Bad Request
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      401:
+        description: Unauthorized
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/Error"
+      403:
+        description: Not Found
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/Error"
+      500:
+        description: Internal Server Error
+        content:
+  x-codegen-request-body-name: body
+  get:
+    tags:
+      - rol
+    summary: Muestra roles
+    operationId: roles
+    produces:
+      - application/json
+    responses:
+      200:
+        description: Roles
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                name: 
+                  type: string
+      401:
+        description: Unauthorized
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/Error"
+      403:
+        description: Not Found
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/Error"
+      500:
+        description: Internal Server Error
+        content:
+  area: development
+
+api/v1/roles/{id}:
+  parameters:
+  - in: path
+    name: id
+    required: true
+    type: integer
+    minimum: 1
+    description: 
+  get:
+    tags:
+      - rol
+    summary: Muestra Rol por id
+    operationId: viewRol
+    responses:
+      200:
+        description: Un objeto rol
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                email:
+                  type: name
+      401:
+        description: Unauthorized
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/Error"
+      403:
+        description: Not Found
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/Error"
+      500:
+        description: Internal Server Error
+        content:
+  put:
+    tags:
+      - rol
+    summary: Actualiza rol
+    operationId: editRol
+    parameters:
+      - in: path
+        name: id
+        required: true
+        type: integer
+        minimum: 1
+        description: 
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Rol"
+      required: true
+    responses:
+      200:
+        description: Rol actualizado
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+      400:
+        description: Bad Request
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      401:
+        description: Unauthorized
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/Error"
+      403:
+        description: Not Found
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/Error"
+      500:
+        description: Internal Server Error
+        content:
+  x-codegen-request-body-name: body
+  delete:
+    tags:
+      - rol
+    summary: Elimina rol
+    operationId: deleteRol
+    responses:
+      200:
+        description: Rol eliminado
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+      401:
+        description: Unauthorized
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/Error"
+      403:
+        description: Not Found
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/Error"
+      500:
+        description: Internal Server Error
+        content:
+  area: development
+
