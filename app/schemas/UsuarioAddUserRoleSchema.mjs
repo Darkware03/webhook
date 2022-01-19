@@ -9,14 +9,14 @@ const usuarioAddUserRoleSchema = {
         type: 'integer',
       },
       errorMessage: {
-        type: 'El id del roles debe ser de tipo entero',
+        type: 'El id del rol debe ser de tipo entero',
       },
     },
   },
   required: ['roles'],
   errorMessage: {
     required: {
-      roles: 'El id del roles es requerido',
+      roles: 'El id de rol es requerido',
     },
   },
 };
