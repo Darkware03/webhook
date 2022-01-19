@@ -7,6 +7,8 @@ import usuarioDestroyUserPerfilSchema from '../../app/schemas/UsuarioDestroyUser
 import usuarioAddUserRoleSchema from '../../app/schemas/UsuarioAddUserRoleSchema.mjs';
 import usuarioDestroyUserRolSchema from '../../app/schemas/UsuarioDestroyUserRolSchema.mjs';
 import Call from '../../app/utils/Call.mjs';
+import usuarioPasswordUpdate from '../../app/schemas/UsuarioPasswordUpdateSchema.mjs';
+import usuarioUpdateEmailSchema from '../../app/schemas/UsuarioUpdateEmailSchema.mjs';
 
 const router = Router();
 router.get('/', Call(UsuarioController.index));
@@ -18,8 +20,8 @@ router.put('/:id', Call(UsuarioController.update));
 router.delete('/:id', Call(UsuarioController.destroy));
 router.post('/', [validate(usuarioCreateSchema)], Call(UsuarioController.store));
 router.get('/:id', Call(UsuarioController.show));
-// router.put('/update/password', [validate({ body: usuarioPasswordUpdate })], Call(UsuarioController.updatePassword));
-// router.put('/update/email', [validate({ body: usuarioUpdateEmailSchema })], Call(UsuarioController.updateEmail));
+router.put('/update/password', [validate(usuarioPasswordUpdate)], Call(UsuarioController.updatePassword));
+router.put('/update/email', [validate(usuarioUpdateEmailSchema)], Call(UsuarioController.updateEmail));
 router.post('/2fa/add', Call(UsuarioController.storeMethodUser));
 router.post('/2fa/add/verify', Call(UsuarioController.verifyNewMethodUser));
 
