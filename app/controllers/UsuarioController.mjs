@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import bcrypt from 'bcryptjs';
-import Sequelize from 'sequelize';
+import Sequelize, { Op } from 'sequelize';
 import moment from 'moment-timezone';
 import speakeasy, { totp, hotp, generateSecret } from 'speakeasy';
 import { toDataURL } from 'qrcode';
@@ -66,8 +66,7 @@ export default class UsuarioController {
       await usuario.addPerfils(perfiles, { transaction: t });
       await usuario.addRols(roles, { transaction: t });
       const idUsuario = usuario.id;
-      const newToken = Security.generateTwoFactorAuthCode(usuario.email);
-
+      const newToken = await Security.generateTwoFactorAuthCode(usuario.email);
       await MetodoAutenticacionUsuario.create({
         id_usuario: usuario.id,
         id_metodo: 1,
@@ -398,5 +397,12 @@ export default class UsuarioController {
       return res.status(HttpCode.HTTP_OK).send({ message: 'Se ha modificado el metodo de autenticacion con exito!' });
     }
     throw new NotFoundException('NOT_FOUND', HttpCode.HTTP_BAD_REQUEST, 'El codigo proporcionado no es valido');
+  }
+
+  static async updatePrimaryMethod(req, res) {
+    await MetodoAutenticacionUsuario.update({ is_primary: true }, { where: { id: req.body.id_metodo_usuario } });
+    await MetodoAutenticacionUsuario.update({ is_primary: false }, { where: { id_usuario: req.usuario.id, [Op.not]: [{ id: req.body.id_metodo_usuario }] } });
+    await Mailer.sendMail(req.usuario.email, 'Se ha cambio el metodo de autenticacion primario', 'Alerta de actualizacion de cuenta', 'Alerta');
+    return res.status(HttpCode.HTTP_OK).send({ message: 'Solicitud procesada con exito!' });
   }
 }
