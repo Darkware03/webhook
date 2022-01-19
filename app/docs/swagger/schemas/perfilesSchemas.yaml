@@ -1,0 +1,4 @@
+ArrayOfInt:
+  type: object
+  items:
+    type: integer
