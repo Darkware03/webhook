@@ -14,11 +14,20 @@ const Auth = async (req, res, next) => {
 
     const token = authorization[1];
     const { id } = jwt.verify(token, process.env.SECRET_KEY);
+    const decoded = jwt.decode(token, process.env.SECRET_KEY);
+    const fechaCreacionToken = new Date(decoded.iat*1000);
+
     const usuario = await Usuario.findOne({
       where: { id, is_suspended: false },
     });
 
+    const fechaValidacionToken = new Date(usuario.token_valid_after);
+
     if (usuario.is_suspended) throw new NoAuthException();
+
+     if(fechaValidacionToken >= fechaCreacionToken ){
+      throw new NoAuthException(); 
+     }
 
     req.usuario = usuario;
     next();
