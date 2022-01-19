@@ -24,10 +24,9 @@ externalDocs:
   description: Find out more about Swagger
   url: 'http://swagger.io'
 servers:
-  - url: 'https://localhost:8000/api'
-  - url: 'http://localhost:8000/api/v1'
+  - url: 'http://localhost:8000/'
 paths:
-  /usuario:
+  /api/v1/users:
     post:
       tags:
         - usuario
@@ -39,19 +38,36 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Usuario'
-          application/xml:
-            schema:
-              $ref: '#/components/schemas/Usuario'
         required: true
       responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content: {}
+        '401':
+          description: Unauthorized
+          content: {}
+        '404':
+          description: Not Found
         '405':
-          description: Invalid input
+          description: Not Allowed
+          content: {}
+        '500':
+          description: Internal Server Error
           content: {}
       x-codegen-request-body-name: body
     get:
       tags:
         - usuario
-      summary: Muestra los usuarios almacenados
+      summary: Muestra todos los usuarios
+      operationId: users
+      produces:
+        - application/json
+      responses:
+        '200': null
+        '401':
+          description: Usuario no auntenticado
     put:
       tags:
         - usuario
@@ -60,59 +76,149 @@ paths:
       tags:
         - usuario
       summary: Elimina un usuario
-    area: development
-  /proveedor:
+  'api/v1/users/{id}':
     get:
-      tags:
-        - proveedor
-      summary: Muestra los proveedores
+      summary: Muestra usuario por id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: integer
+          minimum: 1
+          description: null
+      responses:
+        '200':
+          description: Un objeto usuario
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  email:
+                    type: string
+                  perfiles:
+                    type: object
+                    properties: {}
+                  roles:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+  area: api
+  /login:
     post:
       tags:
-        - proveedor
-      summary: Añade un nuevo proveedor
-    put:
-      tags:
-        - proveedor
-      summary: Actualiza la información de un proveedor
-    delete:
-      tags:
-        - proveedor
-      summary: Elimina a un proveedor específico
-    area: development
-  /medico:
-    get:
-      tags:
-        - medico
-      summary: Muestra todos los medicos
+        - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+        required: true
+      responses:
+        '200':
+          description: null
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  refresh_token:
+                    type: string
+                  user:
+                    type: object
+                    properties:
+                      email:
+                        type: string
+                      password:
+                        type: string
+                      last_login:
+                        type: string
+        '400':
+          description: Bad Request
+          content: {}
+        '401':
+          description: Acceso no Autorizado
+          content: {}
+        '404':
+          description: Not Found
+        '405':
+          description: Not Allowed
+          content: {}
+        '500':
+          description: Internal Server Error
+          content: {}
+      x-codegen-request-body-name: body
+  /refresh_token:
     post:
       tags:
-        - medico
-      summary: Añade un medico
-    put:
-      tags:
-        - medico
-      summary: Actualiza la información de un medico
-    delete:
-      tags:
-        - medico
-      summary: Elimina a un medico
-  /hospital:
-    get:
-      tags:
-        - hospital
-      summary: Muestra los Hospitales
+        - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+        required: true
+      responses:
+        '200':
+          description: null
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  refresh_token:
+                    type: string
+                  user:
+                    type: object
+                    properties:
+                      email:
+                        type: string
+                      password:
+                        type: string
+                      last_login:
+                        type: string
+        '400':
+          description: Bad Request
+          content: {}
+        '401':
+          description: Acceso no Autorizado
+          content: {}
+        '404':
+          description: Not Found
+        '405':
+          description: Not Allowed
+          content: {}
+        '500':
+          description: Internal Server Error
+          content: {}
+      x-codegen-request-body-name: body
+  /rol:
     post:
       tags:
-        - hospital
-      summary: Añade un nuevo Hospital
-    put:
-      tags:
-        - hospital
-      summary: Actualiza la información de un Hospital
-    delete:
-      tags:
-        - hospital
-      summary: Elimina un Hospital
+        - rol
+      summary: Añade un nuevo rol
+      operationId: addRol
+      requestBody:
+        description: Objeto Rol que será agregado al servicio
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Rol'
+        required: true
+      responses:
+        '200':
+          description: null
+          content: null
+      x-codegen-request-body-name: body
     area: api
 components:
   schemas:
@@ -138,6 +244,25 @@ components:
           type: integer
           description: User Status
           format: int32
-    Proveedor: {}
-    Medico: {}
-    Hospital: {}
+    Login:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+    Rol:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    Perfil: {}
+securitySchemes:
+  bearerAuth:
+    type: http
+    scheme: bearer
+    bearerFormat: JWT
+security: null
+bearerAuth: []

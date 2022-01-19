@@ -1,8 +1,5 @@
-/usuario:
-  $include: "usuario.yaml"
-/proveedor:
-  $include: "proveedor.yaml"
-/medico:
-  $include: "medico.yaml"
-/hospital:
-  $include: "hospital.yaml"
+$include: "auth.yaml"
+$include: "usuario.yaml"
+$include: "perfil.yaml"
+$include: "rol.yaml"
+

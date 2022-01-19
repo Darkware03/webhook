@@ -125,7 +125,7 @@ export default class ApiController {
       // validar si existe metodo de autenticacion
       if (!metodoAutenticacion) throw new NoAuthException('UNAUTHORIZED', HttpCode.HTTP_UNAUTHORIZED, 'El usuario no posee metodos de autenticacion');
       const usuario = await Usuario.findOne({
-        where: { id },
+        where: { id }, attributes: ['id', 'email', 'last_login', 'two_factor_status'],
       });
       let timeToCodeValid = null;
       // eslint-disable-next-line camelcase,no-unused-expressions
@@ -143,6 +143,8 @@ export default class ApiController {
       res.status(HttpCode.HTTP_OK).send({
         token,
         refreshToken,
+        user: usuario,
+        '2fa': usuario.two_factor_status,
       });
     }
   }
