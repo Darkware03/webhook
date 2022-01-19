@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import mongooseDb from './connection.mjs';
 
 const { Schema } = mongoose;
 
@@ -17,5 +18,6 @@ const bitacoraSchema = new Schema({
   xrd_cliente: String,
   xrd_service: String,
 });
-
-export default bitacoraSchema;
+mongooseDb.connection();
+const Bitacora = mongoose.model('bitacora', bitacoraSchema, 'bitacoras');
+export default Bitacora;

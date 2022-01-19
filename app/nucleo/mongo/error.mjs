@@ -1,4 +1,5 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
+import mongooseDb from './connection.mjs';
 
 const { Schema } = mongoose;
 
@@ -10,4 +11,7 @@ const errorSchema = new Schema({
   fecha_hora_reg: { type: Date, default: Date.now() },
 });
 
-export default errorSchema;
+mongooseDb.connection();
+const Error = mongoose.model('error', errorSchema, 'errors');
+
+export default Error;
