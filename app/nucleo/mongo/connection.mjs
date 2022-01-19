@@ -16,8 +16,6 @@ export default class connectionMongoose {
         useNewUrlParser: true,
         useUnifiedTopology: true,
       });
-
-      console.log('conectado a base de datos');
     } catch (error) {
       console.log(error);
     }

@@ -1,6 +1,6 @@
 import ajv from '../utils/ajv-instance.mjs';
 import HttpCode from '../../configs/httpCode.mjs';
-// import Handler from '../../handlers/Handler.mjs';
+import Handler from '../../handlers/Handler.mjs';
 
 function validate(schema) {
   const ajvValidate = ajv.compile(schema);
@@ -9,6 +9,13 @@ function validate(schema) {
     const valid = ajvValidate(req.body);
     if (!valid) {
       const { errors } = ajvValidate;
+
+      const aux = {
+        message: 'BAD REQUEST',
+        statusCode: HttpCode.HTTP_BAD_REQUEST,
+        content: errors,
+      };
+      Handler.logError(req, aux);
 
       const resultError = errors.map((err) => {
         const respuesta = {};
