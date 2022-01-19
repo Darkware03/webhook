@@ -252,7 +252,7 @@ export default class ApiController {
     const salt = bcrypt.genSaltSync();
     const passwordCrypt = bcrypt.hashSync(password, salt);
 
-    if (password !== confirmPassword) { throw new NotFoundException('NOT_FOUND', 400, 'Error! Contraseña incorrecta'); }
+    if (password !== confirmPassword) { throw new NotFoundException('NOT_FOUND', 400, 'Error! Las contraseñas  no coinciden'); }
 
     const decoded = jwt.decode(token, process.env.SECRET_KEY);
 
