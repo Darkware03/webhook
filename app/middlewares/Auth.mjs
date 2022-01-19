@@ -7,20 +7,18 @@ import HttpCode from '../../configs/httpCode.mjs';
 const Auth = async (req, res, next) => {
   try {
     let { authorization } = req.headers;
-    if (!authorization) next(new NoAuthException());
+    if (!authorization) throw new NoAuthException();
 
     authorization = authorization.split(' ');
-    if (authorization.length < 2) next(new NoAuthException());
+    if (authorization.length < 2) throw new NoAuthException();
 
     const token = authorization[1];
-
     const { id } = jwt.verify(token, process.env.SECRET_KEY);
-
     const usuario = await Usuario.findOne({
       where: { id, is_suspended: false },
     });
 
-    if (usuario.is_suspended) next(new NoAuthException());
+    if (usuario.is_suspended) throw new NoAuthException();
 
     req.usuario = usuario;
     next();
@@ -30,6 +28,10 @@ const Auth = async (req, res, next) => {
         message: 'No authenticado',
       });
     }
+
+    return res.status(err.statusCode || HttpCode.HTTP_INTERNAL_SERVER_ERROR).json({
+      message: err.message,
+    });
   }
 };
 

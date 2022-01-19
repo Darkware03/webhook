@@ -12,7 +12,8 @@ export default class Handler {
     next(err);
   }
 
-  static handlerError(err, req, res) {
+  // eslint-disable-next-line consistent-return,no-unused-vars
+  static handlerError(err, req, res, next) {
     const debug = process.env.APP_DEBUG === 'true';
 
     if (err.name && err.name === 'JsonSchemaValidation') return res.status(HttpCode.HTTP_BAD_REQUEST).json(err.validations.body);
