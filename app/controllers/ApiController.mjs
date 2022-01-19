@@ -125,7 +125,7 @@ export default class ApiController {
       // validar si existe metodo de autenticacion
       if (!metodoAutenticacion) throw new NoAuthException('UNAUTHORIZED', HttpCode.HTTP_UNAUTHORIZED, 'El usuario no posee metodos de autenticacion');
       const usuario = await Usuario.findOne({
-        where: { id },
+        where: { id }, attributes: ['id', 'email', 'last_login', 'two_factor_status'],
       });
       let timeToCodeValid = null;
       // eslint-disable-next-line camelcase,no-unused-expressions
@@ -143,6 +143,8 @@ export default class ApiController {
       res.status(HttpCode.HTTP_OK).send({
         token,
         refreshToken,
+        user: usuario,
+        '2fa': usuario.two_factor_status,
       });
     }
   }
@@ -206,9 +208,38 @@ export default class ApiController {
 
     await usuario.update({ token_valid_after: moment().tz('America/El_Salvador').format() }, { where: { id: usuario.id } });
 
-    const uri = `${process.env.URL}/api/recovery_password/${token}`;
-
-    if (!Mailer.sendMail(usuario.email, `Ingrese al siguiente enlace: ${uri}`, 'Restablecer Contraseña', '¿Olvidaste tu contraseña?')) {
+    const uri = `http://${process.env.URL}/api/recovery_password/${token}`;
+    const message = `
+    <mjml>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-image src="https://next.salud.gob.sv/index.php/s/AHEMQ38JR93fnXQ/download" width="350px"></mj-image>
+           
+        
+              <mj-text  align="center" font-weight="bold" font-size="30px" color="#175efb">Recuperación de Contraseña</mj-text>
+        <mj-spacer css-class="primary"></mj-spacer>
+        <mj-divider border-width="3px" border-color="#175efb" />
+        <mj-text align="center" font-size="18px"><h3>¿Una nueva contraseña?</h3>
+            <p>Haz clic al siguiente boton y crea una nueva.</p>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section>
+      
+      <mj-column>
+        
+        <mj-button href=" ${uri}" width="80%" padding="5px 10px" font-size="20px" background-color="#175efb" border-radius="99px">
+          Cambiar contraseña
+         </mj-button>
+        <mj-text align="justify">
+          <p>Si no solicitaste el cambio de contraseña, ignora este correo. Tu contraseña continuará siendo la misma.</p>
+         </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>`;
+    if (!Mailer.sendMail(usuario.email, null, 'Restablecer Contraseña', null, message)) {
       throw new NotFoundException('NOT_FOUND', 400, 'Error! Hubo un problema al enviar el correo, intente nuevamente.');
     }
 
@@ -216,8 +247,8 @@ export default class ApiController {
   }
 
   static async recoveryPassword(req, res) {
-    const { password, confirmPassword, token } = req.body;
-
+    const { password, confirmPassword } = req.body;
+    const token = req.headers.authorization.split(' ')[1];
     const salt = bcrypt.genSaltSync();
     const passwordCrypt = bcrypt.hashSync(password, salt);
 

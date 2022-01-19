@@ -5,17 +5,13 @@ const recoveryPasswordSchema = {
       type: 'string',
       required: true,
       // eslint-disable-next-line no-useless-escape
-      pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&\-_.])([A-Za-z\d$@$!%*?&]|[^ ]){8,15}$',
+      pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[$@#$!%*?&\-_.:])([A-Za-z\d$@$!%*?&]|[^ \d]){8,20}',
     },
     confirmPassword: {
       type: 'string',
       required: true,
       // eslint-disable-next-line no-useless-escape
-      pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&\-_.])([A-Za-z\d$@$!%*?&]|[^ ]){8,15}$',
-    },
-    token: {
-      type: 'string',
-      required: true,
+      pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[$@#$!%*?&\-_.:])([A-Za-z\d$@$!%*?&]|[^ \d]){8,20}',
     },
   },
 };

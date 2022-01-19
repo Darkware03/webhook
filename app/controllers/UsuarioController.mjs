@@ -66,8 +66,7 @@ export default class UsuarioController {
       await usuario.addPerfils(perfiles, { transaction: t });
       await usuario.addRols(roles, { transaction: t });
       const idUsuario = usuario.id;
-      const newToken = Security.generateTwoFactorAuthCode(usuario.email);
-
+      const newToken = await Security.generateTwoFactorAuthCode(usuario.email);
       await MetodoAutenticacionUsuario.create({
         id_usuario: usuario.id,
         id_metodo: 1,
@@ -262,13 +261,10 @@ export default class UsuarioController {
   }
 
   static async updatePassword(req, res) {
-    // eslint-disable-next-line camelcase
-    const { password_actual, password, confirm_password } = req.body;
-    if (!bcrypt.compareSync(password_actual, req.usuario.password)) { throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'La contraseña proporcionada no es correcta'); }
-    // eslint-disable-next-line camelcase
-    if (password_actual === password) { throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'La nueva contraseña no puede ser igual que la anterior'); }
-    // eslint-disable-next-line camelcase
-    if (password !== confirm_password) { throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'Las contraseñas no coinciden'); }
+    const { password_actual: passwordActual, password, confirm_password: confirmPassword } = req.body;
+    if (!bcrypt.compareSync(passwordActual, req.usuario.password)) { throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'La contraseña proporcionada no es correcta'); }
+    if (passwordActual === password) { throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'La nueva contraseña no puede ser igual que la anterior'); }
+    if (password !== confirmPassword) { throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'Las contraseñas no coinciden'); }
 
     const salt = bcrypt.genSaltSync();
     const passwordCrypt = bcrypt.hashSync(password, salt);
@@ -280,16 +276,28 @@ export default class UsuarioController {
       where: {
         id: req.usuario.id,
       },
-      returning: ['id', 'email'],
     });
-    const msg = 'Se le comunica que su contraseña ha sido modificada exitosamente';
+    const msg = `
+      <p><span>Estimado/a usuario</span></p>
+      <p><span>Se le informa que acaba de cambiar la contraseña de su cuenta de manera exitosa</span></p>
+      <p><span>En caso de no haber realizado el cambio de contraseña, por favor contacte inmediatamente al administrador</span></p>
+    `;
 
     await Mailer.sendMail(req.usuario.email, msg, 'Cambio de contraseña', 'Contraseña modificada');
     return res.status(HttpCode.HTTP_OK).json({ message: 'Contraseña actualizada con exito' });
   }
 
   static async updateEmail(req, res) {
-    const { email } = req.body;
+    const { email, password } = req.body;
+    /** Validacion que el correo ingresado no sea igual al correo actual */
+    if (email === req.usuario.email) { throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'El correo no puede ser igual al anterior'); }
+
+    /** Confirmacion de password para el cambio de contraseña */
+    if (!bcrypt.compareSync(password, req.usuario.password)) { throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'La contraseña proporcionada no es correcta'); }
+
+    /** Validacion que el correo no se encuentre en uso en la BD */
+    const usuario = await Usuario.findAll({ where: { email } });
+    if (usuario.length) { throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'El correo ya se encuentra en uso'); }
 
     await Usuario.update(
       {
@@ -300,37 +308,33 @@ export default class UsuarioController {
         where: {
           id: req.usuario.id,
         },
-        returning: ['id', 'email'],
       },
     );
-    // Envio de notificacion por correo electronico
-    const menssage = `
-          <mj-section border-left="1px solid #aaaaaa" border-right="1px solid #aaaaaa" padding="20px" border-bottom="1px solid #aaaaaa">
-            <mj-column>
-              <mj-table>
-                <tr>
-                  <mj-text align="center">
-                    <td style="padding: 0 15px;" align="center" font-weight="bold" font-size="17px">
-                      <mj-group>
-                        <mj-text >
-                          Estimado usuario se le comunica que el correo: <mj-text font-style="oblique"> ${req.usuario.email} </mj-text>
-                        </mj-text>
-                        <mj-text>
-                          ha sido cambiado satisfactoriamente. 
-                        </mj-text> 
-                        <mj-text>
-                          Desde este momento este correo manejará la cuenta en donde solicito el cambio
-                        </mj-text>
-                      </mj-group>
-                    </td>
-                  </mj-text>
-                </tr>
-              </mj-table>
-            </mj-column>
-          </mj-section>
-        `;
-    await Mailer.sendMail(email, menssage, 'Cambio de email', 'Confirmacion de cambio de correo electronico');
 
+    /** Envio de notificacion por correo electronico  */
+    const message = `
+                <mjml>
+                <mj-body>
+                  <mj-section>
+                    <mj-column>
+                      <mj-image src="https://next.salud.gob.sv/index.php/s/AHEMQ38JR93fnXQ/download" width="350px"></mj-image>
+                          <mj-button width="80%" padding="5px 10px" font-size="20px" background-color="#175efb" border-radius="99px">
+                            <mj-text  align="center" font-weight="bold"  color="#ffffff" >
+                              Confirmacion de cambio de correo electronico
+                            </mj-text>
+                        </mj-button>
+                      <mj-spacer css-class="primary"></mj-spacer>
+                      <mj-divider border-width="3px" border-color="#175efb" />
+                      <mj-text  align="center" font-size="16px">
+                        <p>Estimado usuario se le comunica que el correo: <span style="font-weight:bold;">${req.usuario.email} </span>
+                        ha sido cambiado satisfactoriamente. </p>
+                        <p>Desde este momento <span style="font-weight:bold;">${email}</span> manejará la cuenta en donde solicito el cambio</p>
+                      </mj-text>
+                    </mj-column>
+                  </mj-section>
+                </mj-body>
+              </mjml>`;
+    await Mailer.sendMail(email, null, 'Cambio de email', null, message);
     return res.status(HttpCode.HTTP_OK).json({ message: 'Correo electronico actualizado con exito' });
   }
 
