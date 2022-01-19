@@ -20,7 +20,7 @@ module.exports = {
           transaction: TRANSACTION,
         },
       );
-      await queryInterface.bulkInsert(
+      const METODOAUTENTICACION = await queryInterface.bulkInsert(
         'mnt_metodo_autenticacion',
         [
           {
@@ -70,7 +70,7 @@ module.exports = {
         [
           {
             id_usuario: USUARIO[0].id,
-            id_metodo: 1,
+            id_metodo: METODOAUTENTICACION[0].id,
             secret_key: Speakeasy.generateSecret().base32,
             is_primary: true,
             temporal_key: null,
@@ -82,7 +82,6 @@ module.exports = {
       );
       await TRANSACTION.commit();
     } catch (e) {
-      console.log(e);
       await TRANSACTION.rollback();
     }
   },
