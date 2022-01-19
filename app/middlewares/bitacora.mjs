@@ -9,10 +9,10 @@ const Authentication = async (req, res, next) => {
       ip_cliente: req.connection.localAddress,
       ip_servidor: req.connection.remoteAddress,
       metodo_http: req.method,
-      request_headers: JSON.stringify(req.headers),
+      request_headers: req.headers,
       request_uri: req.originalUrl,
-      request_parameters: JSON.stringify(req.params),
-      request_content: JSON.stringify(req.body),
+      request_parameters: req.params,
+      request_content: req.body,
       xrd_userid: req.usuario.email,
       xrd_messageid: 'xrd_messageid',
       xrd_cliente: 'xrd_cliente',
@@ -20,7 +20,7 @@ const Authentication = async (req, res, next) => {
 
     });
     await data.save();
-
+    req.bitacora = data;
     next();
   } catch (error) {
     return res.status(HttpCode.HTTP_INTERNAL_SERVER_ERROR).json({
