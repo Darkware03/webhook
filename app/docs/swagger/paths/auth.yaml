@@ -1,4 +1,4 @@
-/login:
+/api/v1/login:
   post:
     tags:
       - auth
@@ -46,7 +46,7 @@
 
     x-codegen-request-body-name: body
   area: api
-/refresh_token:
+/api/v1/refresh_token:
   post:
     tags:
       - auth

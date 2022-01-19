@@ -13,40 +13,43 @@ info:
     plantilla para  representar el correcto funcionamiento del Swagger y
     actualmente no contiene ningun endpoint de la API, deberán agregarse cuando
     ya se encuentren disponibles).
-  termsOfService: 'http://swagger.io/terms/'
-  contact:
-    email: encargado@salud.gob.sv
-  license:
-    name: Apache 2.0
-    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-  version: 1.0.0
-externalDocs:
-  description: Find out more about Swagger
-  url: 'http://swagger.io'
-servers:
-  - url: 'http://localhost:8000/'
 paths:
-  /api/v1/users:
+  /api/v1/login:
     post:
       tags:
-        - usuario
-      summary: Añade un nuevo usuario
-      operationId: addUser
+        - auth
       requestBody:
-        description: Objeto Usuario que será agregado al servicio
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Usuario'
+              $ref: '#/components/schemas/Login'
         required: true
       responses:
         '200':
-          description: OK
+          description: null
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  refresh_token:
+                    type: string
+                  user:
+                    type: object
+                    properties:
+                      email:
+                        type: string
+                      password:
+                        type: string
+                      last_login:
+                        type: string
         '400':
           description: Bad Request
           content: {}
         '401':
-          description: Unauthorized
+          description: Acceso no Autorizado
           content: {}
         '404':
           description: Not Found
@@ -57,35 +60,162 @@ paths:
           description: Internal Server Error
           content: {}
       x-codegen-request-body-name: body
+    area: api
+  /api/v1/refresh_token:
+    post:
+      tags:
+        - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+        required: true
+      responses:
+        '200':
+          description: null
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  refresh_token:
+                    type: string
+                  user:
+                    type: object
+                    properties:
+                      email:
+                        type: string
+                      password:
+                        type: string
+                      last_login:
+                        type: string
+        '400':
+          description: Bad Request
+          content: {}
+        '401':
+          description: Acceso no Autorizado
+          content: {}
+        '404':
+          description: Not Found
+        '405':
+          description: Not Allowed
+          content: {}
+        '500':
+          description: Internal Server Error
+          content: {}
+      x-codegen-request-body-name: body
+    area: api
+  /api/v1/users:
+    post:
+      tags:
+        - usuario
+      operationId: addUser
+      requestBody:
+        description: Objeto Usuario que será agregado al servicio
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Usuario'
+        required: true
+      responses:
+        '201':
+          description: Usuario agregado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  email:
+                    type: string
+                  perfiles:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                  roles:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content: null
+    x-codegen-request-body-name: body
     get:
       tags:
         - usuario
-      summary: Muestra todos los usuarios
       operationId: users
       produces:
         - application/json
       responses:
-        '200': null
+        '200':
+          description: Usuarios
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  email:
+                    type: string
+                  last_login:
+                    type: string
         '401':
-          description: Usuario no auntenticado
-    put:
-      tags:
-        - usuario
-      summary: Actualiza la información de un usuario
-    delete:
-      tags:
-        - usuario
-      summary: Elimina un usuario
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content: null
+    area: development
   'api/v1/users/{id}':
+    parameters:
+      - in: path
+        name: id
+        required: true
+        type: integer
+        minimum: 1
+        description: null
     get:
-      summary: Muestra usuario por id
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: integer
-          minimum: 1
-          description: null
+      tags:
+        - usuario
+      operationId: viewUser
       responses:
         '200':
           description: Un objeto usuario
@@ -108,104 +238,496 @@ paths:
                         type: integer
                       name:
                         type: string
-  area: api
-  /login:
-    post:
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content: null
+    put:
       tags:
-        - auth
+        - usuario
+      operationId: editUser
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: integer
+          minimum: 1
+          description: null
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Login'
+              $ref: '#/components/schemas/Usuario'
         required: true
       responses:
         '200':
-          description: null
+          description: Usuario actualizado
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  token:
+                  id:
+                    type: integer
+                  email:
                     type: string
-                  refresh_token:
-                    type: string
-                  user:
-                    type: object
-                    properties:
-                      email:
-                        type: string
-                      password:
-                        type: string
-                      last_login:
-                        type: string
         '400':
           description: Bad Request
-          content: {}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '401':
-          description: Acceso no Autorizado
-          content: {}
-        '404':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
           description: Not Found
-        '405':
-          description: Not Allowed
-          content: {}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '500':
           description: Internal Server Error
-          content: {}
-      x-codegen-request-body-name: body
-  /refresh_token:
-    post:
+          content: null
+    x-codegen-request-body-name: body
+    delete:
       tags:
-        - auth
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Login'
-        required: true
+        - usuario
+      operationId: deleteUser
       responses:
         '200':
-          description: null
+          description: Usuario eliminado
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  token:
+                  message:
                     type: string
-                  refresh_token:
-                    type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content: null
+    area: development
+  'api/v1/users/{id}/perfiles':
+    parameters:
+      - in: path
+        name: id
+        required: true
+        type: integer
+        minimum: 1
+        description: null
+    post:
+      tags:
+        - usuario
+      operationId: addUserProfile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: integer
+        required: true
+      responses:
+        '200':
+          description: Un objeto perfil a usuario
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
                   user:
                     type: object
                     properties:
+                      id:
+                        type: integer
                       email:
-                        type: string
-                      password:
                         type: string
                       last_login:
                         type: string
-        '400':
-          description: Bad Request
-          content: {}
+                  userProfils:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      id_usuario:
+                        type: integer
+                      id_perfil:
+                        type: integer
         '401':
-          description: Acceso no Autorizado
-          content: {}
-        '404':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
           description: Not Found
-        '405':
-          description: Not Allowed
-          content: {}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '500':
           description: Internal Server Error
-          content: {}
-      x-codegen-request-body-name: body
-  /rol:
+          content: null
+    delete:
+      tags:
+        - usuario
+      operationId: destroyUserPerfil
+      responses:
+        '200':
+          description: Perfiles de usuarios eliminados
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content: null
+    area: development
+  'api/v1/users/{id}/roles':
+    parameters:
+      - in: path
+        name: id
+        required: true
+        type: integer
+        minimum: 1
+        description: null
+    post:
+      tags:
+        - usuario
+      operationId: addUserRol
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: integer
+        required: true
+      responses:
+        '200':
+          description: Un objeto rol a usuario
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      email:
+                        type: string
+                      last_login:
+                        type: string
+                  userProfils:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      id_usuario:
+                        type: integer
+                      id_perfil:
+                        type: integer
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content: null
+    delete:
+      tags:
+        - usuario
+      operationId: destroyUserRol
+      responses:
+        '200':
+          description: Roles de usuarios eliminados
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content: null
+    area: development
+  /api/v1/perfiles:
+    post:
+      tags:
+        - perfil
+      operationId: addPerfil
+      requestBody:
+        description: Objeto Perfil que será agregado al servicio
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Perfil'
+        required: true
+      responses:
+        '201':
+          description: Perfil agregado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  nombre:
+                    type: string
+                  codigo:
+                    type: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content: null
+    x-codegen-request-body-name: body
+    get:
+      tags:
+        - perfil
+      operationId: perfiles
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Perfiles
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  nombre:
+                    type: string
+                  codigo:
+                    type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content: null
+    area: development
+  'api/v1/perfiles/{id}':
+    parameters:
+      - in: path
+        name: id
+        required: true
+        type: integer
+        minimum: 1
+        description: null
+    get:
+      tags:
+        - perfil
+      operationId: viewRol
+      responses:
+        '200':
+          description: Un objeto perfil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  nombre:
+                    type: string
+                  codigo:
+                    type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content: null
+    put:
+      tags:
+        - perfil
+      operationId: editPerfil
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: integer
+          minimum: 1
+          description: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Perfil'
+        required: true
+      responses:
+        '201':
+          description: Perfil actualizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  nombre:
+                    type: string
+                  codigo:
+                    type: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content: null
+    x-codegen-request-body-name: body
+    delete:
+      tags:
+        - perfil
+      operationId: deletePerfil
+      responses:
+        '200':
+          description: Rol eliminado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content: null
+    area: development
+  /api/v1/roles:
     post:
       tags:
         - rol
-      summary: Añade un nuevo rol
       operationId: addRol
       requestBody:
         description: Objeto Rol que será agregado al servicio
@@ -215,11 +737,191 @@ paths:
               $ref: '#/components/schemas/Rol'
         required: true
       responses:
-        '200':
-          description: null
+        '201':
+          description: Rol agregado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
           content: null
-      x-codegen-request-body-name: body
-    area: api
+    x-codegen-request-body-name: body
+    get:
+      tags:
+        - rol
+      operationId: roles
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Roles
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content: null
+    area: development
+  'api/v1/roles/{id}':
+    parameters:
+      - in: path
+        name: id
+        required: true
+        type: integer
+        minimum: 1
+        description: null
+    get:
+      tags:
+        - rol
+      operationId: viewRol
+      responses:
+        '200':
+          description: Un objeto rol
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  email:
+                    type: name
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content: null
+    put:
+      tags:
+        - rol
+      operationId: editRol
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: integer
+          minimum: 1
+          description: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Rol'
+        required: true
+      responses:
+        '200':
+          description: Rol actualizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content: null
+    x-codegen-request-body-name: body
+    delete:
+      tags:
+        - rol
+      operationId: deleteRol
+      responses:
+        '200':
+          description: Rol eliminado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content: null
+    area: development
 components:
   schemas:
     Usuario:
@@ -251,6 +953,15 @@ components:
           type: string
         password:
           type: string
+    Perfil:
+      type: object
+      properties:
+        id:
+          type: integer
+        nombre:
+          type: string
+        codigo:
+          type: string
     Rol:
       type: object
       properties:
@@ -258,11 +969,27 @@ components:
           type: integer
         name:
           type: string
-    Perfil: {}
-securitySchemes:
-  bearerAuth:
-    type: http
-    scheme: bearer
-    bearerFormat: JWT
-security: null
-bearerAuth: []
+    Perfiles: null
+    Roles:
+      ArrayOfInt:
+        type: array
+        items:
+          type: integer
+    Error:
+      type: object
+      properties:
+        key:
+          type: string
+        message:
+          type: string
+    ArrayOfInt:
+      type: object
+      items:
+        type: integer
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []

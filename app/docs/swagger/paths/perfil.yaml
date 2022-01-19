@@ -2,7 +2,6 @@
   post:
     tags:
       - perfil
-    summary: Añade un nuevo perfil
     operationId: addPerfil
     requestBody:
       description: Objeto Perfil que será agregado al servicio
@@ -50,7 +49,6 @@
   get:
     tags:
       - perfil
-    summary: Muestra perfiles
     operationId: perfiles
     produces:
       - application/json
@@ -96,7 +94,6 @@ api/v1/perfiles/{id}:
   get:
     tags:
       - perfil
-    summary: Muestra perfil por id
     operationId: viewRol
     responses:
       200:
@@ -130,7 +127,6 @@ api/v1/perfiles/{id}:
   put:
     tags:
       - perfil
-    summary: Actualiza perfil
     operationId: editPerfil
     parameters:
       - in: path
@@ -184,7 +180,6 @@ api/v1/perfiles/{id}:
   delete:
     tags:
       - perfil
-    summary: Elimina perfil
     operationId: deletePerfil
     responses:
       200:
