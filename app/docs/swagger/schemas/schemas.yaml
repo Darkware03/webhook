@@ -10,5 +10,11 @@ Perfiles:
 $include: "perfilesSchemas.yaml"
 Roles:
   $include: "rolesSchemas.yaml"
+TwoFactorAuth:
+  $include: "2faSchema.yaml"
+RecoveryPassword:
+  $include: "recoveryPasswordSendEmailSchema.yaml"
+UpdateEmail:
+  $include: "updateEmailSchema.yaml"
 Error:
   $include: "errorSchema.yaml"

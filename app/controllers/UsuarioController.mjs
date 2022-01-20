@@ -21,6 +21,7 @@ import {
 import MetodoAutenticacionUsuario from '../models/MetodoAutenticacionUsuario.mjs';
 import Auth from '../utils/Auth.mjs';
 import Security from '../services/security.mjs';
+import MetodoAutenticacion from '../models/MetodoAutenticacion.mjs';
 
 export default class UsuarioController {
   static async index(req, res) {
@@ -404,5 +405,38 @@ export default class UsuarioController {
     await MetodoAutenticacionUsuario.update({ is_primary: false }, { where: { id_usuario: req.usuario.id, [Op.not]: [{ id: req.body.id_metodo_usuario }] } });
     await Mailer.sendMail(req.usuario.email, 'Se ha cambio el metodo de autenticacion primario', 'Alerta de actualizacion de cuenta', 'Alerta');
     return res.status(HttpCode.HTTP_OK).send({ message: 'Solicitud procesada con exito!' });
+  }
+
+  static async getMetodosUsuario(req, res) {
+    const metodos = await MetodoAutenticacion.findAll();
+    const usuario = await Usuario.findOne({
+      where: {
+        id: req.usuario.id,
+      },
+      attributes: ['id'],
+      // eslint-disable-next-line max-len
+      include: [{
+        // eslint-disable-next-line max-len
+        model: MetodoAutenticacion,
+        attributes: ['id', 'nombre', 'icono'],
+        through: { attributes: ['is_primary', 'id'] },
+      }],
+    });
+    // eslint-disable-next-line array-callback-return
+    const metodosAutenticacion = metodos.map((metodo) => {
+      // eslint-disable-next-line no-mixed-operators
+      const isPrimary = usuario.MetodoAutenticacions.filter((metodoUsuario) => (metodoUsuario.id === metodo.id));
+      return {
+        nombre: metodo.nombre,
+        descripcion: metodo.descripcion,
+        icono: metodo.icono,
+        id: metodo.id,
+        is_primary: isPrimary.length > 0 ? isPrimary[0].MetodoAutenticacionUsuario.is_primary : null,
+        id_metodo_usuario: isPrimary.length > 0 ? isPrimary[0].MetodoAutenticacionUsuario.id : null,
+      };
+    });
+    return res.status(HttpCode.HTTP_OK).send({
+      metodos_autenticacion: metodosAutenticacion,
+    });
   }
 }

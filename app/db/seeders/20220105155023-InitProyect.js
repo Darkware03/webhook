@@ -84,105 +84,118 @@ module.exports = {
       /** Aqui */
       const ruta = await queryInterface.bulkInsert(
         'mnt_ruta',
-        [{
-          nombre: 'perfiles',
-          uri: '/perfiles/create',
-          nombre_uri: 'perfilesCreate',
-          mostrar: false,
-          icono: 'mdi-account',
-          orden: null,
-          publico: false,
-        },
-        {
-          nombre: 'perfiles',
-          uri: '/perfiles/list',
-          nombre_uri: 'perfilesList',
-          mostrar: true,
-          icono: 'mdi-account',
-          orden: null,
-          publico: false,
-        },
-        {
-          nombre: 'perfiles',
-          uri: '/perfiles/edit',
-          nombre_uri: 'perfilesEdit',
-          mostrar: false,
-          icono: 'mdi-account',
-          orden: null,
-          publico: false,
-        },
-        {
-          nombre: 'rutas',
-          uri: '/rutas/create',
-          nombre_uri: 'rutasCreate',
-          mostrar: false,
-          icono: 'mdi-routes',
-          orden: null,
-          publico: false,
-        },
-        {
-          nombre: 'rutas',
-          uri: '/rutas/list',
-          nombre_uri: 'rutasList',
-          mostrar: true,
-          icono: 'mdi-routes',
-          orden: 2,
-          publico: false,
-        },
-        {
-          nombre: 'rutas',
-          uri: '/rutas/edit',
-          nombre_uri: 'rutasEdit',
-          mostrar: false,
-          icono: 'mdi-routes',
-          orden: null,
-          publico: false,
-        },
-        {
-          nombre: 'usuarios',
-          uri: '/usuarios/create',
-          nombre_uri: 'usuariosCreate',
-          mostrar: false,
-          icono: 'mdi-face-man',
-          orden: null,
-          publico: false,
-        },
-        {
-          nombre: 'usuarios',
-          uri: '/usuarios/list',
-          nombre_uri: 'usuariosList',
-          mostrar: true,
-          icono: 'mdi-face-man',
-          orden: null,
-          publico: false,
-        },
-        {
-          nombre: 'usuarios',
-          uri: '/usuarios/edit',
-          nombre_uri: 'usuariosEdit',
-          mostrar: false,
-          icono: 'mdi-face-man',
-          orden: null,
-          publico: false,
-        },
-        {
-          nombre: 'roles',
-          uri: '/roles/create',
-          nombre_uri: 'rolesCreate',
-          mostrar: false,
-          icono: 'mdi-account-multiple-plus',
-          orden: null,
-          publico: false,
-        },
-        {
-          nombre: 'roles',
-          uri: '/roles/list',
-          nombre_uri: 'rolesList',
-          mostrar: true,
-          icono: 'mdi-account-group',
-          orden: null,
-          publico: false,
-        }],
+        [
+          {
+            nombre: 'perfiles',
+            uri: '/perfiles/create',
+            nombre_uri: 'perfilesCreate',
+            mostrar: false,
+            icono: 'mdi-account',
+            orden: null,
+            publico: false,
+            admin: true,
+          },
+          {
+            nombre: 'perfiles',
+            uri: '/perfiles/list',
+            nombre_uri: 'perfilesList',
+            mostrar: true,
+            icono: 'mdi-account',
+            orden: null,
+            publico: false,
+            admin: true,
+          },
+          {
+            nombre: 'perfiles',
+            uri: '/perfiles/edit',
+            nombre_uri: 'perfilesEdit',
+            mostrar: false,
+            icono: 'mdi-account',
+            orden: null,
+            publico: false,
+            admin: true,
+          },
+          {
+            nombre: 'rutas',
+            uri: '/rutas/create',
+            nombre_uri: 'rutasCreate',
+            mostrar: false,
+            icono: 'mdi-routes',
+            orden: null,
+            publico: false,
+            admin: true,
+          },
+          {
+            nombre: 'rutas',
+            uri: '/rutas/list',
+            nombre_uri: 'rutasList',
+            mostrar: true,
+            icono: 'mdi-routes',
+            orden: 2,
+            publico: false,
+            admin: true,
+          },
+          {
+            nombre: 'rutas',
+            uri: '/rutas/edit',
+            nombre_uri: 'rutasEdit',
+            mostrar: false,
+            icono: 'mdi-routes',
+            orden: null,
+            publico: false,
+            admin: true,
+          },
+          {
+            nombre: 'usuarios',
+            uri: '/usuarios/create',
+            nombre_uri: 'usuariosCreate',
+            mostrar: false,
+            icono: 'mdi-face-man',
+            orden: null,
+            publico: false,
+            admin: true,
+          },
+          {
+            nombre: 'usuarios',
+            uri: '/usuarios/list',
+            nombre_uri: 'usuariosList',
+            mostrar: true,
+            icono: 'mdi-face-man',
+            orden: null,
+            publico: false,
+            admin: true,
+          },
+          {
+            nombre: 'usuarios',
+            uri: '/usuarios/edit',
+            nombre_uri: 'usuariosEdit',
+            mostrar: false,
+            icono: 'mdi-face-man',
+            orden: null,
+            publico: false,
+            admin: true,
+          },
+          {
+            nombre: 'roles',
+            uri: '/roles/create',
+            nombre_uri: 'rolesCreate',
+            mostrar: false,
+            icono: 'mdi-account-multiple-plus',
+            orden: null,
+            publico: false,
+            admin: true,
+          },
+          {
+            nombre: 'roles',
+            uri: '/roles/list',
+            nombre_uri: 'rolesList',
+            mostrar: true,
+            icono: 'mdi-account-group',
+            orden: null,
+            publico: false,
+            admin: true,
+          },
+        ],
         {
           returning: ['id'],
           transaction: TRANSACTION,
@@ -191,7 +204,8 @@ module.exports = {
       // eslint-disable-next-line camelcase
       const role = await queryInterface.bulkInsert(
         'mnt_rol',
-        [{ name: 'ROLE_ADMIN_PERFIL_CREATE' },
+        [
+          { name: 'ROLE_ADMIN_PERFIL_CREATE' },
           { name: 'ROLE_ADMIN_PERFIL_LIST' },
           { name: 'ROLE_ADMIN_PERFIL_EDIT' },
           { name: 'ROLE_ADMIN_RUTA_CREATE' },
@@ -210,41 +224,52 @@ module.exports = {
       );
       await queryInterface.bulkInsert(
         'mnt_ruta_rol',
-        [{
-          id_ruta: ruta[0].id,
-          id_rol: role[0].id,
-        },
-        {
-          id_ruta: ruta[1].id,
-          id_rol: role[1].id,
-        }, {
-          id_ruta: ruta[2].id,
-          id_rol: role[2].id,
-        }, {
-          id_ruta: ruta[3].id,
-          id_rol: role[3].id,
-        }, {
-          id_ruta: ruta[4].id,
-          id_rol: role[4].id,
-        }, {
-          id_ruta: ruta[5].id,
-          id_rol: role[5].id,
-        }, {
-          id_ruta: ruta[6].id,
-          id_rol: role[6].id,
-        }, {
-          id_ruta: ruta[7].id,
-          id_rol: role[7].id,
-        }, {
-          id_ruta: ruta[8].id,
-          id_rol: role[8].id,
-        }, {
-          id_ruta: ruta[9].id,
-          id_rol: role[9].id,
-        }, {
-          id_ruta: ruta[10].id,
-          id_rol: role[10].id,
-        }],
+        [
+          {
+            id_ruta: ruta[0].id,
+            id_rol: role[0].id,
+          },
+          {
+            id_ruta: ruta[1].id,
+            id_rol: role[1].id,
+          },
+          {
+            id_ruta: ruta[2].id,
+            id_rol: role[2].id,
+          },
+          {
+            id_ruta: ruta[3].id,
+            id_rol: role[3].id,
+          },
+          {
+            id_ruta: ruta[4].id,
+            id_rol: role[4].id,
+          },
+          {
+            id_ruta: ruta[5].id,
+            id_rol: role[5].id,
+          },
+          {
+            id_ruta: ruta[6].id,
+            id_rol: role[6].id,
+          },
+          {
+            id_ruta: ruta[7].id,
+            id_rol: role[7].id,
+          },
+          {
+            id_ruta: ruta[8].id,
+            id_rol: role[8].id,
+          },
+          {
+            id_ruta: ruta[9].id,
+            id_rol: role[9].id,
+          },
+          {
+            id_ruta: ruta[10].id,
+            id_rol: role[10].id,
+          },
+        ],
         { transaction: TRANSACTION },
       );
 
@@ -255,7 +280,8 @@ module.exports = {
         { name: 'ROLE_ADMIN_RUTA_DELETE' },
         { name: 'ROLE_ADMIN_USER_DELETE' },
         { name: 'ROLE_ADMIN_USER_VIEW' },
-        { name: 'ROLE_SUPER_ADMIN' }];
+        { name: 'ROLE_SUPER_ADMIN' },
+      ];
 
       const rutas = [
         {
@@ -266,6 +292,7 @@ module.exports = {
           icono: 'mdi-account-lock',
           orden: null,
           publico: true,
+          admin: true,
         },
         {
           nombre: 'seguridad',
@@ -275,6 +302,7 @@ module.exports = {
           icono: null,
           orden: null,
           publico: false,
+          admin: false,
         },
         {
           nombre: 'dashboard',
@@ -284,27 +312,21 @@ module.exports = {
           icono: 'mdi-home',
           orden: 5,
           publico: true,
-        }];
+          admin: false,
+        },
+      ];
 
       /** Otras Rutas */
-      await queryInterface.bulkInsert(
-        'mnt_ruta',
-        rutas,
-        {
-          returning: ['id'],
-          transaction: TRANSACTION,
-        },
-      );
+      await queryInterface.bulkInsert('mnt_ruta', rutas, {
+        returning: ['id'],
+        transaction: TRANSACTION,
+      });
 
       /** Otros Roles */
-      const rolesUsuario = await queryInterface.bulkInsert(
-        'mnt_rol',
-        roles,
-        {
-          returning: ['id'],
-          transaction: TRANSACTION,
-        },
-      );
+      const rolesUsuario = await queryInterface.bulkInsert('mnt_rol', roles, {
+        returning: ['id'],
+        transaction: TRANSACTION,
+      });
       /** Otros roles con usuarios */
       await queryInterface.bulkInsert(
         'mnt_usuario_rol',
@@ -312,22 +334,28 @@ module.exports = {
           {
             id_usuario: USUARIO[0].id,
             id_rol: rolesUsuario[0].id,
-          }, {
+          },
+          {
             id_usuario: USUARIO[0].id,
             id_rol: rolesUsuario[1].id,
-          }, {
+          },
+          {
             id_usuario: USUARIO[0].id,
             id_rol: rolesUsuario[2].id,
-          }, {
+          },
+          {
             id_usuario: USUARIO[0].id,
             id_rol: rolesUsuario[3].id,
-          }, {
+          },
+          {
             id_usuario: USUARIO[0].id,
             id_rol: rolesUsuario[4].id,
-          }, {
+          },
+          {
             id_usuario: USUARIO[0].id,
             id_rol: rolesUsuario[5].id,
-          }, {
+          },
+          {
             id_usuario: USUARIO[0].id,
             id_rol: rolesUsuario[6].id,
           },

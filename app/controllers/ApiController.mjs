@@ -23,7 +23,6 @@ export default class ApiController {
     const { token } = req.params;
     if (token) {
       const { idUsuario } = jwt.verify(token, process.env.SECRET_KEY);
-      console.log(idUsuario);
       if (idUsuario) {
         await Usuario.update({ is_suspended: false }, { where: { id: idUsuario } });
         res.status(HttpCode.HTTP_OK).send({ message: 'El usuario ha sido verificado con exito' });
@@ -86,7 +85,7 @@ export default class ApiController {
 </mjml>`;
       // eslint-disable-next-line max-len
       await Mailer.sendMail(usuario.email, null, 'Verificacion de correo electronico', null, htmlForEmail);
-      return res.status(HttpCode.HTTP_OK).json({
+      return res.status(HttpCode.HTTP_BAD_REQUEST).json({
         message: 'Su cuenta se encuentra suspendida, por favor verificarla por medio del correo que se le ha enviado',
       });
     }
@@ -94,7 +93,6 @@ export default class ApiController {
     // eslint-disable-next-line no-use-before-define
 
     // eslint-disable-next-line no-console
-    console.log(usuario.MetodoAutenticacions);
 
     const metodosAutenticacion = usuario.MetodoAutenticacions.map((row) => ({
       nombre: row.nombre, descripcion: row.descripcion, icono: row.icono, id: row.id, is_primary: row.MetodoAutenticacionUsuario.is_primary,
@@ -103,7 +101,6 @@ export default class ApiController {
       id: usuario.id,
       email: usuario.email,
     });
-
     return res.status(HttpCode.HTTP_OK).json({
       token,
       metodos_autenticacion: metodosAutenticacion,
@@ -141,6 +138,7 @@ export default class ApiController {
     throw new NoAuthException('UNAUTHORIZED', HttpCode.HTTP_UNAUTHORIZED, 'La informacion no es valida');
   }
 
+  // eslint-disable-next-line consistent-return
   static async verifyTwoFactorAuthLogin(req, res) {
     let dbQueryParams;
     let { authorization } = req.headers;
@@ -166,18 +164,20 @@ export default class ApiController {
       if (Number(metodoAutenticacion.id_metodo) === 1) timeToCodeValid = process.env.GOOGLE_AUTH_TIME_EMAIL;
       const isCodeValid = await Security.verifyTwoFactorAuthCode(codigo, metodoAutenticacion.secret_key, timeToCodeValid);
       if (!isCodeValid) throw new NoAuthException('UNAUTHORIZED', HttpCode.HTTP_UNAUTHORIZED, 'El codigo proporcionado no es valido');
+      await usuario.update({ two_factor_status: true, last_login: moment().tz('America/El_Salvador').format(), token_valid_after: moment().subtract(5, 's').tz('America/El_Salvador').format() });
+
       const roles = getRols.roles(id);
       const refreshToken = await Auth.refresh_token(usuario);
       const token = await Auth.createToken({
         id,
         roles,
         email: usuario.email,
+        user: usuario,
       });
-      usuario.update({ two_factor_status: true });
-      res.status(HttpCode.HTTP_OK).send({
+      // eslint-disable-next-line max-len
+      return res.status(HttpCode.HTTP_OK).send({
         token,
         refreshToken,
-        user: usuario,
         '2fa': usuario.two_factor_status,
       });
     }

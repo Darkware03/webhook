@@ -8,6 +8,7 @@ import routesRoles from './api/rol.mjs';
 import routesPerfil from './api/perfil.mjs';
 import routesRutas from './api/ruta.mjs';
 import recoveryPasswordSchema from '../app/schemas/RecoveryPasswordSchema.mjs';
+import RutaController from '../app/controllers/RutaController.mjs';
 
 const router = Router();
 router.post('/v1/login', Call(ApiController.login));
@@ -19,6 +20,7 @@ router.use('/v1/users', [auth], routesUsers);
 router.use('/v1/perfiles', [auth], routesPerfil);
 router.use('/v1/roles', [auth], routesRoles);
 router.use('/v1/rutas', [auth], routesRutas);
+router.use('/v1/get-rutas', [auth], RutaController.getRutas);
 router.put('/v1/recoveryPassword/changePassword', [validate(recoveryPasswordSchema)], Call(ApiController.recoveryPassword));
 router.use('/v1/recoveryPassword/sendEmail/:email', Call(ApiController.recoveryPasswordSendEmail));
 

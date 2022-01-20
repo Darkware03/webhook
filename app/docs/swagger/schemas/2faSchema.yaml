@@ -1,0 +1,6 @@
+type: object
+properties:
+  codigo:
+    type: string
+  id_metodo:
+    type: integer

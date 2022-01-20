@@ -11,6 +11,7 @@ import usuarioPasswordUpdate from '../../app/schemas/UsuarioPasswordUpdateSchema
 import usuarioUpdateEmailSchema from '../../app/schemas/UsuarioUpdateEmailSchema.mjs';
 
 const router = Router();
+router.get('/metodos-autenticacion-usuario', Call(UsuarioController.getMetodosUsuario));
 router.get('/', Call(UsuarioController.index));
 router.post('/:id_usuario/perfiles', [validate(usuarioAddUserProfileSchema)], Call(UsuarioController.addUserProfile));
 router.delete('/:id_usuario/perfiles', [validate(usuarioDestroyUserPerfilSchema)], Call(UsuarioController.destroyUserPerfil));
@@ -24,5 +25,6 @@ router.put('/update/password', [validate(usuarioPasswordUpdate)], Call(UsuarioCo
 router.put('/update/email', [validate(usuarioUpdateEmailSchema)], Call(UsuarioController.updateEmail));
 router.post('/2fa/add', Call(UsuarioController.storeMethodUser));
 router.post('/2fa/add/verify', Call(UsuarioController.verifyNewMethodUser));
+router.post('/2fa/method/update', Call(UsuarioController.updatePrimaryMethod));
 
 export default router;

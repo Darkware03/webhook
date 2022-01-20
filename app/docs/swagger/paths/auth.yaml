@@ -10,25 +10,17 @@
       required: true
     responses:
       200:
-        description: 
+        description:
         content:
             application/json:
               schema:
                 type: object
                 properties:
-                  token:  
+                  token:
                     type: string
-                  refresh_token:
-                    type: string
-                  user:
-                    type: object
-                    properties:
-                      email:
-                        type: string
-                      password:
-                        type: string
-                      last_login:
-                        type: string
+                  metodos_autenticacion:
+                    type: array
+                    items:
       400:
         description: Bad Request
         content: {}
@@ -58,16 +50,67 @@
       required: true
     responses:
       200:
-        description: 
+        description:
         content:
             application/json:
               schema:
                 type: object
                 properties:
-                  token:  
+                  token:
                     type: string
                   refresh_token:
                     type: string
+                  user:
+                    type: object
+                    properties:
+                      email:
+                        type: string
+                      password:
+                        type: string
+                      last_login:
+                        type: string
+      400:
+        description: Bad Request
+        content: {}
+      401:
+        description: Acceso no Autorizado
+        content: {}
+      404:
+        description: Not Found
+      405:
+        description: Not Allowed
+        content: {}
+      500:
+        description: Internal Server Error
+        content: {}
+
+    x-codegen-request-body-name: body
+
+  area: api
+/2fa/check:
+  post:
+    tags:
+      - auth
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/TwoFactorAuth"
+      required: true
+    responses:
+      200:
+        description:
+        content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  refresh_token:
+                    type: string
+                  2fa:
+                    type: boolean
                   user:
                     type: object
                     properties:
