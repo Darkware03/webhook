@@ -26,7 +26,7 @@ module.exports = {
         defaultValue: false,
       },
       token_valid_after: {
-        type: psql.Sequelize.DATE,
+        type: psql.Sequelize.STRING,
       },
       two_factor_status: { type: psql.Sequelize.BOOLEAN },
       created_at: {

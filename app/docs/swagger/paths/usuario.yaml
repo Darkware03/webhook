@@ -2,7 +2,6 @@
   post:
     tags:
       - usuario
-    summary: Añade un nuevo usuario
     operationId: addUser
     requestBody:
       description: Objeto Usuario que será agregado al servicio
@@ -25,15 +24,15 @@
                   type: string
                 perfiles:
                   type: object
-                  properties: 
-                    id: 
+                  properties:
+                    id:
                       type: integer
                     name:
                       type: string
                 roles:
                   type: object
-                  properties: 
-                    id: 
+                  properties:
+                    id:
                       type: integer
                     name:
                       type: string
@@ -47,13 +46,13 @@
         description: Unauthorized
         content:
           application/json:
-            schema: 
+            schema:
               $ref: "#/components/schemas/Error"
       403:
         description: Not Found
         content:
           application/json:
-            schema: 
+            schema:
               $ref: "#/components/schemas/Error"
       500:
         description: Internal Server Error
@@ -62,7 +61,6 @@
   get:
     tags:
       - usuario
-    summary: Muestra Usuarios
     operationId: users
     produces:
       - application/json
@@ -76,7 +74,7 @@
               properties:
                 id:
                   type: integer
-                email: 
+                email:
                   type: string
                 last_login:
                   type: string
@@ -84,13 +82,13 @@
         description: Unauthorized
         content:
           application/json:
-            schema: 
+            schema:
               $ref: "#/components/schemas/Error"
       403:
         description: Not Found
         content:
           application/json:
-            schema: 
+            schema:
               $ref: "#/components/schemas/Error"
       500:
         description: Internal Server Error
@@ -104,11 +102,10 @@ api/v1/users/{id}:
     required: true
     type: integer
     minimum: 1
-    description: 
+    description:
   get:
     tags:
       - usuario
-    summary: Muestra usuario por id
     operationId: viewUser
     responses:
       200:
@@ -136,13 +133,13 @@ api/v1/users/{id}:
         description: Unauthorized
         content:
           application/json:
-            schema: 
+            schema:
               $ref: "#/components/schemas/Error"
       403:
         description: Not Found
         content:
           application/json:
-            schema: 
+            schema:
               $ref: "#/components/schemas/Error"
       500:
         description: Internal Server Error
@@ -150,7 +147,6 @@ api/v1/users/{id}:
   put:
     tags:
       - usuario
-    summary: Actualiza usuario
     operationId: editUser
     parameters:
       - in: path
@@ -158,7 +154,7 @@ api/v1/users/{id}:
         required: true
         type: integer
         minimum: 1
-        description: 
+        description:
     requestBody:
       content:
         application/json:
@@ -187,13 +183,13 @@ api/v1/users/{id}:
         description: Unauthorized
         content:
           application/json:
-            schema: 
+            schema:
               $ref: "#/components/schemas/Error"
       403:
         description: Not Found
         content:
           application/json:
-            schema: 
+            schema:
               $ref: "#/components/schemas/Error"
       500:
         description: Internal Server Error
@@ -202,7 +198,6 @@ api/v1/users/{id}:
   delete:
     tags:
       - usuario
-    summary: Elimina usuario
     operationId: deleteUser
     responses:
       200:
@@ -218,13 +213,13 @@ api/v1/users/{id}:
         description: Unauthorized
         content:
           application/json:
-            schema: 
+            schema:
               $ref: "#/components/schemas/Error"
       403:
         description: Not Found
         content:
           application/json:
-            schema: 
+            schema:
               $ref: "#/components/schemas/Error"
       500:
         description: Internal Server Error
@@ -239,11 +234,10 @@ api/v1/users/{id}/perfiles:
     required: true
     type: integer
     minimum: 1
-    description: 
+    description:
   post:
     tags:
       - usuario
-    summary: Asigna perfiles a usuario
     operationId: addUserProfile
     requestBody:
       content:
@@ -283,13 +277,13 @@ api/v1/users/{id}/perfiles:
         description: Unauthorized
         content:
           application/json:
-            schema: 
+            schema:
               $ref: "#/components/schemas/Error"
       403:
         description: Not Found
         content:
           application/json:
-            schema: 
+            schema:
               $ref: "#/components/schemas/Error"
       500:
         description: Internal Server Error
@@ -297,7 +291,6 @@ api/v1/users/{id}/perfiles:
   delete:
     tags:
       - usuario
-    summary: Elimina perfiles
     operationId: destroyUserPerfil
     responses:
       200:
@@ -313,13 +306,13 @@ api/v1/users/{id}/perfiles:
         description: Unauthorized
         content:
           application/json:
-            schema: 
+            schema:
               $ref: "#/components/schemas/Error"
       403:
         description: Not Found
         content:
           application/json:
-            schema: 
+            schema:
               $ref: "#/components/schemas/Error"
       500:
         description: Internal Server Error
@@ -336,11 +329,10 @@ api/v1/users/{id}/roles:
     required: true
     type: integer
     minimum: 1
-    description: 
+    description:
   post:
     tags:
       - usuario
-    summary: Asigna rol a usuario
     operationId: addUserRol
     requestBody:
       content:
@@ -380,13 +372,13 @@ api/v1/users/{id}/roles:
         description: Unauthorized
         content:
           application/json:
-            schema: 
+            schema:
               $ref: "#/components/schemas/Error"
       403:
         description: Not Found
         content:
           application/json:
-            schema: 
+            schema:
               $ref: "#/components/schemas/Error"
       500:
         description: Internal Server Error
@@ -394,7 +386,6 @@ api/v1/users/{id}/roles:
   delete:
     tags:
       - usuario
-    summary: Elimina roles
     operationId: destroyUserRol
     responses:
       200:
@@ -410,17 +401,106 @@ api/v1/users/{id}/roles:
         description: Unauthorized
         content:
           application/json:
-            schema: 
+            schema:
               $ref: "#/components/schemas/Error"
       403:
         description: Not Found
         content:
           application/json:
-            schema: 
+            schema:
               $ref: "#/components/schemas/Error"
       500:
         description: Internal Server Error
         content:
   area: development
 
- 
+
+
+api/v1/update/password:
+  post:
+    tags:
+      - usuario
+    summary: Modifica la contraseña del usuario
+    requestBody:
+      description: Password a cambiar y la confirmacion de esta
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/RecoveryPassword"
+      required: true
+    responses:
+      201:
+        description: Password modificada con exito
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+      400:
+        description: Bad Request
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      401:
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      403:
+        description: Not Found
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      500:
+        description: Internal Server Error
+        content:
+  x-codegen-request-body-name: body
+  area: development
+
+
+api/v1/update/email:
+  post:
+    tags:
+      - usuario
+    summary: Modifica el email del usuario
+    requestBody:
+      description: email a cambiar y password para validar informacion
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/UpdateEmail"
+      required: true
+    responses:
+      201:
+        description: Email actualizado con exito
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+      400:
+        description: Bad Request
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      401:
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      403:
+        description: Not Found
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      500:
+        description: Internal Server Error
+        content:
+  x-codegen-request-body-name: body
+  area: development

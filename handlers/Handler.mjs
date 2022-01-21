@@ -1,14 +1,23 @@
 import BaseError from './BaseError.mjs';
 import HttpCode from '../configs/httpCode.mjs';
+import ErrorModel from '../app/nucleo/mongo/error.mjs';
 
 export default class Handler {
-  static logError(err) {
+  static logError(req, err) {
     // eslint-disable-next-line no-console
-    console.error(err);
+    const Error = new ErrorModel({
+      id_bitacora: req.bitacora.id,
+      codigo: err.statusCode,
+      mensaje: err.message,
+      trace: err.stack,
+      content: err,
+
+    });
+    Error.save();
   }
 
   static logErrorMiddleware(err, req, res, next) {
-    Handler.logError(err);
+    Handler.logError(req, err);
     next(err);
   }
 

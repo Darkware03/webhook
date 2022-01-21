@@ -21,6 +21,8 @@ import {
 import MetodoAutenticacionUsuario from '../models/MetodoAutenticacionUsuario.mjs';
 import Auth from '../utils/Auth.mjs';
 import Security from '../services/security.mjs';
+import MetodoAutenticacion from '../models/MetodoAutenticacion.mjs';
+import getRols from '../services/getRols.mjs';
 
 export default class UsuarioController {
   static async index(req, res) {
@@ -271,7 +273,7 @@ export default class UsuarioController {
 
     await Usuario.update({
       password: passwordCrypt,
-      token_valid_after: moment().tz('America/El_Salvador').format(),
+      token_valid_after: moment().subtract(5, 's').tz('America/El_Salvador').format(),
     }, {
       where: {
         id: req.usuario.id,
@@ -284,7 +286,16 @@ export default class UsuarioController {
     `;
 
     await Mailer.sendMail(req.usuario.email, msg, 'Cambio de contraseña', 'Contraseña modificada');
-    return res.status(HttpCode.HTTP_OK).json({ message: 'Contraseña actualizada con exito' });
+
+    const refreshToken = await Auth.refresh_token(req.usuario);
+    const roles = await getRols.roles(req.usuario.id);
+    const token = await Auth.createToken({
+      id: req.usuario.id,
+      roles,
+      email: req.usuario.email,
+      user: req.usuario,
+    });
+    return res.status(HttpCode.HTTP_OK).json({ message: 'Contraseña actualizada con exito', token, refreshToken });
   }
 
   static async updateEmail(req, res) {
@@ -298,18 +309,6 @@ export default class UsuarioController {
     /** Validacion que el correo no se encuentre en uso en la BD */
     const usuario = await Usuario.findAll({ where: { email } });
     if (usuario.length) { throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'El correo ya se encuentra en uso'); }
-
-    await Usuario.update(
-      {
-        email,
-        token_valid_after: moment().tz('America/El_Salvador').format(),
-      },
-      {
-        where: {
-          id: req.usuario.id,
-        },
-      },
-    );
 
     /** Envio de notificacion por correo electronico  */
     const message = `
@@ -335,7 +334,26 @@ export default class UsuarioController {
                 </mj-body>
               </mjml>`;
     await Mailer.sendMail(email, null, 'Cambio de email', null, message);
-    return res.status(HttpCode.HTTP_OK).json({ message: 'Correo electronico actualizado con exito' });
+    await Usuario.update(
+      {
+        email,
+        token_valid_after: moment().subtract(5, 's').tz('America/El_Salvador').format(),
+      },
+      {
+        where: {
+          id: req.usuario.id,
+        },
+      },
+    );
+    const refreshToken = await Auth.refresh_token(req.usuario);
+    const roles = await getRols.roles(req.usuario.id);
+    const token = await Auth.createToken({
+      id: req.usuario.id,
+      roles,
+      email: req.usuario.email,
+      user: req.usuario,
+    });
+    return res.status(HttpCode.HTTP_OK).json({ message: 'Correo electronico actualizado con exito', token, refreshToken });
   }
 
   static async storeMethodUser(req, res) {
@@ -404,5 +422,38 @@ export default class UsuarioController {
     await MetodoAutenticacionUsuario.update({ is_primary: false }, { where: { id_usuario: req.usuario.id, [Op.not]: [{ id: req.body.id_metodo_usuario }] } });
     await Mailer.sendMail(req.usuario.email, 'Se ha cambio el metodo de autenticacion primario', 'Alerta de actualizacion de cuenta', 'Alerta');
     return res.status(HttpCode.HTTP_OK).send({ message: 'Solicitud procesada con exito!' });
+  }
+
+  static async getMetodosUsuario(req, res) {
+    const metodos = await MetodoAutenticacion.findAll();
+    const usuario = await Usuario.findOne({
+      where: {
+        id: req.usuario.id,
+      },
+      attributes: ['id'],
+      // eslint-disable-next-line max-len
+      include: [{
+        // eslint-disable-next-line max-len
+        model: MetodoAutenticacion,
+        attributes: ['id', 'nombre', 'icono'],
+        through: { attributes: ['is_primary', 'id'] },
+      }],
+    });
+    // eslint-disable-next-line array-callback-return
+    const metodosAutenticacion = metodos.map((metodo) => {
+      // eslint-disable-next-line no-mixed-operators
+      const isPrimary = usuario.MetodoAutenticacions.filter((metodoUsuario) => (metodoUsuario.id === metodo.id));
+      return {
+        nombre: metodo.nombre,
+        descripcion: metodo.descripcion,
+        icono: metodo.icono,
+        id: metodo.id,
+        is_primary: isPrimary.length > 0 ? isPrimary[0].MetodoAutenticacionUsuario.is_primary : null,
+        id_metodo_usuario: isPrimary.length > 0 ? isPrimary[0].MetodoAutenticacionUsuario.id : null,
+      };
+    });
+    return res.status(HttpCode.HTTP_OK).send({
+      metodos_autenticacion: metodosAutenticacion,
+    });
   }
 }

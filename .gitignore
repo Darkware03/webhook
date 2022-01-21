@@ -5,3 +5,4 @@ package-lock.json
 .eslintcache
 .eslintrc.js
 .sequelizerc
+./app/docs/index.yaml

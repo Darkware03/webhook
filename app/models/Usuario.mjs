@@ -22,7 +22,7 @@ const UsuarioSchema = {
   password: { type: psql.Sequelize.TEXT },
   last_login: { type: psql.Sequelize.STRING },
   is_suspended: { type: psql.Sequelize.BOOLEAN },
-  token_valid_after: { type: psql.Sequelize.DATE },
+  token_valid_after: { type: psql.Sequelize.STRING },
   two_factor_status: { type: psql.Sequelize.BOOLEAN },
 };
 
