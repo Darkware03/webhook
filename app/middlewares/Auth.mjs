@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
+import moment from 'moment';
 import NoAuthException from '../../handlers/NoAuthException.mjs';
 import { Usuario } from '../models/index.mjs';
 import HttpCode from '../../configs/httpCode.mjs';
-import moment from 'moment';
 
 // eslint-disable-next-line consistent-return
 const Auth = async (req, res, next) => {
@@ -16,20 +16,20 @@ const Auth = async (req, res, next) => {
     const token = authorization[1];
     const { id } = jwt.verify(token, process.env.SECRET_KEY);
     const decoded = jwt.decode(token, process.env.SECRET_KEY);
-    const fechaCreacionToken = new Date(moment(decoded.iat*1000).format()).getTime();
+    const fechaCreacionToken = new Date(moment(decoded.iat * 1000).format()).getTime();
 
     const usuario = await Usuario.findOne({
       where: { id, is_suspended: false },
     });
 
     const fechaValidacionToken = new Date(moment(usuario.token_valid_after).format()).getTime();
-    
+
     if (usuario.is_suspended) throw new NoAuthException();
 
-     if(fechaValidacionToken >= fechaCreacionToken ){
-      throw new NoAuthException(); 
-     }
-
+    if (fechaValidacionToken >= fechaCreacionToken) {
+      throw new NoAuthException();
+    }
+    if (!usuario.two_factor_status) throw new NoAuthException();
     req.usuario = usuario;
     next();
   } catch (err) {
