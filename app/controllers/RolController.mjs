@@ -1,5 +1,6 @@
 import { Rol } from '../models/index.mjs';
 import HttpCode from '../../configs/httpCode.mjs';
+import DB from '../nucleo/DB.mjs';
 import UnprocessableEntityException from '../../handlers/UnprocessableEntityException.mjs';
 
 export default class RolController {
@@ -47,16 +48,28 @@ export default class RolController {
   }
 
   static async destroy(req, res) {
-    const { id } = req.params;
-    if (Number.isNaN(id)) throw new UnprocessableEntityException('UNPROCESSABLE_ENTITY', 422, 'El parametro no es un id válido');
-    await Rol.destroy({
-      where: {
-        id,
-      },
-    });
+    const { roles } = req.body;
+    const connection = DB.connection();
+    const t = await connection.transaction();
+    // const queryInterface = DB.getQueryInterface();
 
-    return res.status(HttpCode.HTTP_OK).json({
-      message: 'Rol Eliminado',
-    });
+    try {
+      roles.forEach(async (rol) => {
+        await Rol.destroy({
+          where: {
+            id: rol,
+          },
+        }, { transaction: t });
+      });
+
+      await t.commit();
+      return res.status(HttpCode.HTTP_OK).json({
+        message: 'Roles Eliminados',
+      });
+    } catch (e) {
+      await t.rollback();
+      return res.status(HttpCode.HTTP_NOT_FOUND).json({ message: 'Error al eliminar los roles' });
+      // throw e;
+    }
   }
 }

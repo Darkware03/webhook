@@ -10,6 +10,6 @@ router.get('/', Call(RolController.index));
 router.post('/', [validate(rolCreateSchema)], Call(RolController.store));
 router.get('/:id', Call(RolController.show));
 router.put('/:id', [validate(rolCreateSchema)], Call(RolController.update));
-router.delete('/:id', Call(RolController.destroy));
+router.delete('/', Call(RolController.destroy));
 
 export default router;
