@@ -13,20 +13,8 @@ info:
     plantilla para  representar el correcto funcionamiento del Swagger y
     actualmente no contiene ningun endpoint de la API, deberán agregarse cuando
     ya se encuentren disponibles).
-  termsOfService: 'http://swagger.io/terms/'
-  contact:
-    email: encargado@salud.gob.sv
-  license:
-    name: Apache 2.0
-    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-  version: 1.0.0
-externalDocs:
-  description: Find out more about Swagger
-  url: 'http://swagger.io'
-servers:
-  - url: 'http://localhost:8000/'
 paths:
-  /login:
+  /api/v1/login:
     post:
       tags:
         - auth
@@ -65,7 +53,7 @@ paths:
           content: {}
       x-codegen-request-body-name: body
     area: api
-  /refresh_token:
+  /api/v1/refresh_token:
     post:
       tags:
         - auth
@@ -165,7 +153,6 @@ paths:
     post:
       tags:
         - usuario
-      summary: Añade un nuevo usuario
       operationId: addUser
       requestBody:
         description: Objeto Usuario que será agregado al servicio
@@ -225,7 +212,6 @@ paths:
     get:
       tags:
         - usuario
-      summary: Muestra Usuarios
       operationId: users
       produces:
         - application/json
@@ -270,7 +256,6 @@ paths:
     get:
       tags:
         - usuario
-      summary: Muestra usuario por id
       operationId: viewUser
       responses:
         '200':
@@ -312,7 +297,6 @@ paths:
     put:
       tags:
         - usuario
-      summary: Actualiza usuario
       operationId: editUser
       parameters:
         - in: path
@@ -364,7 +348,6 @@ paths:
     delete:
       tags:
         - usuario
-      summary: Elimina usuario
       operationId: deleteUser
       responses:
         '200':
@@ -403,7 +386,6 @@ paths:
     post:
       tags:
         - usuario
-      summary: Asigna perfiles a usuario
       operationId: addUserProfile
       requestBody:
         content:
@@ -457,7 +439,6 @@ paths:
     delete:
       tags:
         - usuario
-      summary: Elimina perfiles
       operationId: destroyUserPerfil
       responses:
         '200':
@@ -496,7 +477,6 @@ paths:
     post:
       tags:
         - usuario
-      summary: Asigna rol a usuario
       operationId: addUserRol
       requestBody:
         content:
@@ -550,7 +530,6 @@ paths:
     delete:
       tags:
         - usuario
-      summary: Elimina roles
       operationId: destroyUserRol
       responses:
         '200':
@@ -627,7 +606,7 @@ paths:
         - usuario
       summary: Modifica el email del usuario
       requestBody:
-        description: Password a cambiar y la confirmacion de esta
+        description: email a cambiar y password para validar informacion
         content:
           application/json:
             schema:
@@ -635,7 +614,7 @@ paths:
         required: true
       responses:
         '201':
-          description: Password modificada con exito
+          description: Email actualizado con exito
           content:
             application/json:
               schema:
@@ -668,7 +647,6 @@ paths:
     post:
       tags:
         - perfil
-      summary: Añade un nuevo perfil
       operationId: addPerfil
       requestBody:
         description: Objeto Perfil que será agregado al servicio
@@ -716,7 +694,6 @@ paths:
     get:
       tags:
         - perfil
-      summary: Muestra perfiles
       operationId: perfiles
       produces:
         - application/json
@@ -761,7 +738,6 @@ paths:
     get:
       tags:
         - perfil
-      summary: Muestra perfil por id
       operationId: viewRol
       responses:
         '200':
@@ -795,7 +771,6 @@ paths:
     put:
       tags:
         - perfil
-      summary: Actualiza perfil
       operationId: editPerfil
       parameters:
         - in: path
@@ -849,7 +824,6 @@ paths:
     delete:
       tags:
         - perfil
-      summary: Elimina perfil
       operationId: deletePerfil
       responses:
         '200':
@@ -881,7 +855,6 @@ paths:
     post:
       tags:
         - rol
-      summary: Añade un nuevo rol
       operationId: addRol
       requestBody:
         description: Objeto Rol que será agregado al servicio
@@ -927,7 +900,6 @@ paths:
     get:
       tags:
         - rol
-      summary: Muestra roles
       operationId: roles
       produces:
         - application/json
@@ -970,7 +942,6 @@ paths:
     get:
       tags:
         - rol
-      summary: Muestra Rol por id
       operationId: viewRol
       responses:
         '200':
@@ -1002,7 +973,6 @@ paths:
     put:
       tags:
         - rol
-      summary: Actualiza rol
       operationId: editRol
       parameters:
         - in: path
@@ -1052,7 +1022,6 @@ paths:
     delete:
       tags:
         - rol
-      summary: Elimina rol
       operationId: deleteRol
       responses:
         '200':
@@ -1167,10 +1136,10 @@ components:
       type: object
       items:
         type: integer
-securitySchemes:
-  bearerAuth:
-    type: http
-    scheme: bearer
-    bearerFormat: JWT
-security: null
-bearerAuth: []
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []

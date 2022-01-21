@@ -2,7 +2,6 @@
   post:
     tags:
       - usuario
-    summary: Añade un nuevo usuario
     operationId: addUser
     requestBody:
       description: Objeto Usuario que será agregado al servicio
@@ -62,7 +61,6 @@
   get:
     tags:
       - usuario
-    summary: Muestra Usuarios
     operationId: users
     produces:
       - application/json
@@ -108,7 +106,6 @@ api/v1/users/{id}:
   get:
     tags:
       - usuario
-    summary: Muestra usuario por id
     operationId: viewUser
     responses:
       200:
@@ -150,7 +147,6 @@ api/v1/users/{id}:
   put:
     tags:
       - usuario
-    summary: Actualiza usuario
     operationId: editUser
     parameters:
       - in: path
@@ -202,7 +198,6 @@ api/v1/users/{id}:
   delete:
     tags:
       - usuario
-    summary: Elimina usuario
     operationId: deleteUser
     responses:
       200:
@@ -243,7 +238,6 @@ api/v1/users/{id}/perfiles:
   post:
     tags:
       - usuario
-    summary: Asigna perfiles a usuario
     operationId: addUserProfile
     requestBody:
       content:
@@ -297,7 +291,6 @@ api/v1/users/{id}/perfiles:
   delete:
     tags:
       - usuario
-    summary: Elimina perfiles
     operationId: destroyUserPerfil
     responses:
       200:
@@ -340,7 +333,6 @@ api/v1/users/{id}/roles:
   post:
     tags:
       - usuario
-    summary: Asigna rol a usuario
     operationId: addUserRol
     requestBody:
       content:
@@ -394,7 +386,6 @@ api/v1/users/{id}/roles:
   delete:
     tags:
       - usuario
-    summary: Elimina roles
     operationId: destroyUserRol
     responses:
       200:

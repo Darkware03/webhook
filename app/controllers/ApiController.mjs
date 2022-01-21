@@ -107,6 +107,14 @@ export default class ApiController {
     });
   }
 
+  static async logout(req, res) {
+    await Usuario.update({
+      token_valid_after: moment().tz('America/El_Salvador').format(),
+      two_factor_status: false,
+    }, { where: { id: req.usuario.id } });
+    return res.status(HttpCode.HTTP_OK).send({});
+  }
+
   // eslint-disable-next-line camelcase
   static async twoFactorAuthLoginChoose(req, res, next) {
     // eslint-disable-next-line camelcase,prefer-const
@@ -287,8 +295,7 @@ export default class ApiController {
     const passwordCrypt = bcrypt.hashSync(password, salt);
 
     if (password !== confirmPassword) { throw new NotFoundException('NOT_FOUND', 400, 'Error! Las contraseñas  no coinciden'); }
-
-    const decoded = jwt.decode(token, process.env.SECRET_KEY);
+    const { id } = jwt.verify(token, process.env.SECRET_KEY);
 
     // eslint-disable-next-line no-unused-vars
     const usuario = await Usuario.update(
@@ -298,12 +305,12 @@ export default class ApiController {
       },
       {
         where: {
-          id: decoded.id,
+          id,
         },
       },
     );
 
-    return res.status(HttpCode.HTTP_CREATED).json({
+    return res.status(HttpCode.HTTP_OK).json({
       message: 'contraseña actualizada',
     });
   }

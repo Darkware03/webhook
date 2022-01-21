@@ -8,7 +8,7 @@ import Security from '../services/security.mjs';
 
 export default class RutaController {
   static async index(req, res) {
-    const rutas = await Ruta.findAll();
+    const rutas = await Ruta.findAll({ include: [Rol] });
     return res.status(HttpCode.HTTP_OK)
       .json(rutas);
   }
