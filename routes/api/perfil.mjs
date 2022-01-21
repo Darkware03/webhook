@@ -11,5 +11,6 @@ router.post('/', [validate(perfilCreateSchema)], Call(PerfilController.store));
 router.get('/:id', Call(PerfilController.show));
 router.put('/:id', [validate(perfilCreateSchema)], Call(PerfilController.update));
 router.delete('/:id', Call(PerfilController.destroy));
+router.put('/updateroles/:id', Call(PerfilController.updatePerfilRol));
 
 export default router;
