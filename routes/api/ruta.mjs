@@ -10,6 +10,6 @@ router.get('/', Call(RutaController.index));
 router.post('/', [validate(rutaCreateSchema)], Call(RutaController.store));
 router.get('/:id', Call(RutaController.show));
 router.put('/:id', [validate(rutaCreateSchema)], Call(RutaController.update));
-router.delete('/:id', Call(RutaController.destroy));
+router.delete('/', Call(RutaController.destroy));
 
 export default router;
