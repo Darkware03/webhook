@@ -2,6 +2,7 @@ import { Rol } from '../models/index.mjs';
 import HttpCode from '../../configs/httpCode.mjs';
 import DB from '../nucleo/DB.mjs';
 import UnprocessableEntityException from '../../handlers/UnprocessableEntityException.mjs';
+// import NotFoundExeption from '../../handlers/UnprocessableEntityException.mjs';
 
 export default class RolController {
   static async index(req, res) {
@@ -51,25 +52,17 @@ export default class RolController {
     const { roles } = req.body;
     const connection = DB.connection();
     const t = await connection.transaction();
-    // const queryInterface = DB.getQueryInterface();
-
     try {
-      roles.forEach(async (rol) => {
-        await Rol.destroy({
-          where: {
-            id: rol,
-          },
-        }, { transaction: t });
-      });
-
+      await Rol.destroy({
+        where: {
+          id: roles,
+        },
+      }, { transaction: t });
       await t.commit();
-      return res.status(HttpCode.HTTP_OK).json({
-        message: 'Roles Eliminados',
-      });
+      return res.status(HttpCode.HTTP_OK).json({ message: 'ok' });
     } catch (e) {
       await t.rollback();
-      return res.status(HttpCode.HTTP_NOT_FOUND).json({ message: 'Error al eliminar los roles' });
-      // throw e;
+      throw new UnprocessableEntityException('Error al eliminar roles', HttpCode.HTTP_BAD_REQUEST, 'Uno o mas roles proporcionados no son validos');
     }
   }
 }
