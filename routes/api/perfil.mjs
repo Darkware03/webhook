@@ -11,6 +11,6 @@ const router = Router();
 router.get('/', Call(PerfilController.index));
 router.post('/', [validate(perfilCreateSchema)], Call(PerfilController.store));
 router.get('/:id', Call(PerfilController.show));
-router.put('/:id', [validate(perfilUpdateSchema)], Call(PerfilController.update));// router.put('/:id', [validate(perfilCreateSchema)], Call(PerfilController.update));
+router.put('/:id', [validate(perfilUpdateSchema)], Call(PerfilController.update));
 router.delete('/:id', Call(PerfilController.destroy));
 export default router;
