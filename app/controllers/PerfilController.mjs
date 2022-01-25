@@ -1,6 +1,7 @@
-import { Perfil, PerfilRol, Rol } from '../models/index.mjs';
+import { Perfil, PerfilRol } from '../models/index.mjs';
 import HttpCode from '../../configs/httpCode.mjs';
 import UnprocessableEntityException from '../../handlers/UnprocessableEntityException.mjs';
+import DB from '../nucleo/DB.mjs';
 
 export default class PerfilController {
   static async index(req, res) {
@@ -54,23 +55,39 @@ export default class PerfilController {
       },
     });
     if (req.body.roles == null) { return res.status(HttpCode.HTTP_OK).json({ message: 'Perfil actualizado con exito' }); }
-    PerfilRol.destroy({
-      where: {
-        id_perfil: req.params.id,
-      },
-    });
-    // eslint-disable-next-line consistent-return
+    const roles = [];
     req.body.roles.forEach(async (rol) => {
-      const existe = await Rol.findAll({ where: { id: rol } });
-      if (existe.length) { return res.status(HttpCode.HTTP_OK).json({ message: 'Perfil actualizado con exito' }); }
+      const x = { id_rol: rol, id_perfil: parseInt(req.params.id, 10) };
+      roles.push(x);
     });
-    req.body.roles.forEach(async (rol) => {
-      await PerfilRol.create({
-        id_perfil: req.params.id,
-        id_rol: rol,
+    const connection = DB.connection();
+    const t = await connection.transaction();
+    /** capturo los id de los roles que estan relacionados antes del drop */
+    const anterior = await PerfilRol.findAll({ where: { id_perfil: req.params.id } });
+    try {
+      await PerfilRol.destroy({
+        where: {
+          id_perfil: req.params.id,
+        },
+      }, { transaction: t });
+      await PerfilRol.bulkCreate(
+        roles,
+        { transaction: t },
+      );
+      await t.commit();
+      return res.status(HttpCode.HTTP_OK).json({ message: 'Perfil actualizado con exito' });
+    } catch (e) {
+      await t.rollback();
+      /** Se crean de nuevo si existe alguna falla */
+      anterior.forEach(async (x) => {
+        await PerfilRol.create({
+          id_perfil: req.params.id,
+          id_rol: x.dataValues.id_rol,
+        });
       });
-    });
-    return res.status(HttpCode.HTTP_OK).json({ message: 'Perfil actualizado con exito' });
+
+      return res.status(HttpCode.HTTP_OK).json({ message: 'Error uno o mas roles no se encuentran registrados' });
+    }
   }
 
   static async destroy(req, res) {
