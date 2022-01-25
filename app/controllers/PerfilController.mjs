@@ -1,7 +1,6 @@
-import { Perfil, PerfilRol } from '../models/index.mjs';
+import { Perfil, PerfilRol, Rol } from '../models/index.mjs';
 import HttpCode from '../../configs/httpCode.mjs';
 import UnprocessableEntityException from '../../handlers/UnprocessableEntityException.mjs';
-import NotFoundException from '../../handlers/NotFoundExeption.mjs';
 
 export default class PerfilController {
   static async index(req, res) {
@@ -24,7 +23,12 @@ export default class PerfilController {
         id_rol: rol,
       });
     });
-    return res.status(HttpCode.HTTP_CREATED).json(perfil);
+    return res.status(HttpCode.HTTP_CREATED).json({
+      id: perfil.id,
+      nombre,
+      codigo,
+      roles: req.body.roles,
+    });
   }
 
   static async show(req, res) {
@@ -41,16 +45,32 @@ export default class PerfilController {
 
   static async update(req, res) {
     const { nombre, codigo } = req.body;
-    const perfil = await Perfil.update({
+    await Perfil.update({
       nombre,
       codigo,
     }, {
       where: {
         id: req.params.id,
       },
-      returning: ['nombre', 'codigo'],
     });
-    return res.status(HttpCode.HTTP_OK).json(perfil[1]);
+    if (req.body.roles == null) { return res.status(HttpCode.HTTP_OK).json({ message: 'Perfil actualizado con exito' }); }
+    PerfilRol.destroy({
+      where: {
+        id_perfil: req.params.id,
+      },
+    });
+    // eslint-disable-next-line consistent-return
+    req.body.roles.forEach(async (rol) => {
+      const existe = await Rol.findAll({ where: { id: rol } });
+      if (existe.length) { return res.status(HttpCode.HTTP_OK).json({ message: 'Perfil actualizado con exito' }); }
+    });
+    req.body.roles.forEach(async (rol) => {
+      await PerfilRol.create({
+        id_perfil: req.params.id,
+        id_rol: rol,
+      });
+    });
+    return res.status(HttpCode.HTTP_OK).json({ message: 'Perfil actualizado con exito' });
   }
 
   static async destroy(req, res) {
@@ -65,28 +85,5 @@ export default class PerfilController {
     return res.status(HttpCode.HTTP_OK).json({
       message: 'Perfil Eliminado',
     });
-  }
-
-  static async updatePerfilRol(req, res) {
-    const { id } = req.params;
-    const perfil = await Perfil.findOne({
-      where: {
-        id,
-      },
-    });
-    if (perfil) {
-      PerfilRol.destroy({
-        where: {
-          id_perfil: req.params.id,
-        },
-      });
-      req.body.roles.forEach(async (rol) => {
-        await PerfilRol.create({
-          id_perfil: req.params.id,
-          id_rol: rol,
-        });
-      });
-    } else { throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'No se encontro ningun perfil'); }
-    return res.status(HttpCode.HTTP_OK).json({ message: 'Roles actualizados con exito' });
   }
 }

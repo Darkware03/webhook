@@ -19,7 +19,7 @@ router.post('/v1/2fa/check', Call(ApiController.verifyTwoFactorAuthLogin));
 router.get('/v1/verificar-usuario/:token', Call(ApiController.confirmUser));
 router.post('/v1/refresh', Call(ApiController.RefreshToken));
 router.use('/v1/users', [auth, bitacora], routesUsers);
-router.use('/v1/perfiles', [auth, bitacora], routesPerfil);
+router.use('/v1/perfiles', [auth], routesPerfil); // router.use('/v1/perfiles', [auth, bitacora], routesPerfil);
 router.use('/v1/roles', [auth, bitacora], routesRoles);
 router.use('/v1/rutas', [auth], bitacora, routesRutas);
 router.use('/v1/get-rutas', [auth], RutaController.getRutas);
