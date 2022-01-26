@@ -9,7 +9,9 @@ router.get('/', Call(RutaController.index));
 // router.post('/', [validate({body: usuarioCreateSchema})], Call(UsuarioController.store))
 router.post('/', [validate(rutaCreateSchema)], Call(RutaController.store));
 router.get('/:id', Call(RutaController.show));
+router.post('/:id_ruta/roles', Call(RutaController.addRutaRole));
 router.put('/:id', [validate(rutaCreateSchema)], Call(RutaController.update));
 router.delete('/', Call(RutaController.destroy));
+router.delete('/:id_rol/roles', Call(RutaController.destroy));
 
 export default router;
