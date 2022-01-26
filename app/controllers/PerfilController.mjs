@@ -1,6 +1,7 @@
 import { Perfil } from '../models/index.mjs';
 import HttpCode from '../../configs/httpCode.mjs';
 import UnprocessableEntityException from '../../handlers/UnprocessableEntityException.mjs';
+import DB from '../nucleo/DB.mjs';
 
 export default class PerfilController {
   static async index(req, res) {
@@ -56,5 +57,23 @@ export default class PerfilController {
     return res.status(HttpCode.HTTP_OK).json({
       message: 'Perfil Eliminado',
     });
+  }
+
+  static async destroyMany(req, res) {
+    const { perfiles } = req.body;
+    const connection = DB.connection();
+    const t = await connection.transaction();
+    try {
+      await Perfil.destroy({
+        where: {
+          id: perfiles,
+        },
+      }, { transaction: t });
+      await t.commit();
+      return res.status(HttpCode.HTTP_OK).json({ message: 'Se han eliminado con exito los perfiles' });
+    } catch (e) {
+      await t.rollback();
+      throw new UnprocessableEntityException('Error al eliminar perfiles', HttpCode.HTTP_BAD_REQUEST, 'Uno o mas perfiles proporcionados no son validos');
+    }
   }
 }
