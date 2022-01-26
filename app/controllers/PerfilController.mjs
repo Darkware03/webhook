@@ -1,6 +1,7 @@
 import { Perfil } from '../models/index.mjs';
 import HttpCode from '../../configs/httpCode.mjs';
 import UnprocessableEntityException from '../../handlers/UnprocessableEntityException.mjs';
+import NotFoundException from '../../handlers/NotFoundExeption.mjs';
 import DB from '../nucleo/DB.mjs';
 
 export default class PerfilController {
@@ -10,13 +11,27 @@ export default class PerfilController {
   }
 
   static async store(req, res) {
-    const { id, nombre, codigo } = req.body;
+    const { nombre, codigo } = req.body;
+    const cod = await Perfil.findOne({ where: { codigo } });
+    if (cod) throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'El codigo no puede ser igual a otro registrado con anterioridad');
     const perfil = await Perfil.create({
-      id,
       nombre,
       codigo,
     });
-    return res.status(HttpCode.HTTP_CREATED).json(perfil);
+    try {
+      /** Validar que si no trae ningun rol no asignarle nada y devolver el perfil creado exitoso */
+      if (req.body.roles == null) { return res.status(HttpCode.HTTP_CREATED).json(perfil); }
+      await perfil.setRols(req.body.roles);
+      return res.status(HttpCode.HTTP_CREATED).json({
+        id: perfil.id,
+        nombre,
+        codigo,
+        roles: req.body.roles,
+      });
+    } catch (e) {
+      perfil.destroy();
+      throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'Uno o mas roles no se encuentran registrados');
+    }
   }
 
   static async show(req, res) {
@@ -32,17 +47,21 @@ export default class PerfilController {
   }
 
   static async update(req, res) {
-    const { nombre, codigo } = req.body;
-    const perfil = await Perfil.update({
-      nombre,
-      codigo,
-    }, {
-      where: {
-        id: req.params.id,
-      },
-      returning: ['nombre', 'codigo'],
-    });
-    return res.status(HttpCode.HTTP_OK).json(perfil[1]);
+    const { nombre, codigo, roles } = req.body;
+    if (nombre === undefined && codigo === undefined && roles === undefined) return res.status(HttpCode.HTTP_BAD_REQUEST).json({ message: 'La peticion debe llevar al menos un campo' });
+    try {
+      const perr = await Perfil.findOne({ where: { id: req.params.id } });
+      if (!perr) { return res.status(HttpCode.HTTP_BAD_REQUEST).json({ message: 'El perfil no se encuentra registrado' }); }
+      await perr.update({
+        nombre,
+        codigo,
+      });
+      if (roles == null) { return res.status(HttpCode.HTTP_OK).json({ message: 'Perfil actualizado con exito' }); }
+      await perr.setRols(roles);
+      return res.status(HttpCode.HTTP_OK).json({ message: 'Perfil y roles actualizados con exito' });
+    } catch (e) {
+      throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'Uno o mas roles no se encuentran registrados');
+    }
   }
 
   static async destroy(req, res) {

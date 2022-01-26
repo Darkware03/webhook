@@ -15,14 +15,19 @@ const perfilCreateSchema = {
         maxLength: 'El codigo debe ser maximo 5 caracteres',
       },
     },
-  },
-  required: ['nombre', 'codigo'],
-  errorMessage: {
-    required: {
-      nombre: 'El nombre es requerido',
-      codigo: 'El código es requerido',
+    roles: {
+      type: 'array',
+      uniqueItems: true,
+      items: {
+        type: 'integer',
+      },
+      errorMessage: {
+        type: 'El id del rol debe ser de tipo entero',
+        uniqueItems: 'Los id propocionados deben ser unicos',
+      },
     },
   },
+
 };
 
 export default perfilCreateSchema;
