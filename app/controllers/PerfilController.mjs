@@ -1,7 +1,7 @@
-import { Perfil, PerfilRol } from '../models/index.mjs';
+import { Perfil } from '../models/index.mjs';
 import HttpCode from '../../configs/httpCode.mjs';
 import UnprocessableEntityException from '../../handlers/UnprocessableEntityException.mjs';
-import DB from '../nucleo/DB.mjs';
+import NotFoundException from '../../handlers/NotFoundExeption.mjs';
 
 export default class PerfilController {
   static async index(req, res) {
@@ -11,25 +11,27 @@ export default class PerfilController {
 
   static async store(req, res) {
     const { nombre, codigo } = req.body;
-
+    // if (codigo === req.usuario.email) { throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'El correo no puede ser igual al anterior'); }
+    const cod = await Perfil.findOne({ where: { codigo } });
+    if (cod) throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'El codigo no puede ser igual a otro registrado con anterioridad');
     const perfil = await Perfil.create({
       nombre,
       codigo,
     });
-    /** Validar que si no trae ningun rol no asignarle nada y devolver el perfil creado exitoso */
-    if (req.body.roles == null) { return res.status(HttpCode.HTTP_CREATED).json(perfil); }
-    req.body.roles.forEach(async (rol) => {
-      await PerfilRol.create({
-        id_perfil: perfil.id,
-        id_rol: rol,
+    try {
+      /** Validar que si no trae ningun rol no asignarle nada y devolver el perfil creado exitoso */
+      if (req.body.roles == null) { return res.status(HttpCode.HTTP_CREATED).json(perfil); }
+      await perfil.setRols(req.body.roles);
+      return res.status(HttpCode.HTTP_CREATED).json({
+        id: perfil.id,
+        nombre,
+        codigo,
+        roles: req.body.roles,
       });
-    });
-    return res.status(HttpCode.HTTP_CREATED).json({
-      id: perfil.id,
-      nombre,
-      codigo,
-      roles: req.body.roles,
-    });
+    } catch (e) {
+      perfil.destroy();
+      throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'Uno o mas roles no se encuentran registrados');
+    }
   }
 
   static async show(req, res) {
@@ -45,48 +47,19 @@ export default class PerfilController {
   }
 
   static async update(req, res) {
-    const { nombre, codigo } = req.body;
-    await Perfil.update({
-      nombre,
-      codigo,
-    }, {
-      where: {
-        id: req.params.id,
-      },
-    });
-    if (req.body.roles == null) { return res.status(HttpCode.HTTP_OK).json({ message: 'Perfil actualizado con exito' }); }
-    const roles = [];
-    req.body.roles.forEach(async (rol) => {
-      const x = { id_rol: rol, id_perfil: parseInt(req.params.id, 10) };
-      roles.push(x);
-    });
-    const connection = DB.connection();
-    const t = await connection.transaction();
-    /** capturo los id de los roles que estan relacionados antes del drop */
-    const anterior = await PerfilRol.findAll({ where: { id_perfil: req.params.id } });
     try {
-      await PerfilRol.destroy({
-        where: {
-          id_perfil: req.params.id,
-        },
-      }, { transaction: t });
-      await PerfilRol.bulkCreate(
-        roles,
-        { transaction: t },
-      );
-      await t.commit();
-      return res.status(HttpCode.HTTP_OK).json({ message: 'Perfil actualizado con exito' });
-    } catch (e) {
-      await t.rollback();
-      /** Se crean de nuevo si existe alguna falla */
-      anterior.forEach(async (x) => {
-        await PerfilRol.create({
-          id_perfil: req.params.id,
-          id_rol: x.dataValues.id_rol,
-        });
+      const { nombre, codigo, roles } = req.body;
+      const perr = await Perfil.findOne({ where: { id: req.params.id } });
+      if (!perr) { return res.status(HttpCode.HTTP_BAD_REQUEST).json({ message: 'El perfil no se encuentra registrado' }); }
+      await perr.update({
+        nombre,
+        codigo,
       });
-
-      return res.status(HttpCode.HTTP_OK).json({ message: 'Error uno o mas roles no se encuentran registrados' });
+      if (roles == null) { return res.status(HttpCode.HTTP_OK).json({ message: 'Perfil actualizado con exito' }); }
+      await perr.setRols(roles);
+      return res.status(HttpCode.HTTP_OK).json({ message: 'Perfil y roles actualizados con exito' });
+    } catch (e) {
+      return res.status(HttpCode.HTTP_BAD_REQUEST).json({ message: 'Uno o mas roles no se encuentran registrados' });
     }
   }
 
