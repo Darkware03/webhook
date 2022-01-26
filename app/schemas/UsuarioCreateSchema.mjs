@@ -16,7 +16,7 @@ const usuarioCreateSchema = {
     perfiles: {
       type: 'array',
       uniqueItems: true,
-      minItems: 1,
+      minItems: 0,
       items: {
         type: 'integer',
       },
@@ -27,7 +27,7 @@ const usuarioCreateSchema = {
     roles: {
       type: 'array',
       uniqueItems: true,
-      minItems: 1,
+      minItems: 0,
       items: {
         type: 'integer',
       },

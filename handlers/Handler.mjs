@@ -4,16 +4,19 @@ import ErrorModel from '../app/nucleo/mongo/error.mjs';
 
 export default class Handler {
   static logError(req, err) {
+    console.log(err);
     // eslint-disable-next-line no-console
-    const Error = new ErrorModel({
-      id_bitacora: req.bitacora.id,
-      codigo: err.statusCode,
-      mensaje: err.message,
-      trace: err.stack,
-      content: err,
+    if (req.usuario) {
+      const Error = new ErrorModel({
+        id_bitacora: req.bitacora.id,
+        codigo: err.statusCode,
+        mensaje: err.message,
+        trace: err.stack,
+        content: err,
 
-    });
-    Error.save();
+      });
+      Error.save();
+    }
   }
 
   static logErrorMiddleware(err, req, res, next) {
@@ -23,6 +26,7 @@ export default class Handler {
 
   // eslint-disable-next-line consistent-return,no-unused-vars
   static handlerError(err, req, res, next) {
+    console.log(err);
     const debug = process.env.APP_DEBUG === 'true';
 
     if (err.name && err.name === 'JsonSchemaValidation') return res.status(HttpCode.HTTP_BAD_REQUEST).json(err.validations.body);

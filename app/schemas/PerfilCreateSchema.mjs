@@ -15,12 +15,19 @@ const perfilCreateSchema = {
         maxLength: 'El codigo debe ser maximo 5 caracteres',
       },
     },
+    roles: {
+      type: 'array',
+      errorMessage: {
+        type: 'Los roles del perfil debe ser un arreglo de enteros',
+      },
+    },
   },
-  required: ['nombre', 'codigo'],
+  required: ['nombre', 'codigo', 'roles'],
   errorMessage: {
     required: {
       nombre: 'El nombre es requerido',
       codigo: 'El código es requerido',
+      roles: 'El rol es requerido',
     },
   },
 };

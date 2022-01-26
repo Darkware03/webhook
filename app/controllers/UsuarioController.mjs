@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import bcrypt from 'bcryptjs';
-import Sequelize, { Op } from 'sequelize';
+import Sequelize, { json, Op } from 'sequelize';
 import moment from 'moment-timezone';
 import speakeasy, { totp, hotp, generateSecret } from 'speakeasy';
 import { toDataURL } from 'qrcode';
@@ -26,7 +26,7 @@ import getRols from '../services/getRols.mjs';
 
 export default class UsuarioController {
   static async index(req, res) {
-    const usuarios = await Usuario.findAll({});
+    const usuarios = await Usuario.findAll({ attributes: { exclude: ['is_suspended', 'password', 'token_valid_after', 'two_factor_status'] }, include: [Rol, Perfil] });
     return res.status(HttpCode.HTTP_OK).json(usuarios);
   }
 

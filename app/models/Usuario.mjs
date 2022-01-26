@@ -73,13 +73,13 @@ class Usuario extends psql.Model {
     });
   }
 
-  toJSON() {
+/*  toJSON() {
     return {
       id: this.id,
       email: this.email,
       last_login: this.last_login,
     };
-  }
+  } */
 }
 
 Usuario.init(UsuarioSchema, {
