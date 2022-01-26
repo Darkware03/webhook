@@ -11,7 +11,6 @@ export default class PerfilController {
 
   static async store(req, res) {
     const { nombre, codigo } = req.body;
-    // if (codigo === req.usuario.email) { throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'El correo no puede ser igual al anterior'); }
     const cod = await Perfil.findOne({ where: { codigo } });
     if (cod) throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'El codigo no puede ser igual a otro registrado con anterioridad');
     const perfil = await Perfil.create({
@@ -47,8 +46,9 @@ export default class PerfilController {
   }
 
   static async update(req, res) {
+    const { nombre, codigo, roles } = req.body;
+    if (nombre === undefined && codigo === undefined && roles === undefined) return res.status(HttpCode.HTTP_BAD_REQUEST).json({ message: 'La peticion debe llevar al menos un campo' });
     try {
-      const { nombre, codigo, roles } = req.body;
       const perr = await Perfil.findOne({ where: { id: req.params.id } });
       if (!perr) { return res.status(HttpCode.HTTP_BAD_REQUEST).json({ message: 'El perfil no se encuentra registrado' }); }
       await perr.update({
@@ -59,7 +59,7 @@ export default class PerfilController {
       await perr.setRols(roles);
       return res.status(HttpCode.HTTP_OK).json({ message: 'Perfil y roles actualizados con exito' });
     } catch (e) {
-      return res.status(HttpCode.HTTP_BAD_REQUEST).json({ message: 'Uno o mas roles no se encuentran registrados' });
+      throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'Uno o mas roles no se encuentran registrados');
     }
   }
 
