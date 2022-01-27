@@ -1,4 +1,3 @@
-import Sequelize from 'sequelize';
 import { Perfil, PerfilRol, Rol } from '../models/index.mjs';
 import HttpCode from '../../configs/httpCode.mjs';
 import UnprocessableEntityException from '../../handlers/UnprocessableEntityException.mjs';
@@ -19,7 +18,7 @@ export default class PerfilController {
       throw new NotFoundException(
         'BAD_REQUEST',
         HttpCode.HTTP_BAD_REQUEST,
-        'El codigo no puede ser igual a otro registrado con anterioridad'
+        'El codigo no puede ser igual a otro registrado con anterioridad',
       );
     }
     const perfil = await Perfil.create({
@@ -32,7 +31,7 @@ export default class PerfilController {
         throw new NotFoundException(
           'BAD_REQUEST',
           HttpCode.HTTP_BAD_REQUEST,
-          'El perfil debe tener al menos un rol asignado'
+          'El perfil debe tener al menos un rol asignado',
         );
       }
       await perfil.setRols(req.body.roles);
@@ -47,7 +46,7 @@ export default class PerfilController {
       throw new NotFoundException(
         'BAD_REQUEST',
         HttpCode.HTTP_BAD_REQUEST,
-        'Uno o mas roles no se encuentran registrados'
+        'Uno o mas roles no se encuentran registrados',
       );
     }
   }
@@ -58,7 +57,7 @@ export default class PerfilController {
       throw new UnprocessableEntityException(
         'UNPROCESSABLE_ENTITY',
         422,
-        'El parámetro no es un id válido'
+        'El parámetro no es un id válido',
       );
     }
 
@@ -82,7 +81,7 @@ export default class PerfilController {
           id: req.params.id,
         },
         returning: ['nombre', 'codigo'],
-      }
+      },
     );
     return res.status(HttpCode.HTTP_OK).json(perfil[1]);
   }
@@ -93,7 +92,7 @@ export default class PerfilController {
       throw new UnprocessableEntityException(
         'UNPROCESSABLE_ENTITY',
         422,
-        'El parámetro no es un id válido'
+        'El parámetro no es un id válido',
       );
     }
 
@@ -112,13 +111,19 @@ export default class PerfilController {
     const connection = DB.connection();
     const t = await connection.transaction();
     try {
+      await PerfilRol.destroy(
+        {
+          where: { id_perfil: perfiles },
+        },
+        { transaction: t },
+      );
       await Perfil.destroy(
         {
           where: {
             id: perfiles,
           },
         },
-        { transaction: t }
+        { transaction: t },
       );
       await t.commit();
       return res
@@ -126,11 +131,7 @@ export default class PerfilController {
         .json({ message: 'Se han eliminado con exito los perfiles' });
     } catch (e) {
       await t.rollback();
-      throw new UnprocessableEntityException(
-        'Error al eliminar perfiles',
-        HttpCode.HTTP_BAD_REQUEST,
-        'Uno o mas perfiles proporcionados no son validos'
-      );
+      throw e;
     }
   }
 
@@ -142,7 +143,7 @@ export default class PerfilController {
       throw new UnprocessableEntityException(
         'UNPROCESSABLE_ENTITY',
         422,
-        'El parametro no es un id válido'
+        'El parametro no es un id válido',
       );
     }
 
@@ -159,25 +160,18 @@ export default class PerfilController {
 
   static async destroyPerfilRol(req, res) {
     const { id_perfil: idPerfil } = req.params;
-    const { roles } = req.body;
 
     if (Number.isNaN(idPerfil)) {
       throw new UnprocessableEntityException(
         'UNPROCESSABLE_ENTITY',
         422,
-        'El parametro no es un id válido'
+        'El parametro no es un id válido',
       );
     }
 
-    if (roles.length && roles.length <= 0) {
-      throw new BadRequestException('BAD_REQUEST', 400, 'No se envío ningún rol');
-    }
     await PerfilRol.destroy({
       where: {
         id_perfil: idPerfil,
-        id_rol: {
-          [Sequelize.Op.notIn]: roles,
-        },
       },
     });
     return res.status(HttpCode.HTTP_OK).json({ message: 'roles eliminados' });
