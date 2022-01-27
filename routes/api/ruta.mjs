@@ -13,6 +13,6 @@ router.get('/:id', Call(RutaController.show));
 router.post('/:id_ruta/roles', [validate(usuarioAddUserRoleSchema)], Call(RutaController.addRutaRole));
 router.put('/:id', [validate(rutaCreateSchema)], Call(RutaController.update));
 router.delete('/', Call(RutaController.destroy));
-router.delete('/:id_rol/roles', Call(RutaController.destroyRutaRol));
+router.delete('/:id_ruta/roles', Call(RutaController.destroyRutaRol));
 
 export default router;

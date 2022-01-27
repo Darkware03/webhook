@@ -21,18 +21,8 @@ export default class RutaController {
     const connection = DB.connection();
     const t = await connection.transaction();
     const {
-      nombre,
-      uri,
       // eslint-disable-next-line camelcase
-      nombre_uri,
-      mostrar,
-      icono,
-      orden,
-      admin,
-      publico,
-      // eslint-disable-next-line camelcase
-      id_ruta_padre,
-      roles,
+      nombre, uri, nombre_uri, mostrar, icono, orden, admin, publico, id_ruta_padre, roles,
     } = req.body;
 
     try {
@@ -46,22 +36,13 @@ export default class RutaController {
       }
       const ruta = await Ruta.create(
         {
-          nombre,
-          uri,
           // eslint-disable-next-line camelcase
-          nombre_uri,
-          mostrar,
-          icono,
-          orden,
-          admin,
-          publico,
-          // eslint-disable-next-line camelcase
-          id_ruta_padre,
+          nombre, uri, nombre_uri, mostrar, icono, orden, admin, publico, id_ruta_padre,
         },
         { transaction: t },
       );
-
       await ruta.addRols(roles, { transaction: t });
+      await t.commit();
       const idRuta = ruta.id;
       const us = await Ruta.getById(idRuta);
       const { Rols } = us.dataValues;
@@ -121,56 +102,23 @@ export default class RutaController {
   }
 
   static async update(req, res) {
+    const connection = DB.connection();
+    const t = await connection.transaction();
     const {
-      nombre,
-      uri,
       // eslint-disable-next-line camelcase
-      nombre_uri,
-      mostrar,
-      icono,
-      orden,
-      admin,
-      publico,
-      // eslint-disable-next-line camelcase
-      id_ruta_padre,
-      // eslint-disable-next-line no-unused-vars
-      roles,
+      nombre, uri, nombre_uri, mostrar, icono, orden, admin, publico, id_ruta_padre,
     } = req.body;
 
     // eslint-disable-next-line no-unused-vars
     const ruta = await Ruta.update({
-      nombre,
-      uri,
       // eslint-disable-next-line camelcase
-      nombre_uri,
-      mostrar,
-      icono,
-      orden,
-      admin,
-      publico,
-      // eslint-disable-next-line camelcase
-      id_ruta_padre,
+      nombre, uri, nombre_uri, mostrar, icono, orden, admin, publico, id_ruta_padre,
     }, {
       where: {
         id: req.params.id,
       },
-    });
-
-    await RutaRol.destroy({
-      where: {
-        id_ruta: req.params.id,
-      },
-    });
-
-    // eslint-disable-next-line no-plusplus
-    for (let i = 0; i < req.body.roles.length; i++) {
-      // eslint-disable-next-line no-await-in-loop
-      await RutaRol.create({
-        id_ruta: req.params.id,
-        id_rol: req.body.roles[i],
-      });
-    }
-
+    }, { transaction: t });
+    await t.commit();
     return res.status(HttpCode.HTTP_OK)
       .json({ message: 'Datos actualizados con exito' });
   }
@@ -208,23 +156,12 @@ export default class RutaController {
 
   static async destroyRutaRol(req, res) {
     const { id_ruta: idRuta } = req.params;
-    const { roles } = req.body;
 
     if (Number.isNaN(idRuta)) throw new UnprocessableEntityException('UNPROCESSABLE_ENTITY', 422, 'El parametro no es un id válido');
 
-    if (roles.length && roles.length <= 0) {
-      throw new BadRequestException(
-        'BAD_REQUEST',
-        400,
-        'No se envío ningún rol',
-      );
-    }
     await RutaRol.destroy({
       where: {
         id_ruta: idRuta,
-        id_rol: {
-          [Sequelize.Op.in]: roles,
-        },
       },
     });
     return res.status(HttpCode.HTTP_OK).json({ message: 'roles eliminados' });
