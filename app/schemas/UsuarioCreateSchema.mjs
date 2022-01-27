@@ -36,7 +36,7 @@ const usuarioCreateSchema = {
       },
     },
   },
-  oneOf: [{ required: ['roles'], errorMessage: { required: 'Debe poseer un rol o un pefil' } }, { required: ['perfiles'], errorMessage: { required: 'Debe poseer un rol o un pefil' } }],
+  anyOf: [{ required: ['roles'], errorMessage: { required: 'Debe poseer un rol o un pefil' } }, { required: ['perfiles'], errorMessage: { required: 'Debe poseer un rol o un pefil' } }],
   required: ['password', 'email'],
   errorMessage: {
     required: {

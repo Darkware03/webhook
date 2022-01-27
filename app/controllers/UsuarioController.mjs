@@ -255,7 +255,7 @@ export default class UsuarioController {
       where: {
         id_usuario: idUsuario,
         id_rol: {
-          [Sequelize.Op.in]: roles,
+          [Sequelize.Op.notIn]: roles,
         },
       },
     });

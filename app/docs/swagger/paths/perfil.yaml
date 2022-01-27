@@ -34,13 +34,13 @@
         description: Unauthorized
         content:
           application/json:
-            schema: 
+            schema:
               $ref: "#/components/schemas/Error"
       403:
         description: Not Found
         content:
           application/json:
-            schema: 
+            schema:
               $ref: "#/components/schemas/Error"
       500:
         description: Internal Server Error
@@ -70,13 +70,13 @@
         description: Unauthorized
         content:
           application/json:
-            schema: 
+            schema:
               $ref: "#/components/schemas/Error"
       403:
         description: Not Found
         content:
           application/json:
-            schema: 
+            schema:
               $ref: "#/components/schemas/Error"
       500:
         description: Internal Server Error
@@ -90,7 +90,7 @@ api/v1/perfiles/{id}:
     required: true
     type: integer
     minimum: 1
-    description: 
+    description:
   get:
     tags:
       - perfil
@@ -113,13 +113,13 @@ api/v1/perfiles/{id}:
         description: Unauthorized
         content:
           application/json:
-            schema: 
+            schema:
               $ref: "#/components/schemas/Error"
       403:
         description: Not Found
         content:
           application/json:
-            schema: 
+            schema:
               $ref: "#/components/schemas/Error"
       500:
         description: Internal Server Error
@@ -134,7 +134,7 @@ api/v1/perfiles/{id}:
         required: true
         type: integer
         minimum: 1
-        description: 
+        description:
     requestBody:
       content:
         application/json:
@@ -165,13 +165,13 @@ api/v1/perfiles/{id}:
         description: Unauthorized
         content:
           application/json:
-            schema: 
+            schema:
               $ref: "#/components/schemas/Error"
       403:
         description: Not Found
         content:
           application/json:
-            schema: 
+            schema:
               $ref: "#/components/schemas/Error"
       500:
         description: Internal Server Error
@@ -195,16 +195,98 @@ api/v1/perfiles/{id}:
         description: Unauthorized
         content:
           application/json:
-            schema: 
+            schema:
               $ref: "#/components/schemas/Error"
       403:
         description: Not Found
         content:
           application/json:
-            schema: 
+            schema:
               $ref: "#/components/schemas/Error"
       500:
         description: Internal Server Error
         content:
   area: development
 
+api/v1/perfiles/{id}/roles:
+  parameters:
+    - in: path
+      name: id
+      required: true
+      type: integer
+      minimum: 1
+      description:
+  post:
+    tags:
+      - perfil
+    operationId: addUserRol
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: integer
+      required: true
+    responses:
+      200:
+        description: Un objeto rol a perfil
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                perfil:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    nombre:
+                      type: string
+                    codigo:
+                      type: string
+      401:
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      403:
+        description: Not Found
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      500:
+        description: Internal Server Error
+        content:
+  delete:
+    tags:
+      - perfil
+    operationId: destroyUserRol
+    responses:
+      200:
+        description: Roles de usuarios eliminados
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+      401:
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      403:
+        description: Not Found
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      500:
+        description: Internal Server Error
+        content:
+  area: development

@@ -16,4 +16,7 @@ router.put('/:id', [validate(perfilUpdateSchema)], Call(PerfilController.update)
 router.delete('/:id', Call(PerfilController.destroy));
 router.delete('/', validate(perfilesDeleteSchema), Call(PerfilController.destroyMany));
 
+router.post('/:id_perfil/roles', Call(PerfilController.addPerfilRol));
+router.delete('/:id_perfil/roles', Call(PerfilController.destroyPerfilRol));
+
 export default router;
