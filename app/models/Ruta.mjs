@@ -12,6 +12,24 @@ class Ruta extends psql.Model {
       otherKey: 'id_rol',
     });
   }
+
+  static async getById(id) {
+    return this.findOne({
+      where: {
+        id,
+      },
+      attributes: ['id'],
+      include: [
+        {
+          model: Rol,
+          attributes: ['id', 'name'],
+          through: {
+            attributes: [],
+          },
+        },
+      ],
+    });
+  }
 }
 
 Ruta.init({
