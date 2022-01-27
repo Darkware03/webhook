@@ -26,7 +26,6 @@ export default class Handler {
 
   // eslint-disable-next-line consistent-return,no-unused-vars
   static handlerError(err, req, res, next) {
-    console.log(err);
     const debug = process.env.APP_DEBUG === 'true';
 
     if (err.name && err.name === 'JsonSchemaValidation') return res.status(HttpCode.HTTP_BAD_REQUEST).json(err.validations.body);
@@ -39,7 +38,9 @@ export default class Handler {
         message: row.message,
       })));
     }
-
+    if (err.name === 'SequelizeForeignKeyConstraintError') {
+      return res.status(HttpCode.HTTP_INTERNAL_SERVER_ERROR).json({ message: 'No se puede eliminar uno o más registros debido a que tienen acciones asociadas al sistema' });
+    }
     return res.status(err.statusCode || HttpCode.HTTP_INTERNAL_SERVER_ERROR).json({
       message: err.message,
     });

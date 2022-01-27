@@ -62,7 +62,7 @@ export default class RolController {
       return res.status(HttpCode.HTTP_OK).json({ message: 'ok' });
     } catch (e) {
       await t.rollback();
-      throw new UnprocessableEntityException('Error al eliminar roles', HttpCode.HTTP_BAD_REQUEST, 'Uno o mas roles proporcionados no son validos');
+      throw e;
     }
   }
 }
