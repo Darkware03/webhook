@@ -26,7 +26,7 @@ import getRols from '../services/getRols.mjs';
 
 export default class UsuarioController {
   static async index(req, res) {
-    const usuarios = await Usuario.findAll({ attributes: { exclude: ['is_suspended', 'password', 'token_valid_after', 'two_factor_status'] }, include: [Rol, Perfil] });
+    const usuarios = await Usuario.findAll({ attributes: { exclude: ['password', 'token_valid_after', 'two_factor_status'] }, include: [Rol, Perfil] });
     return res.status(HttpCode.HTTP_OK).json(usuarios);
   }
 
@@ -120,29 +120,43 @@ export default class UsuarioController {
   }
 
   static async update(req, res) {
-    const { email } = req.body;
+    // eslint-disable-next-line camelcase
+    const { email, password, is_suspended } = req.body;
+    const dataToUpdate = {};
+    if (req.body.password !== null && req.body.password !== '') {
+      dataToUpdate.password = req.body.password;
+    }
+
+    if (req.body.is_suspended !== null && req.body.is_suspended !== '') {
+      dataToUpdate.is_suspended = req.body.is_suspended;
+    }
+
+    if (req.body.email !== null && req.body.email !== '') {
+      dataToUpdate.email = req.body.email;
+    }
+
     const usuario = await Usuario.update(
-      {
-        email,
-      },
+      dataToUpdate,
       {
         where: {
           id: req.params.id,
         },
-        returning: ['id', 'email'],
+        returning: ['id', 'email', 'is_suspended'],
       },
     );
     return res.status(HttpCode.HTTP_OK).json(usuario[1]);
   }
 
   static async destroy(req, res) {
-    const { id } = req.params;
-
-    if (Number.isNaN(id)) throw new UnprocessableEntityException('UNPROCESSABLE_ENTITY', 422, 'El parámetro no es un id válido');
+    const { id } = req.body;
+    // eslint-disable-next-line no-plusplus
+    for (let index = 0; index < id.length; index++) {
+      if (Number.isNaN(id[index])) throw new UnprocessableEntityException('UNPROCESSABLE_ENTITY', 422, 'El parámetro no es un id válido');
+    }
 
     await Usuario.update(
       {
-        active: false,
+        is_suspended: true,
       },
       {
         where: {
@@ -214,23 +228,12 @@ export default class UsuarioController {
 
   static async destroyUserPerfil(req, res) {
     const { id_usuario: idUsuario } = req.params;
-    const { perfiles } = req.body;
 
     if (Number.isNaN(idUsuario)) throw new UnprocessableEntityException('UNPROCESSABLE_ENTITY', 422, 'El parametro no es un id válido');
 
-    if (perfiles.length && perfiles.length <= 0) {
-      throw new BadRequestException(
-        'BAD_REQUEST',
-        400,
-        'No se envío ningún perfil',
-      );
-    }
     await UsuarioPerfil.destroy({
       where: {
         id_usuario: idUsuario,
-        id_perfil: {
-          [Sequelize.Op.in]: perfiles,
-        },
       },
     });
     return res
@@ -240,23 +243,12 @@ export default class UsuarioController {
 
   static async destroyUserRol(req, res) {
     const { id_usuario: idUsuario } = req.params;
-    const { roles } = req.body;
 
     if (Number.isNaN(idUsuario)) throw new UnprocessableEntityException('UNPROCESSABLE_ENTITY', 422, 'El parametro no es un id válido');
 
-    if (roles.length && roles.length <= 0) {
-      throw new BadRequestException(
-        'BAD_REQUEST',
-        400,
-        'No se envío ningún rol',
-      );
-    }
     await UsuarioRol.destroy({
       where: {
         id_usuario: idUsuario,
-        id_rol: {
-          [Sequelize.Op.notIn]: roles,
-        },
       },
     });
     return res.status(HttpCode.HTTP_OK).json({ message: 'roles eliminados' });
