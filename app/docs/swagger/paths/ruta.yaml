@@ -1,0 +1,306 @@
+/api/v1/rutas:
+  post:
+    tags:
+      - ruta
+    operationId: addPerfil
+    requestBody:
+      description: Objeto Ruta que será agregado al servicio
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Perfil"
+      required: true
+    responses:
+      201:
+        description: Ruta agregado
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                nombre:
+                  type: string
+                uri:
+                  type: string
+                nombre_uri:
+                  type: string
+                mostrar:
+                  type: boolean
+                icono:
+                  type: string
+                orden:
+                  type: integer
+                admin:
+                  type: boolean
+                publico:
+                  type: boolean
+                id_ruta_padre:
+                  type: integer
+      400:
+        description: Bad Request
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      401:
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      403:
+        description: Not Found
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      500:
+        description: Internal Server Error
+        content:
+  x-codegen-request-body-name: body
+  get:
+    tags:
+      - ruta
+    operationId: rutas
+    produces:
+      - application/json
+    responses:
+      200:
+        description: Rutas
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                nombre:
+                  type: string
+                codigo:
+                  type: string
+      401:
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      403:
+        description: Not Found
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      500:
+        description: Internal Server Error
+        content:
+  area: development
+
+api/v1/rutas/{id}:
+  parameters:
+  - in: path
+    name: id
+    required: true
+    type: integer
+    minimum: 1
+    description:
+  get:
+    tags:
+      - ruta
+    operationId: viewRol
+    responses:
+      200:
+        description: Un objeto ruta
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                nombre:
+                  type: string
+                codigo:
+                  type: string
+      401:
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      403:
+        description: Not Found
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      500:
+        description: Internal Server Error
+        content:
+  put:
+    tags:
+      - ruta
+    operationId: editRuta
+    parameters:
+      - in: path
+        name: id
+        required: true
+        type: integer
+        minimum: 1
+        description:
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Perfil"
+      required: true
+    responses:
+      201:
+        description: Ruta actualizado
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                nombre:
+                  type: string
+                codigo:
+                  type: string
+      400:
+        description: Bad Request
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      401:
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      403:
+        description: Not Found
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      500:
+        description: Internal Server Error
+        content:
+  x-codegen-request-body-name: body
+  delete:
+    tags:
+      - ruta
+    operationId: deleteRuta
+    responses:
+      200:
+        description: Ruta eliminado
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+      401:
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      403:
+        description: Not Found
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      500:
+        description: Internal Server Error
+        content:
+  area: development
+
+api/v1/rutas/{id}/roles:
+  parameters:
+    - in: path
+      name: id
+      required: true
+      type: integer
+      minimum: 1
+      description:
+  post:
+    tags:
+      - ruta
+    operationId: addRutaRol
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: integer
+      required: true
+    responses:
+      200:
+        description: Un objeto ruta a perfil
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                perfil:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    nombre:
+                      type: string
+                    codigo:
+                      type: string
+      401:
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      403:
+        description: Not Found
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      500:
+        description: Internal Server Error
+        content:
+  delete:
+    tags:
+      - ruta
+    operationId: destroyRutaRol
+    responses:
+      200:
+        description: Roles de rutas eliminados
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+      401:
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      403:
+        description: Not Found
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      500:
+        description: Internal Server Error
+        content:
+  area: development
