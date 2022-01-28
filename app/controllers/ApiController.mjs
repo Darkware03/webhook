@@ -39,7 +39,7 @@ export default class ApiController {
       where: {
         email,
       },
-      attributes: ['id', 'email', 'password', 'is_suspended'],
+      attributes: ['id', 'email', 'password', 'is_suspended', 'last_login'],
       // eslint-disable-next-line max-len
       include: [{
         // eslint-disable-next-line max-len
@@ -50,13 +50,14 @@ export default class ApiController {
     });
 
     if (!usuario) throw new NoAuthException('UNAUTHORIZED', HttpCode.HTTP_UNAUTHORIZED, 'Credenciales no validas');
-
     const validPassword = bcrypt.compareSync(password, usuario.password);
     if (!validPassword) {
       throw new NoAuthException('UNAUTHORIZED', HttpCode.HTTP_UNAUTHORIZED, 'Credenciales no validas');
     }
-
-    if (usuario.is_suspended) {
+    if (usuario.is_suspended && usuario.last_login !== null && usuario.last_login !== '') {
+      throw new NoAuthException('UNAUTHORIZED', HttpCode.HTTP_UNAUTHORIZED, 'El usuario se encuentra suspendido');
+    }
+    if (usuario.last_login === '' || usuario.last_login === null) {
       const idUsuario = usuario.id;
       const token = await Auth.createToken({ idUsuario });
       // eslint-disable-next-line max-len

@@ -205,6 +205,12 @@ export default class RutaController {
         ],
       });
     }
+
+    if (data === null || data === undefined) {
+      return res.status(HttpCode.HTTP_UNAUTHORIZED).send({ message: 'El usuario no posee permisos para realizar la peticion' });
+
+      // throw new NoAuthException('UNAUTHORIZED', 401, 'El usuario no posee permisos para realizar la peticion');
+    }
     return res.status(HttpCode.HTTP_OK).send(data);
   }
 }
