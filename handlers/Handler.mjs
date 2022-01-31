@@ -4,11 +4,9 @@ import ErrorModel from '../app/nucleo/mongo/error.mjs';
 
 export default class Handler {
   static logError(req, err) {
-    console.log(err);
-    // eslint-disable-next-line no-console
     if (req.usuario) {
       const Error = new ErrorModel({
-        id_bitacora: req.bitacora.id,
+        id_bitacora: req.bitacora ? req.bitacora.id : null,
         codigo: err.statusCode,
         mensaje: err.message,
         trace: err.stack,
