@@ -295,7 +295,7 @@ export default class ApiController {
     const salt = bcrypt.genSaltSync();
     const passwordCrypt = bcrypt.hashSync(password, salt);
 
-    if (password !== confirmPassword) { throw new NotFoundException('NOT_FOUND', 400, 'Error! Las contraseñas  no coinciden'); }
+    if (password !== confirmPassword) { throw new NotFoundException('BAD_REQUEST', 400, 'Error! Las contraseñas  no coinciden'); }
     const { id } = jwt.verify(token, process.env.SECRET_KEY);
 
     // eslint-disable-next-line no-unused-vars
