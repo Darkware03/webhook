@@ -11,9 +11,7 @@ import NotFoundException from '../../handlers/NotFoundExeption.mjs';
 import UnprocessableEntityException from '../../handlers/UnprocessableEntityException.mjs';
 import Mailer from '../services/mailer.mjs';
 
-import {
-  Usuario, UsuarioRol, UsuarioPerfil, Perfil, Rol,
-} from '../models/index.mjs';
+import { Usuario, UsuarioRol, UsuarioPerfil, Perfil, Rol } from '../models/index.mjs';
 import MetodoAutenticacionUsuario from '../models/MetodoAutenticacionUsuario.mjs';
 import Auth from '../utils/Auth.mjs';
 import Security from '../services/security.mjs';
@@ -35,9 +33,7 @@ export default class UsuarioController {
     }
     const connection = DB.connection();
     const t = await connection.transaction();
-    const {
-      perfiles, roles, email, password,
-    } = req.body;
+    const { perfiles, roles, email, password } = req.body;
     const salt = bcrypt.genSaltSync();
     const passwordCrypt = bcrypt.hashSync(password, salt);
 
@@ -51,7 +47,7 @@ export default class UsuarioController {
             throw new NotFoundException(
               'NOT_FOUND',
               404,
-              `No se encontró el perfil con id ${perfiles[index]}`,
+              `No se encontró el perfil con id ${perfiles[index]}`
             );
           }
         }
@@ -65,7 +61,7 @@ export default class UsuarioController {
             throw new NotFoundException(
               'NOT_FOUND',
               404,
-              `No se encontró el rol con id ${roles[index]}`,
+              `No se encontró el rol con id ${roles[index]}`
             );
           }
         }
@@ -73,7 +69,7 @@ export default class UsuarioController {
 
       const usuario = await Usuario.create(
         { email, password: passwordCrypt, is_suspended: true },
-        { transaction: t },
+        { transaction: t }
       );
 
       await usuario.addPerfils(perfiles, { transaction: t });
@@ -88,7 +84,7 @@ export default class UsuarioController {
           secret_key: newToken.secret_code,
           temporal_key: null,
         },
-        { transaction: t },
+        { transaction: t }
       );
       await t.commit();
 
@@ -125,7 +121,7 @@ export default class UsuarioController {
         null,
         'Verificacion de correo electronico',
         null,
-        htmlForEmail,
+        htmlForEmail
       );
       return res.status(HttpCode.HTTP_CREATED).json({
         id: usuario.id,
@@ -170,7 +166,7 @@ export default class UsuarioController {
       throw new UnprocessableEntityException(
         'UNPROCESSABLE_ENTITY',
         422,
-        'El parámetro no es un id válido',
+        'El parámetro no es un id válido'
       );
     }
 
@@ -182,7 +178,7 @@ export default class UsuarioController {
         where: {
           id,
         },
-      },
+      }
     );
 
     return res.status(HttpCode.HTTP_OK).json({
@@ -196,7 +192,7 @@ export default class UsuarioController {
       throw new UnprocessableEntityException(
         'UNPROCESSABLE_ENTITY',
         422,
-        'El parámetro no es un id válido',
+        'El parámetro no es un id válido'
       );
     }
 
@@ -215,15 +211,12 @@ export default class UsuarioController {
       throw new UnprocessableEntityException(
         'UNPROCESSABLE_ENTITY',
         422,
-        'El parametro no es un id válido',
+        'El parametro no es un id válido'
       );
     }
 
     const { perfiles } = req.body;
 
-    if (perfiles.length === 0) {
-      throw new BadRequestException('BAD_REQUEST', 400, 'No se envío ningún perfil');
-    }
     const user = await Usuario.findOne({ where: { id: idUsuario } });
     const userProfils = await user.addPerfils(perfiles);
 
@@ -241,13 +234,10 @@ export default class UsuarioController {
       throw new UnprocessableEntityException(
         'UNPROCESSABLE_ENTITY',
         422,
-        'El parametro no es un id válido',
+        'El parametro no es un id válido'
       );
     }
 
-    if (roles.length === 0) {
-      throw new BadRequestException('BAD_REQUEST', 400, 'No se envío ningún rol');
-    }
     const user = await Usuario.findOne({ where: { id: idUsuario } });
     const userRols = await user.addRols(roles);
 
@@ -263,7 +253,7 @@ export default class UsuarioController {
       throw new UnprocessableEntityException(
         'UNPROCESSABLE_ENTITY',
         422,
-        'El parametro no es un id válido',
+        'El parametro no es un id válido'
       );
     }
 
@@ -282,7 +272,7 @@ export default class UsuarioController {
       throw new UnprocessableEntityException(
         'UNPROCESSABLE_ENTITY',
         422,
-        'El parametro no es un id válido',
+        'El parametro no es un id válido'
       );
     }
 
@@ -304,21 +294,21 @@ export default class UsuarioController {
       throw new NotFoundException(
         'FORBIDDEN',
         HttpCode.HTTP_FORBIDDEN,
-        'La contraseña proporcionada no es correcta',
+        'La contraseña proporcionada no es correcta'
       );
     }
     if (passwordActual === password) {
       throw new NotFoundException(
         'HTTP_NOT_MODIFIED',
         HttpCode.HTTP_NOT_MODIFIED,
-        'La nueva contraseña no puede ser igual que la anterior',
+        'La nueva contraseña no puede ser igual que la anterior'
       );
     }
     if (password !== confirmPassword) {
       throw new NotFoundException(
         'BAD_REQUEST',
         HttpCode.HTTP_BAD_REQUEST,
-        'Las contraseñas no coinciden',
+        'Las contraseñas no coinciden'
       );
     }
 
@@ -334,7 +324,7 @@ export default class UsuarioController {
         where: {
           id: req.usuario.id,
         },
-      },
+      }
     );
     const msg = `
       <p><span>Estimado/a usuario</span></p>
@@ -364,7 +354,7 @@ export default class UsuarioController {
       throw new NotFoundException(
         'HTTP_NOT_MODIFIED',
         HttpCode.HTTP_NOT_MODIFIED,
-        'El correo no puede ser igual al anterior',
+        'El correo no puede ser igual al anterior'
       );
     }
 
@@ -373,7 +363,7 @@ export default class UsuarioController {
       throw new NotFoundException(
         'BAD_REQUEST',
         HttpCode.HTTP_BAD_REQUEST,
-        'La contraseña proporcionada no es correcta',
+        'La contraseña proporcionada no es correcta'
       );
     }
 
@@ -383,7 +373,7 @@ export default class UsuarioController {
       throw new NotFoundException(
         'BAD_REQUEST',
         HttpCode.HTTP_BAD_REQUEST,
-        'El correo ya se encuentra en uso',
+        'El correo ya se encuentra en uso'
       );
     }
 
@@ -420,7 +410,7 @@ export default class UsuarioController {
         where: {
           id: req.usuario.id,
         },
-      },
+      }
     );
     const refreshToken = await Auth.refresh_token(req.usuario);
     const roles = await getRols.roles(req.usuario.id);
@@ -471,7 +461,7 @@ export default class UsuarioController {
         req.usuario.email,
         verificationCode,
         'Codigo de verificacion',
-        'Su codigo de verificacion es:',
+        'Su codigo de verificacion es:'
       );
       return res.status(HttpCode.HTTP_OK).send({
         message: 'Favor valide el nuevo metodo de autenticacion, revise su correo electronico',
@@ -507,13 +497,13 @@ export default class UsuarioController {
       throw new NotFoundException(
         'NOT_FOUND',
         HttpCode.HTTP_BAD_REQUEST,
-        'El usuario no tiene este metodo de autenticacion asociado',
+        'El usuario no tiene este metodo de autenticacion asociado'
       );
     }
     const isValidCode = await Security.verifyTwoFactorAuthCode(
       codigo,
       methodUser.temporal_key,
-      timeToCodeValid,
+      timeToCodeValid
     );
     if (isValidCode) {
       await methodUser.update({ secret_key: methodUser.temporal_key, temporal_key: null });
@@ -521,7 +511,7 @@ export default class UsuarioController {
         req.usuario.email,
         'Se ha cambiado el metodo de autenticacion',
         'Metodo de autenticacion cambiado',
-        'ALERTA!',
+        'ALERTA!'
       );
       return res
         .status(HttpCode.HTTP_OK)
@@ -530,24 +520,24 @@ export default class UsuarioController {
     throw new NotFoundException(
       'NOT_FOUND',
       HttpCode.HTTP_BAD_REQUEST,
-      'El codigo proporcionado no es valido',
+      'El codigo proporcionado no es valido'
     );
   }
 
   static async updatePrimaryMethod(req, res) {
     await MetodoAutenticacionUsuario.update(
       { is_primary: true },
-      { where: { id: req.body.id_metodo_usuario } },
+      { where: { id: req.body.id_metodo_usuario } }
     );
     await MetodoAutenticacionUsuario.update(
       { is_primary: false },
-      { where: { id_usuario: req.usuario.id, [Op.not]: [{ id: req.body.id_metodo_usuario }] } },
+      { where: { id_usuario: req.usuario.id, [Op.not]: [{ id: req.body.id_metodo_usuario }] } }
     );
     await Mailer.sendMail(
       req.usuario.email,
       'Se ha cambio el metodo de autenticacion primario',
       'Alerta de actualizacion de cuenta',
-      'Alerta',
+      'Alerta'
     );
     return res.status(HttpCode.HTTP_OK).send({ message: 'Solicitud procesada con exito!' });
   }
@@ -573,7 +563,7 @@ export default class UsuarioController {
     const metodosAutenticacion = metodos.map((metodo) => {
       // eslint-disable-next-line no-mixed-operators
       const isPrimary = usuario.MetodoAutenticacions.filter(
-        (metodoUsuario) => metodoUsuario.id === metodo.id,
+        (metodoUsuario) => metodoUsuario.id === metodo.id
       );
       return {
         nombre: metodo.nombre,
