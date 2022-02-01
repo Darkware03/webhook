@@ -135,6 +135,13 @@ export default class PerfilController {
     }
     const perfil = await Perfil.findOne({ where: { id: idPerfil } });
     const role = await Rol.findOne({ where: { id: rol } });
+    if (!perfil) {
+      throw new BadRequestException(
+        'BAD_REQUEST',
+        400,
+        'El usuario ingresado no coincide con ninguno registrado',
+      );
+    }
     if (!role) {
       throw new BadRequestException(
         'BAD_REQUEST',
@@ -143,6 +150,13 @@ export default class PerfilController {
       );
     }
     const perfilRols = await perfil.addRols(rol);
+    if (!perfilRols) {
+      throw new BadRequestException(
+        'BAD_REQUEST',
+        400,
+        'El perfil ya tiene ese rol',
+      );
+    }
     return res.status(HttpCode.HTTP_CREATED).json({
       perfil_rols: perfilRols,
     });
