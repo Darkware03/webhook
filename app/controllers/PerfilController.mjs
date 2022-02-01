@@ -2,7 +2,7 @@ import { Perfil, PerfilRol, Rol } from '../models/index.mjs';
 import HttpCode from '../../configs/httpCode.mjs';
 import UnprocessableEntityException from '../../handlers/UnprocessableEntityException.mjs';
 import NotFoundException from '../../handlers/NotFoundExeption.mjs';
-import BaseError from '../../handlers/BaseError.mjs';
+import BadRequestException from '../../handlers/BadRequestException.mjs';
 import DB from '../nucleo/DB.mjs';
 
 export default class PerfilController {
@@ -125,7 +125,7 @@ export default class PerfilController {
 
   static async addPerfilRol(req, res) {
     const { id_perfil: idPerfil } = req.params;
-    const { rol } = req.body;
+    const { roles } = req.body;
     if (Number.isNaN(idPerfil)) {
       throw new UnprocessableEntityException(
         'UNPROCESSABLE_ENTITY',
@@ -134,7 +134,6 @@ export default class PerfilController {
       );
     }
     const perfil = await Perfil.findOne({ where: { id: idPerfil } });
-    const role = await Rol.findOne({ where: { id: rol } });
     if (!perfil) {
       throw new NotFoundException(
         'NOT_FOUND',
@@ -142,21 +141,23 @@ export default class PerfilController {
         'El usuario ingresado no coincide con ninguno registrado',
       );
     }
-    if (!role) {
-      throw new NotFoundException(
-        'NOT_FOUND',
-        404,
-        'El rol ingresado no coincide con ninguno registrado',
-      );
+    if (roles.length === 0) {
+      throw new BadRequestException('BAD_REQUEST', 400, 'No se envío ningún rol');
     }
-    const perfilRols = await perfil.addRols(rol);
-    if (!perfilRols) { //  304 Not Modified
-      throw new BaseError(
-        'NOT_MODIFIED',
-        304,
-        'El rol ya pertenece a un perfil',
-      );
+    // eslint-disable-next-line no-plusplus
+    for (let index = 0; index < roles.length; index++) {
+      const rolId = roles[index];
+      // eslint-disable-next-line no-await-in-loop
+      const rolValidate = await Rol.findOne({ where: { id: rolId } });
+      if (!rolValidate) {
+        throw new NotFoundException(
+          'NOT_FOUND',
+          404,
+          'El rol ingresado no coincide con ninguno registrado',
+        );
+      }
     }
+    const perfilRols = await perfil.addRols(roles);
     return res.status(HttpCode.HTTP_CREATED).json({
       perfil_rols: perfilRols,
     });
