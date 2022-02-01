@@ -10,6 +10,8 @@ class Ruta extends psql.Model {
       through: RutaRol,
       foreignKey: 'id_ruta',
       otherKey: 'id_rol',
+      onDelete: 'CASCADE',
+      hooks: true,
     });
   }
 

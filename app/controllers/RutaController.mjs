@@ -1,3 +1,4 @@
+/* eslint-disable no-plusplus */
 // eslint-disable-next-line no-unused-vars
 import Sequelize, { Op } from 'sequelize';
 import {
@@ -86,6 +87,12 @@ export default class RutaController {
 
     if (Number.isNaN(idRuta)) throw new UnprocessableEntityException('UNPROCESSABLE_ENTITY', 422, 'El parametro no es un id válido');
 
+    for (let index = 0; index < roles.length; index++) {
+      // eslint-disable-next-line no-await-in-loop
+      const rol = await Rol.findOne({ where: { id: roles[index] } });
+      if (!rol) throw new NotFoundException('NOT_FOUND', 404, `No se encontró el rol con id ${roles[index]}`);
+    }
+
     if (roles.length === 0) {
       throw new BadRequestException(
         'BAD_REQUEST',
@@ -94,6 +101,7 @@ export default class RutaController {
       );
     }
     const ruta = await Ruta.findOne({ where: { id: idRuta } });
+    if (!ruta) throw new NotFoundException('NOT_FOUND', 404, `No se encontró una ruta con id ${idRuta}`);
     const rutaRols = await ruta.addRols(roles);
 
     return res.status(HttpCode.HTTP_CREATED).json({
@@ -102,8 +110,6 @@ export default class RutaController {
   }
 
   static async update(req, res) {
-    const connection = DB.connection();
-    const t = await connection.transaction();
     const {
       // eslint-disable-next-line camelcase
       nombre, uri, nombre_uri, mostrar, icono, orden, admin, publico, id_ruta_padre,
@@ -117,36 +123,20 @@ export default class RutaController {
       where: {
         id: req.params.id,
       },
-    }, { transaction: t });
-    await t.commit();
+    });
+
     return res.status(HttpCode.HTTP_OK)
       .json({ message: 'Datos actualizados con exito' });
   }
 
   static async destroy(req, res) {
-    const { id } = req.body;
-
-    // eslint-disable-next-line no-plusplus
-    for (let i = 0; i < req.body.id.length; i++) {
-      if (Number.isNaN(id[i])) throw new UnprocessableEntityException('UNPROCESSABLE_ENTITY', 422, 'El parámetro no es un id válido');
-      // eslint-disable-next-line no-await-in-loop
-      await RutaRol.destroy({
-        where: {
-          id_ruta: id[i],
-        },
-      });
-    }
-
-    // eslint-disable-next-line no-plusplus
-    for (let i = 0; i < req.body.id.length; i++) {
-      if (Number.isNaN(id[i])) throw new UnprocessableEntityException('UNPROCESSABLE_ENTITY', 422, 'El parámetro no es un id válido');
-      // eslint-disable-next-line no-await-in-loop
-      await Ruta.destroy({
-        where: {
-          id: id[i],
-        },
-      });
-    }
+    const { id } = req.params;
+    const ruta = await Ruta.findOne({ where: { id } });
+    if (!ruta) throw new NotFoundException('NOT_FOUND', 404, `No se encontró una ruta con id ${id}`);
+    if (Number.isNaN(id)) throw new UnprocessableEntityException('UNPROCESSABLE_ENTITY', 422, 'El parámetro no es un id válido');
+    await Ruta.destroy({
+      where: { id },
+    });
 
     return res.status(HttpCode.HTTP_OK)
       .json({

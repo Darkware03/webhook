@@ -24,7 +24,7 @@ export default class ApiController {
     if (token) {
       const { idUsuario } = jwt.verify(token, process.env.SECRET_KEY);
       if (idUsuario) {
-        await Usuario.update({ is_suspended: false }, { where: { id: idUsuario } });
+        await Usuario.update({ is_suspended: false, last_login: moment().tz('America/El_Salvador').format() }, { where: { id: idUsuario } });
         res.status(HttpCode.HTTP_OK).send({ message: 'El usuario ha sido verificado con exito' });
       } else {
         throw NotFoundException('NOT_FOUND', HttpCode.HTTP_BAD_REQUEST, 'Error al realizar la peticion...');
@@ -295,7 +295,7 @@ export default class ApiController {
     const salt = bcrypt.genSaltSync();
     const passwordCrypt = bcrypt.hashSync(password, salt);
 
-    if (password !== confirmPassword) { throw new NotFoundException('NOT_FOUND', 400, 'Error! Las contraseñas  no coinciden'); }
+    if (password !== confirmPassword) { throw new NotFoundException('BAD_REQUEST', 400, 'Error! Las contraseñas  no coinciden'); }
     const { id } = jwt.verify(token, process.env.SECRET_KEY);
 
     // eslint-disable-next-line no-unused-vars

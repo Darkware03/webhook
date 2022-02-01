@@ -18,3 +18,5 @@ UpdateEmail:
   $include: "updateEmailSchema.yaml"
 Error:
   $include: "errorSchema.yaml"
+Ruta:
+  $include: "rutaSchema.yaml"

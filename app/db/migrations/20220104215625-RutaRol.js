@@ -10,6 +10,7 @@ module.exports = {
       },
       id_ruta: {
         type: psql.Sequelize.INTEGER,
+        onDelete: 'CASCADE',
         references: {
           model: 'mnt_ruta',
           key: 'id',
