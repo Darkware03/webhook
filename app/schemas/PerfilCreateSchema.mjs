@@ -17,8 +17,10 @@ const perfilCreateSchema = {
     },
     roles: {
       type: 'array',
+      minItems: 1,
       errorMessage: {
         type: 'Los roles del perfil debe ser un arreglo de enteros',
+        minItems: 'Debe de asignarle por lo menos un rol',
       },
     },
   },

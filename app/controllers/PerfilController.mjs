@@ -26,14 +26,6 @@ export default class PerfilController {
       codigo,
     });
     try {
-      /** Validar que si no trae ningun rol no asignarle nada y devolver el perfil creado exitoso */
-      if (req.body.roles == null) {
-        throw new NotFoundException(
-          'BAD_REQUEST',
-          HttpCode.HTTP_BAD_REQUEST,
-          'El perfil debe tener al menos un rol asignado',
-        );
-      }
       await perfil.setRols(req.body.roles);
       return res.status(HttpCode.HTTP_CREATED).json({
         id: perfil.id,
@@ -41,13 +33,9 @@ export default class PerfilController {
         codigo,
         roles: req.body.roles,
       });
-    } catch (e) {
+    } catch (err) {
       perfil.destroy();
-      throw new NotFoundException(
-        'BAD_REQUEST',
-        HttpCode.HTTP_BAD_REQUEST,
-        'Uno o mas roles no se encuentran registrados',
-      );
+      throw err;
     }
   }
 
