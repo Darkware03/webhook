@@ -125,8 +125,7 @@ export default class PerfilController {
 
   static async addPerfilRol(req, res) {
     const { id_perfil: idPerfil } = req.params;
-    const { roles } = req.body;
-
+    const { rol } = req.body;
     if (Number.isNaN(idPerfil)) {
       throw new UnprocessableEntityException(
         'UNPROCESSABLE_ENTITY',
@@ -134,13 +133,16 @@ export default class PerfilController {
         'El parametro no es un id válido',
       );
     }
-
-    if (roles.length === 0) {
-      throw new BadRequestException('BAD_REQUEST', 400, 'No se envío ningún rol');
-    }
     const perfil = await Perfil.findOne({ where: { id: idPerfil } });
-    const perfilRols = await perfil.addRols(roles);
-
+    const role = await Rol.findOne({ where: { id: rol } });
+    if (!role) {
+      throw new BadRequestException(
+        'BAD_REQUEST',
+        400,
+        'El rol ingresado no coincide con ninguno registrado',
+      );
+    }
+    const perfilRols = await perfil.addRols(rol);
     return res.status(HttpCode.HTTP_CREATED).json({
       perfil_rols: perfilRols,
     });
