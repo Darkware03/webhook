@@ -1,7 +1,5 @@
 type: object
 properties:
-  id:
-    type: integer
   nombre:
     type: string
   uri:

@@ -8,7 +8,7 @@
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/Perfil"
+            $ref: "#/components/schemas/Ruta"
       required: true
     responses:
       201:
@@ -78,8 +78,22 @@
                   type: integer
                 nombre:
                   type: string
-                codigo:
+                uri:
                   type: string
+                nombre_uri:
+                  type: string
+                mostrar:
+                  type: boolean
+                icono:
+                  type: string
+                orden:
+                  type: integer
+                admin:
+                  type: boolean
+                publico:
+                  type: boolean
+                id_ruta_padre:
+                  type: integer
       401:
         description: Unauthorized
         content:
@@ -121,8 +135,22 @@ api/v1/rutas/{id}:
                   type: integer
                 nombre:
                   type: string
-                codigo:
+                uri:
                   type: string
+                nombre_uri:
+                  type: string
+                mostrar:
+                  type: boolean
+                icono:
+                  type: string
+                orden:
+                  type: integer
+                admin:
+                  type: boolean
+                publico:
+                  type: boolean
+                id_ruta_padre:
+                  type: integer
       401:
         description: Unauthorized
         content:
@@ -153,7 +181,7 @@ api/v1/rutas/{id}:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/Perfil"
+            $ref: "#/components/schemas/Ruta"
       required: true
     responses:
       201:
@@ -253,12 +281,9 @@ api/v1/rutas/{id}/roles:
                 perfil:
                   type: object
                   properties:
-                    id:
-                      type: integer
-                    nombre:
-                      type: string
-                    codigo:
-                      type: string
+                    roles:
+                      type: boolean
+                    
       401:
         description: Unauthorized
         content:
