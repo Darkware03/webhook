@@ -15,6 +15,8 @@ export default class HttpCode {
 
   static HTTP_UNPROCESSABLE_ENTITY = 422;
 
+  static HTTP_NOT_MODIFIED = 304;
+
   // SERVER ERRORS
   static HTTP_INTERNAL_SERVER_ERROR = 500;
 }

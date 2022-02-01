@@ -12,11 +12,7 @@ import UnprocessableEntityException from '../../handlers/UnprocessableEntityExce
 import Mailer from '../services/mailer.mjs';
 
 import {
-  Usuario,
-  UsuarioRol,
-  UsuarioPerfil,
-  Perfil,
-  Rol,
+  Usuario, UsuarioRol, UsuarioPerfil, Perfil, Rol,
 } from '../models/index.mjs';
 import MetodoAutenticacionUsuario from '../models/MetodoAutenticacionUsuario.mjs';
 import Auth from '../utils/Auth.mjs';
@@ -26,13 +22,16 @@ import getRols from '../services/getRols.mjs';
 
 export default class UsuarioController {
   static async index(req, res) {
-    const usuarios = await Usuario.findAll({ attributes: { exclude: ['password', 'token_valid_after', 'two_factor_status'] }, include: [Rol, Perfil] });
+    const usuarios = await Usuario.findAll({
+      attributes: { exclude: ['password', 'token_valid_after', 'two_factor_status'] },
+      include: [Rol, Perfil],
+    });
     return res.status(HttpCode.HTTP_OK).json(usuarios);
   }
 
   static async store(req, res) {
-    if (!await Security.isGranted(req, 'SUPER-ADMIN')) {
-      throw new NotFoundException('NOT_FOUND', 404, 'ERROR NO SE HA AUTENTICADO');
+    if (!(await Security.isGranted(req, 'SUPER-ADMIN'))) {
+      throw new NotFoundException('FORBIDDEN', 403, 'ERROR NO SE HA AUTENTICADO');
     }
     const connection = DB.connection();
     const t = await connection.transaction();
@@ -48,7 +47,13 @@ export default class UsuarioController {
         for (let index = 0; index < perfiles.length; index++) {
           // eslint-disable-next-line no-await-in-loop
           const perfil = await Perfil.findOne({ where: { id: perfiles[index] } });
-          if (!perfil) throw new NotFoundException('NOT_FOUND', 404, `No se encontró el perfil con id ${perfiles[index]}`);
+          if (!perfil) {
+            throw new NotFoundException(
+              'NOT_FOUND',
+              404,
+              `No se encontró el perfil con id ${perfiles[index]}`,
+            );
+          }
         }
       }
       if (roles) {
@@ -56,7 +61,13 @@ export default class UsuarioController {
         for (let index = 0; index < roles.length; index++) {
           // eslint-disable-next-line no-await-in-loop
           const rol = await Rol.findOne({ where: { id: roles[index] } });
-          if (!rol) throw new NotFoundException('NOT_FOUND', 404, `No se encontró el rol con id ${roles[index]}`);
+          if (!rol) {
+            throw new NotFoundException(
+              'NOT_FOUND',
+              404,
+              `No se encontró el rol con id ${roles[index]}`,
+            );
+          }
         }
       }
 
@@ -69,13 +80,16 @@ export default class UsuarioController {
       await usuario.addRols(roles, { transaction: t });
       const idUsuario = usuario.id;
       const newToken = await Security.generateTwoFactorAuthCode(usuario.email);
-      await MetodoAutenticacionUsuario.create({
-        id_usuario: usuario.id,
-        id_metodo: 1,
-        is_primary: true,
-        secret_key: newToken.secret_code,
-        temporal_key: null,
-      }, { transaction: t });
+      await MetodoAutenticacionUsuario.create(
+        {
+          id_usuario: usuario.id,
+          id_metodo: 1,
+          is_primary: true,
+          secret_key: newToken.secret_code,
+          temporal_key: null,
+        },
+        { transaction: t },
+      );
       await t.commit();
 
       const us = await Usuario.getById(idUsuario);
@@ -106,7 +120,13 @@ export default class UsuarioController {
   </mj-body>
 </mjml>`;
       // eslint-disable-next-line max-len
-      await Mailer.sendMail(usuario.email, null, 'Verificacion de correo electronico', null, htmlForEmail);
+      await Mailer.sendMail(
+        usuario.email,
+        null,
+        'Verificacion de correo electronico',
+        null,
+        htmlForEmail,
+      );
       return res.status(HttpCode.HTTP_CREATED).json({
         id: usuario.id,
         email: usuario.email,
@@ -135,23 +155,23 @@ export default class UsuarioController {
       dataToUpdate.email = req.body.email;
     }
 
-    const usuario = await Usuario.update(
-      dataToUpdate,
-      {
-        where: {
-          id: req.params.id,
-        },
-        returning: ['id', 'email', 'is_suspended'],
+    const usuario = await Usuario.update(dataToUpdate, {
+      where: {
+        id: req.params.id,
       },
-    );
+      returning: ['id', 'email', 'is_suspended'],
+    });
     return res.status(HttpCode.HTTP_OK).json(usuario[1]);
   }
 
   static async destroy(req, res) {
-    const { id } = req.body;
-    // eslint-disable-next-line no-plusplus
-    for (let index = 0; index < id.length; index++) {
-      if (Number.isNaN(id[index])) throw new UnprocessableEntityException('UNPROCESSABLE_ENTITY', 422, 'El parámetro no es un id válido');
+    const { id } = req.params;
+    if (Number.isNaN(id)) {
+      throw new UnprocessableEntityException(
+        'UNPROCESSABLE_ENTITY',
+        422,
+        'El parámetro no es un id válido',
+      );
     }
 
     await Usuario.update(
@@ -172,7 +192,13 @@ export default class UsuarioController {
 
   static async show(req, res) {
     const { id } = req.params;
-    if (Number.isNaN(id)) throw new UnprocessableEntityException('UNPROCESSABLE_ENTITY', 422, 'El parámetro no es un id válido');
+    if (Number.isNaN(id)) {
+      throw new UnprocessableEntityException(
+        'UNPROCESSABLE_ENTITY',
+        422,
+        'El parámetro no es un id válido',
+      );
+    }
 
     const user = await Usuario.getById(id);
 
@@ -185,16 +211,18 @@ export default class UsuarioController {
 
   static async addUserProfile(req, res) {
     const { id_usuario: idUsuario } = req.params;
-    if (Number.isNaN(idUsuario)) throw new UnprocessableEntityException('UNPROCESSABLE_ENTITY', 422, 'El parametro no es un id válido');
+    if (Number.isNaN(idUsuario)) {
+      throw new UnprocessableEntityException(
+        'UNPROCESSABLE_ENTITY',
+        422,
+        'El parametro no es un id válido',
+      );
+    }
 
     const { perfiles } = req.body;
 
     if (perfiles.length === 0) {
-      throw new BadRequestException(
-        'BAD_REQUEST',
-        400,
-        'No se envío ningún perfil',
-      );
+      throw new BadRequestException('BAD_REQUEST', 400, 'No se envío ningún perfil');
     }
     const user = await Usuario.findOne({ where: { id: idUsuario } });
     const userProfils = await user.addPerfils(perfiles);
@@ -209,14 +237,16 @@ export default class UsuarioController {
     const { id_usuario: idUsuario } = req.params;
     const { roles } = req.body;
 
-    if (Number.isNaN(idUsuario)) throw new UnprocessableEntityException('UNPROCESSABLE_ENTITY', 422, 'El parametro no es un id válido');
+    if (Number.isNaN(idUsuario)) {
+      throw new UnprocessableEntityException(
+        'UNPROCESSABLE_ENTITY',
+        422,
+        'El parametro no es un id válido',
+      );
+    }
 
     if (roles.length === 0) {
-      throw new BadRequestException(
-        'BAD_REQUEST',
-        400,
-        'No se envío ningún rol',
-      );
+      throw new BadRequestException('BAD_REQUEST', 400, 'No se envío ningún rol');
     }
     const user = await Usuario.findOne({ where: { id: idUsuario } });
     const userRols = await user.addRols(roles);
@@ -229,22 +259,32 @@ export default class UsuarioController {
   static async destroyUserPerfil(req, res) {
     const { id_usuario: idUsuario } = req.params;
 
-    if (Number.isNaN(idUsuario)) throw new UnprocessableEntityException('UNPROCESSABLE_ENTITY', 422, 'El parametro no es un id válido');
+    if (Number.isNaN(idUsuario)) {
+      throw new UnprocessableEntityException(
+        'UNPROCESSABLE_ENTITY',
+        422,
+        'El parametro no es un id válido',
+      );
+    }
 
     await UsuarioPerfil.destroy({
       where: {
         id_usuario: idUsuario,
       },
     });
-    return res
-      .status(HttpCode.HTTP_OK)
-      .json({ message: 'Perfiles eliminados' });
+    return res.status(HttpCode.HTTP_OK).json({ message: 'Perfiles eliminados' });
   }
 
   static async destroyUserRol(req, res) {
     const { id_usuario: idUsuario } = req.params;
 
-    if (Number.isNaN(idUsuario)) throw new UnprocessableEntityException('UNPROCESSABLE_ENTITY', 422, 'El parametro no es un id válido');
+    if (Number.isNaN(idUsuario)) {
+      throw new UnprocessableEntityException(
+        'UNPROCESSABLE_ENTITY',
+        422,
+        'El parametro no es un id válido',
+      );
+    }
 
     await UsuarioRol.destroy({
       where: {
@@ -255,22 +295,47 @@ export default class UsuarioController {
   }
 
   static async updatePassword(req, res) {
-    const { password_actual: passwordActual, password, confirm_password: confirmPassword } = req.body;
-    if (!bcrypt.compareSync(passwordActual, req.usuario.password)) { throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'La contraseña proporcionada no es correcta'); }
-    if (passwordActual === password) { throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'La nueva contraseña no puede ser igual que la anterior'); }
-    if (password !== confirmPassword) { throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'Las contraseñas no coinciden'); }
+    const {
+      password_actual: passwordActual,
+      password,
+      confirm_password: confirmPassword,
+    } = req.body;
+    if (!bcrypt.compareSync(passwordActual, req.usuario.password)) {
+      throw new NotFoundException(
+        'FORBIDDEN',
+        HttpCode.HTTP_FORBIDDEN,
+        'La contraseña proporcionada no es correcta',
+      );
+    }
+    if (passwordActual === password) {
+      throw new NotFoundException(
+        'HTTP_NOT_MODIFIED',
+        HttpCode.HTTP_NOT_MODIFIED,
+        'La nueva contraseña no puede ser igual que la anterior',
+      );
+    }
+    if (password !== confirmPassword) {
+      throw new NotFoundException(
+        'BAD_REQUEST',
+        HttpCode.HTTP_BAD_REQUEST,
+        'Las contraseñas no coinciden',
+      );
+    }
 
     const salt = bcrypt.genSaltSync();
     const passwordCrypt = bcrypt.hashSync(password, salt);
 
-    await Usuario.update({
-      password: passwordCrypt,
-      token_valid_after: moment().subtract(5, 's').tz('America/El_Salvador').format(),
-    }, {
-      where: {
-        id: req.usuario.id,
+    await Usuario.update(
+      {
+        password: passwordCrypt,
+        token_valid_after: moment().subtract(5, 's').tz('America/El_Salvador').format(),
       },
-    });
+      {
+        where: {
+          id: req.usuario.id,
+        },
+      },
+    );
     const msg = `
       <p><span>Estimado/a usuario</span></p>
       <p><span>Se le informa que acaba de cambiar la contraseña de su cuenta de manera exitosa</span></p>
@@ -287,20 +352,40 @@ export default class UsuarioController {
       email: req.usuario.email,
       user: req.usuario,
     });
-    return res.status(HttpCode.HTTP_OK).json({ message: 'Contraseña actualizada con exito', token, refreshToken });
+    return res
+      .status(HttpCode.HTTP_OK)
+      .json({ message: 'Contraseña actualizada con exito', token, refreshToken });
   }
 
   static async updateEmail(req, res) {
     const { email, password } = req.body;
     /** Validacion que el correo ingresado no sea igual al correo actual */
-    if (email === req.usuario.email) { throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'El correo no puede ser igual al anterior'); }
+    if (email === req.usuario.email) {
+      throw new NotFoundException(
+        'HTTP_NOT_MODIFIED',
+        HttpCode.HTTP_NOT_MODIFIED,
+        'El correo no puede ser igual al anterior',
+      );
+    }
 
     /** Confirmacion de password para el cambio de contraseña */
-    if (!bcrypt.compareSync(password, req.usuario.password)) { throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'La contraseña proporcionada no es correcta'); }
+    if (!bcrypt.compareSync(password, req.usuario.password)) {
+      throw new NotFoundException(
+        'BAD_REQUEST',
+        HttpCode.HTTP_BAD_REQUEST,
+        'La contraseña proporcionada no es correcta',
+      );
+    }
 
     /** Validacion que el correo no se encuentre en uso en la BD */
     const usuario = await Usuario.findAll({ where: { email } });
-    if (usuario.length) { throw new NotFoundException('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, 'El correo ya se encuentra en uso'); }
+    if (usuario.length) {
+      throw new NotFoundException(
+        'BAD_REQUEST',
+        HttpCode.HTTP_BAD_REQUEST,
+        'El correo ya se encuentra en uso',
+      );
+    }
 
     /** Envio de notificacion por correo electronico  */
     const message = `
@@ -345,7 +430,9 @@ export default class UsuarioController {
       email: req.usuario.email,
       user: req.usuario,
     });
-    return res.status(HttpCode.HTTP_OK).json({ message: 'Correo electronico actualizado con exito', token, refreshToken });
+    return res
+      .status(HttpCode.HTTP_OK)
+      .json({ message: 'Correo electronico actualizado con exito', token, refreshToken });
   }
 
   static async storeMethodUser(req, res) {
@@ -370,20 +457,37 @@ export default class UsuarioController {
       });
       // eslint-disable-next-line camelcase
       if (Number(id_metodo) === 2) {
-        return res.status(HttpCode.HTTP_OK).send({ message: 'Favor valide el nuevo metodo de autenticacion, escanee el codigo qr', codigoQr: await toDataURL(newToken.qrCode) });
+        return res.status(HttpCode.HTTP_OK).send({
+          message: 'Favor valide el nuevo metodo de autenticacion, escanee el codigo qr',
+          codigoQr: await toDataURL(newToken.qrCode),
+        });
       }
       const verificationCode = speakeasy.totp({
         secret: newToken.secret_code,
         encoding: 'base32',
         time: process.env.GOOGLE_AUTH_TIME_EMAIL,
       });
-      await Mailer.sendMail(req.usuario.email, verificationCode, 'Codigo de verificacion', 'Su codigo de verificacion es:');
-      return res.status(HttpCode.HTTP_OK).send({ message: 'Favor valide el nuevo metodo de autenticacion, revise su correo electronico' });
+      await Mailer.sendMail(
+        req.usuario.email,
+        verificationCode,
+        'Codigo de verificacion',
+        'Su codigo de verificacion es:',
+      );
+      return res.status(HttpCode.HTTP_OK).send({
+        message: 'Favor valide el nuevo metodo de autenticacion, revise su correo electronico',
+      });
     }
     await existMethod.update({ temporal_key: newToken.secret_code });
     // eslint-disable-next-line camelcase,max-len
-    if (Number(id_metodo) === 2) return res.status(HttpCode.HTTP_OK).send({ message: 'Favor valide el nuevo metodo de autenticacion, escanee el codigo qr', codigoQr: await toDataURL(newToken.qrCode) });
-    return res.status(HttpCode.HTTP_OK).send({ message: 'Favor valide el nuevo metodo de autenticacion, revise su correo electronico' });
+    if (Number(id_metodo) === 2) {
+      return res.status(HttpCode.HTTP_OK).send({
+        message: 'Favor valide el nuevo metodo de autenticacion, escanee el codigo qr',
+        codigoQr: await toDataURL(newToken.qrCode),
+      });
+    }
+    return res.status(HttpCode.HTTP_OK).send({
+      message: 'Favor valide el nuevo metodo de autenticacion, revise su correo electronico',
+    });
   }
 
   static async verifyNewMethodUser(req, res) {
@@ -391,7 +495,7 @@ export default class UsuarioController {
     const { id_metodo, codigo } = req.body;
     let timeToCodeValid = null;
     // eslint-disable-next-line camelcase,no-unused-expressions
-    if (Number(id_metodo) === 1)timeToCodeValid = process.env.GOOGLE_AUTH_TIME_EMAIL;
+    if (Number(id_metodo) === 1) timeToCodeValid = process.env.GOOGLE_AUTH_TIME_EMAIL;
     const methodUser = await MetodoAutenticacionUsuario.findOne({
       where: {
         id_usuario: req.usuario.id,
@@ -399,20 +503,52 @@ export default class UsuarioController {
         id_metodo,
       },
     });
-    if (!methodUser) throw new NotFoundException('NOT_FOUND', HttpCode.HTTP_BAD_REQUEST, 'El usuario no tiene este metodo de autenticacion asociado');
-    const isValidCode = await Security.verifyTwoFactorAuthCode(codigo, methodUser.temporal_key, timeToCodeValid);
+    if (!methodUser) {
+      throw new NotFoundException(
+        'NOT_FOUND',
+        HttpCode.HTTP_BAD_REQUEST,
+        'El usuario no tiene este metodo de autenticacion asociado',
+      );
+    }
+    const isValidCode = await Security.verifyTwoFactorAuthCode(
+      codigo,
+      methodUser.temporal_key,
+      timeToCodeValid,
+    );
     if (isValidCode) {
       await methodUser.update({ secret_key: methodUser.temporal_key, temporal_key: null });
-      await Mailer.sendMail(req.usuario.email, 'Se ha cambiado el metodo de autenticacion', 'Metodo de autenticacion cambiado', 'ALERTA!');
-      return res.status(HttpCode.HTTP_OK).send({ message: 'Se ha modificado el metodo de autenticacion con exito!' });
+      await Mailer.sendMail(
+        req.usuario.email,
+        'Se ha cambiado el metodo de autenticacion',
+        'Metodo de autenticacion cambiado',
+        'ALERTA!',
+      );
+      return res
+        .status(HttpCode.HTTP_OK)
+        .send({ message: 'Se ha modificado el metodo de autenticacion con exito!' });
     }
-    throw new NotFoundException('NOT_FOUND', HttpCode.HTTP_BAD_REQUEST, 'El codigo proporcionado no es valido');
+    throw new NotFoundException(
+      'NOT_FOUND',
+      HttpCode.HTTP_BAD_REQUEST,
+      'El codigo proporcionado no es valido',
+    );
   }
 
   static async updatePrimaryMethod(req, res) {
-    await MetodoAutenticacionUsuario.update({ is_primary: true }, { where: { id: req.body.id_metodo_usuario } });
-    await MetodoAutenticacionUsuario.update({ is_primary: false }, { where: { id_usuario: req.usuario.id, [Op.not]: [{ id: req.body.id_metodo_usuario }] } });
-    await Mailer.sendMail(req.usuario.email, 'Se ha cambio el metodo de autenticacion primario', 'Alerta de actualizacion de cuenta', 'Alerta');
+    await MetodoAutenticacionUsuario.update(
+      { is_primary: true },
+      { where: { id: req.body.id_metodo_usuario } },
+    );
+    await MetodoAutenticacionUsuario.update(
+      { is_primary: false },
+      { where: { id_usuario: req.usuario.id, [Op.not]: [{ id: req.body.id_metodo_usuario }] } },
+    );
+    await Mailer.sendMail(
+      req.usuario.email,
+      'Se ha cambio el metodo de autenticacion primario',
+      'Alerta de actualizacion de cuenta',
+      'Alerta',
+    );
     return res.status(HttpCode.HTTP_OK).send({ message: 'Solicitud procesada con exito!' });
   }
 
@@ -424,23 +560,28 @@ export default class UsuarioController {
       },
       attributes: ['id'],
       // eslint-disable-next-line max-len
-      include: [{
-        // eslint-disable-next-line max-len
-        model: MetodoAutenticacion,
-        attributes: ['id', 'nombre', 'icono'],
-        through: { attributes: ['is_primary', 'id'] },
-      }],
+      include: [
+        {
+          // eslint-disable-next-line max-len
+          model: MetodoAutenticacion,
+          attributes: ['id', 'nombre', 'icono'],
+          through: { attributes: ['is_primary', 'id'] },
+        },
+      ],
     });
     // eslint-disable-next-line array-callback-return
     const metodosAutenticacion = metodos.map((metodo) => {
       // eslint-disable-next-line no-mixed-operators
-      const isPrimary = usuario.MetodoAutenticacions.filter((metodoUsuario) => (metodoUsuario.id === metodo.id));
+      const isPrimary = usuario.MetodoAutenticacions.filter(
+        (metodoUsuario) => metodoUsuario.id === metodo.id,
+      );
       return {
         nombre: metodo.nombre,
         descripcion: metodo.descripcion,
         icono: metodo.icono,
         id: metodo.id,
-        is_primary: isPrimary.length > 0 ? isPrimary[0].MetodoAutenticacionUsuario.is_primary : null,
+        is_primary:
+          isPrimary.length > 0 ? isPrimary[0].MetodoAutenticacionUsuario.is_primary : null,
         id_metodo_usuario: isPrimary.length > 0 ? isPrimary[0].MetodoAutenticacionUsuario.id : null,
       };
     });
