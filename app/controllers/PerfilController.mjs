@@ -2,8 +2,8 @@ import { Perfil, PerfilRol, Rol } from '../models/index.mjs';
 import HttpCode from '../../configs/httpCode.mjs';
 import UnprocessableEntityException from '../../handlers/UnprocessableEntityException.mjs';
 import NotFoundException from '../../handlers/NotFoundExeption.mjs';
+import BaseError from '../../handlers/BaseError.mjs';
 import DB from '../nucleo/DB.mjs';
-import BadRequestException from '../../handlers/BadRequestException.mjs';
 
 export default class PerfilController {
   static async index(req, res) {
@@ -136,25 +136,25 @@ export default class PerfilController {
     const perfil = await Perfil.findOne({ where: { id: idPerfil } });
     const role = await Rol.findOne({ where: { id: rol } });
     if (!perfil) {
-      throw new BadRequestException(
-        'BAD_REQUEST',
-        400,
+      throw new NotFoundException(
+        'NOT_FOUND',
+        404,
         'El usuario ingresado no coincide con ninguno registrado',
       );
     }
     if (!role) {
-      throw new BadRequestException(
-        'BAD_REQUEST',
-        400,
+      throw new NotFoundException(
+        'NOT_FOUND',
+        404,
         'El rol ingresado no coincide con ninguno registrado',
       );
     }
     const perfilRols = await perfil.addRols(rol);
-    if (!perfilRols) {
-      throw new BadRequestException(
-        'BAD_REQUEST',
-        400,
-        'El perfil ya tiene ese rol',
+    if (!perfilRols) { //  304 Not Modified
+      throw new BaseError(
+        'NOT_MODIFIED',
+        304,
+        'El rol ya pertenece a un perfil',
       );
     }
     return res.status(HttpCode.HTTP_CREATED).json({
