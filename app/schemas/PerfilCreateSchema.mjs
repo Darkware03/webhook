@@ -17,8 +17,12 @@ const perfilCreateSchema = {
     },
     roles: {
       type: 'array',
+      uniqueItems: true,
+      minItems: 1,
       errorMessage: {
         type: 'Los roles del perfil debe ser un arreglo de enteros',
+        minItems: 'Debe de asignarle por lo menos un rol',
+        uniqueItems: 'Los id propocionados deben ser unicos',
       },
     },
   },
@@ -27,7 +31,7 @@ const perfilCreateSchema = {
     required: {
       nombre: 'El nombre es requerido',
       codigo: 'El código es requerido',
-      roles: 'El rol es requerido',
+      roles: 'El campo roles es requerido',
     },
   },
 };

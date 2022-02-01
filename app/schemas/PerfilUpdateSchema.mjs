@@ -1,4 +1,4 @@
-const perfilCreateSchema = {
+const perfilUpdateSchema = {
   type: 'object',
   properties: {
     nombre: {
@@ -15,19 +15,8 @@ const perfilCreateSchema = {
         maxLength: 'El codigo debe ser maximo 5 caracteres',
       },
     },
-    roles: {
-      type: 'array',
-      uniqueItems: true,
-      items: {
-        type: 'integer',
-      },
-      errorMessage: {
-        type: 'El id del rol debe ser de tipo entero',
-        uniqueItems: 'Los id propocionados deben ser unicos',
-      },
-    },
   },
 
 };
 
-export default perfilCreateSchema;
+export default perfilUpdateSchema;
