@@ -12,16 +12,32 @@ import usuarioUpdateEmailSchema from '../../app/schemas/UsuarioUpdateEmailSchema
 const router = Router();
 router.get('/metodos-autenticacion-usuario', Call(UsuarioController.getMetodosUsuario));
 router.get('/', Call(UsuarioController.index));
-router.post('/:id_usuario/perfiles', [validate(usuarioAddUserProfileSchema)], Call(UsuarioController.addUserProfile));
-router.delete('/:id_usuario/perfiles', [validate(usuarioDestroyUserPerfilSchema)], Call(UsuarioController.destroyUserPerfil));
-router.post('/:id_usuario/roles', [validate(usuarioAddUserRoleSchema)], Call(UsuarioController.addUserRole));
+router.post(
+  '/:id_usuario/perfiles',
+  [validate(usuarioAddUserProfileSchema)],
+  Call(UsuarioController.addUserProfile)
+);
+router.delete('/:id_usuario/perfiles', Call(UsuarioController.destroyUserPerfil));
+router.post(
+  '/:id_usuario/roles',
+  [validate(usuarioAddUserRoleSchema)],
+  Call(UsuarioController.addUserRole)
+);
 router.delete('/:id_usuario/roles', Call(UsuarioController.destroyUserRol));
 router.put('/:id', Call(UsuarioController.update));
 router.delete('/', Call(UsuarioController.destroy));
 router.post('/', [validate(usuarioCreateSchema)], Call(UsuarioController.store));
 router.get('/:id', Call(UsuarioController.show));
-router.put('/update/password', [validate(usuarioPasswordUpdate)], Call(UsuarioController.updatePassword));
-router.put('/update/email', [validate(usuarioUpdateEmailSchema)], Call(UsuarioController.updateEmail));
+router.put(
+  '/update/password',
+  [validate(usuarioPasswordUpdate)],
+  Call(UsuarioController.updatePassword)
+);
+router.put(
+  '/update/email',
+  [validate(usuarioUpdateEmailSchema)],
+  Call(UsuarioController.updateEmail)
+);
 router.post('/2fa/add', Call(UsuarioController.storeMethodUser));
 router.post('/2fa/add/verify', Call(UsuarioController.verifyNewMethodUser));
 router.post('/2fa/method/update', Call(UsuarioController.updatePrimaryMethod));
