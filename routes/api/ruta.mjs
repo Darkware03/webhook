@@ -6,11 +6,18 @@ import Call from '../../app/utils/Call.mjs';
 import usuarioAddUserRoleSchema from '../../app/schemas/UsuarioAddUserRoleSchema.mjs';
 
 const router = Router();
+
 router.get('/', Call(RutaController.index));
+
 // router.post('/', [validate({body: usuarioCreateSchema})], Call(UsuarioController.store))
 router.post('/', [validate(rutaCreateSchema)], Call(RutaController.store));
+router.get('/get-rutas', Call(RutaController.getRutas));
 router.get('/:id', Call(RutaController.show));
-router.post('/:id_ruta/roles', [validate(usuarioAddUserRoleSchema)], Call(RutaController.addRutaRole));
+router.post(
+  '/:id_ruta/roles',
+  [validate(usuarioAddUserRoleSchema)],
+  Call(RutaController.addRutaRole),
+);
 router.put('/:id', [validate(rutaCreateSchema)], Call(RutaController.update));
 router.delete('/:id', Call(RutaController.destroy));
 router.delete('/:id_ruta/roles', Call(RutaController.destroyRutaRol));
