@@ -17,6 +17,7 @@ import Auth from '../utils/Auth.mjs';
 import Security from '../services/security.mjs';
 import MetodoAutenticacion from '../models/MetodoAutenticacion.mjs';
 import getRols from '../services/getRols.mjs';
+import ForbiddenException from '../../handlers/ForbiddenException.mjs';
 
 export default class UsuarioController {
   static async index(req, res) {
@@ -29,7 +30,7 @@ export default class UsuarioController {
 
   static async store(req, res) {
     if (!(await Security.isGranted(req, 'SUPER-ADMIN'))) {
-      throw new NotFoundException('FORBIDDEN', 403, 'ERROR NO SE HA AUTENTICADO');
+      throw new ForbiddenException('FORBIDDEN', 403, 'ERROR NO SE HA AUTENTICADO');
     }
     const connection = DB.connection();
     const t = await connection.transaction();
@@ -291,7 +292,7 @@ export default class UsuarioController {
       confirm_password: confirmPassword,
     } = req.body;
     if (!bcrypt.compareSync(passwordActual, req.usuario.password)) {
-      throw new NotFoundException(
+      throw new ForbiddenException(
         'FORBIDDEN',
         HttpCode.HTTP_FORBIDDEN,
         'La contraseña proporcionada no es correcta'
@@ -305,7 +306,7 @@ export default class UsuarioController {
       );
     }
     if (password !== confirmPassword) {
-      throw new NotFoundException(
+      throw new BadRequestException(
         'BAD_REQUEST',
         HttpCode.HTTP_BAD_REQUEST,
         'Las contraseñas no coinciden'
@@ -360,7 +361,7 @@ export default class UsuarioController {
 
     /** Confirmacion de password para el cambio de contraseña */
     if (!bcrypt.compareSync(password, req.usuario.password)) {
-      throw new NotFoundException(
+      throw new BadRequestException(
         'BAD_REQUEST',
         HttpCode.HTTP_BAD_REQUEST,
         'La contraseña proporcionada no es correcta'
@@ -368,8 +369,8 @@ export default class UsuarioController {
     }
 
     /** Validacion que el correo no se encuentre en uso en la BD */
-    const usuario = await Usuario.findAll({ where: { email } });
-    if (usuario.length) {
+    const usuario = await Usuario.findOne({ where: { email } });
+    if (usuario) {
       throw new NotFoundException(
         'BAD_REQUEST',
         HttpCode.HTTP_BAD_REQUEST,
@@ -517,9 +518,9 @@ export default class UsuarioController {
         .status(HttpCode.HTTP_OK)
         .send({ message: 'Se ha modificado el metodo de autenticacion con exito!' });
     }
-    throw new NotFoundException(
-      'NOT_FOUND',
-      HttpCode.HTTP_BAD_REQUEST,
+    throw new UnprocessableEntityException(
+      'UNPROCESSABLE_ENTITY',
+      422,
       'El codigo proporcionado no es valido'
     );
   }

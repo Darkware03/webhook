@@ -15,10 +15,10 @@ export default class PerfilController {
     const { nombre, codigo } = req.body;
     const cod = await Perfil.findOne({ where: { codigo } });
     if (cod) {
-      throw new NotFoundException(
-        'BAD_REQUEST',
-        HttpCode.HTTP_BAD_REQUEST,
-        'El codigo no puede ser igual a otro registrado con anterioridad',
+      throw new UnprocessableEntityException(
+        'UNPROCESSABLE_ENTITY',
+        422,
+        'El codigo no puede ser igual a otro registrado con anterioridad'
       );
     }
     const perfil = await Perfil.create({
@@ -45,7 +45,7 @@ export default class PerfilController {
       throw new UnprocessableEntityException(
         'UNPROCESSABLE_ENTITY',
         422,
-        'El parámetro no es un id válido',
+        'El parámetro no es un id válido'
       );
     }
 
@@ -69,7 +69,7 @@ export default class PerfilController {
           id: req.params.id,
         },
         returning: ['nombre', 'codigo'],
-      },
+      }
     );
     return res.status(HttpCode.HTTP_OK).json(perfil[1]);
   }
@@ -80,7 +80,7 @@ export default class PerfilController {
       throw new UnprocessableEntityException(
         'UNPROCESSABLE_ENTITY',
         422,
-        'El parámetro no es un id válido',
+        'El parámetro no es un id válido'
       );
     }
 
@@ -103,7 +103,7 @@ export default class PerfilController {
         {
           where: { id_perfil: perfiles },
         },
-        { transaction: t },
+        { transaction: t }
       );
       await Perfil.destroy(
         {
@@ -111,7 +111,7 @@ export default class PerfilController {
             id: perfiles,
           },
         },
-        { transaction: t },
+        { transaction: t }
       );
       await t.commit();
       return res
@@ -130,7 +130,7 @@ export default class PerfilController {
       throw new UnprocessableEntityException(
         'UNPROCESSABLE_ENTITY',
         422,
-        'El parametro no es un id válido',
+        'El parametro no es un id válido'
       );
     }
     const perfil = await Perfil.findOne({ where: { id: idPerfil } });
@@ -139,23 +139,20 @@ export default class PerfilController {
       throw new NotFoundException(
         'NOT_FOUND',
         404,
-        'El usuario ingresado no coincide con ninguno registrado',
+        'El usuario ingresado no coincide con ninguno registrado'
       );
     }
     if (!role) {
       throw new NotFoundException(
         'NOT_FOUND',
         404,
-        'El rol ingresado no coincide con ninguno registrado',
+        'El rol ingresado no coincide con ninguno registrado'
       );
     }
     const perfilRols = await perfil.addRols(rol);
-    if (!perfilRols) { //  304 Not Modified
-      throw new BaseError(
-        'NOT_MODIFIED',
-        304,
-        'El rol ya pertenece a un perfil',
-      );
+    if (!perfilRols) {
+      //  304 Not Modified
+      throw new BaseError('NOT_MODIFIED', 304, 'El rol ya pertenece a un perfil');
     }
     return res.status(HttpCode.HTTP_CREATED).json({
       perfil_rols: perfilRols,
@@ -169,7 +166,7 @@ export default class PerfilController {
       throw new UnprocessableEntityException(
         'UNPROCESSABLE_ENTITY',
         422,
-        'El parametro no es un id válido',
+        'El parametro no es un id válido'
       );
     }
 

@@ -4,7 +4,8 @@ import jwt from 'jsonwebtoken';
 import speakeasy from 'speakeasy';
 import { Op } from 'sequelize';
 import {
-  Usuario, RefreshToken,
+  Usuario,
+  RefreshToken,
   // eslint-disable-next-line import/no-unresolved
 } from '../models/index.mjs';
 import HttpCode from '../../configs/httpCode.mjs';
@@ -17,6 +18,7 @@ import getRols from '../services/getRols.mjs';
 import MetodoAutenticacionUsuario from '../models/MetodoAutenticacionUsuario.mjs';
 import Security from '../services/security.mjs';
 import MetodoAutenticacion from '../models/MetodoAutenticacion.mjs';
+import BadRequestException from '../../handlers/BadRequestException.mjs';
 
 export default class ApiController {
   static async confirmUser(req, res) {
@@ -24,10 +26,17 @@ export default class ApiController {
     if (token) {
       const { idUsuario } = jwt.verify(token, process.env.SECRET_KEY);
       if (idUsuario) {
-        await Usuario.update({ is_suspended: false, last_login: moment().tz('America/El_Salvador').format() }, { where: { id: idUsuario } });
+        await Usuario.update(
+          { is_suspended: false, last_login: moment().tz('America/El_Salvador').format() },
+          { where: { id: idUsuario } }
+        );
         res.status(HttpCode.HTTP_OK).send({ message: 'El usuario ha sido verificado con exito' });
       } else {
-        throw NotFoundException('NOT_FOUND', HttpCode.HTTP_BAD_REQUEST, 'Error al realizar la peticion...');
+        throw BadRequestException(
+          'BAD_REQUEST',
+          HttpCode.HTTP_BAD_REQUEST,
+          'Error al realizar la peticion...'
+        );
       }
     }
   }
@@ -41,21 +50,36 @@ export default class ApiController {
       },
       attributes: ['id', 'email', 'password', 'is_suspended', 'last_login'],
       // eslint-disable-next-line max-len
-      include: [{
-        // eslint-disable-next-line max-len
-        model: MetodoAutenticacion,
-        attributes: ['id', 'nombre', 'icono'],
-        through: { attributes: ['is_primary'], where: { secret_key: { [Op.ne]: null } } },
-      }],
+      include: [
+        {
+          // eslint-disable-next-line max-len
+          model: MetodoAutenticacion,
+          attributes: ['id', 'nombre', 'icono'],
+          through: { attributes: ['is_primary'], where: { secret_key: { [Op.ne]: null } } },
+        },
+      ],
     });
 
-    if (!usuario) throw new NoAuthException('UNAUTHORIZED', HttpCode.HTTP_UNAUTHORIZED, 'Credenciales no validas');
+    if (!usuario)
+      throw new NoAuthException(
+        'UNAUTHORIZED',
+        HttpCode.HTTP_UNAUTHORIZED,
+        'Credenciales no validas'
+      );
     const validPassword = bcrypt.compareSync(password, usuario.password);
     if (!validPassword) {
-      throw new NoAuthException('UNAUTHORIZED', HttpCode.HTTP_UNAUTHORIZED, 'Credenciales no validas');
+      throw new NoAuthException(
+        'UNAUTHORIZED',
+        HttpCode.HTTP_UNAUTHORIZED,
+        'Credenciales no validas'
+      );
     }
     if (usuario.is_suspended && usuario.last_login !== null && usuario.last_login !== '') {
-      throw new NoAuthException('UNAUTHORIZED', HttpCode.HTTP_UNAUTHORIZED, 'El usuario se encuentra suspendido');
+      throw new NoAuthException(
+        'UNAUTHORIZED',
+        HttpCode.HTTP_UNAUTHORIZED,
+        'El usuario se encuentra suspendido'
+      );
     }
     if (usuario.last_login === '' || usuario.last_login === null) {
       const idUsuario = usuario.id;
@@ -85,18 +109,32 @@ export default class ApiController {
   </mj-body>
 </mjml>`;
       // eslint-disable-next-line max-len
-      await Mailer.sendMail(usuario.email, null, 'Verificacion de correo electronico', null, htmlForEmail);
+      await Mailer.sendMail(
+        usuario.email,
+        null,
+        'Verificacion de correo electronico',
+        null,
+        htmlForEmail
+      );
       return res.status(HttpCode.HTTP_BAD_REQUEST).json({
-        message: 'Su cuenta se encuentra suspendida, por favor verificarla por medio del correo que se le ha enviado',
+        message:
+          'Su cuenta se encuentra suspendida, por favor verificarla por medio del correo que se le ha enviado',
       });
     }
-    await usuario.update({ last_login: moment().tz('America/El_Salvador').format(), two_factor_status: false });
+    await usuario.update({
+      last_login: moment().tz('America/El_Salvador').format(),
+      two_factor_status: false,
+    });
     // eslint-disable-next-line no-use-before-define
 
     // eslint-disable-next-line no-console
 
     const metodosAutenticacion = usuario.MetodoAutenticacions.map((row) => ({
-      nombre: row.nombre, descripcion: row.descripcion, icono: row.icono, id: row.id, is_primary: row.MetodoAutenticacionUsuario.is_primary,
+      nombre: row.nombre,
+      descripcion: row.descripcion,
+      icono: row.icono,
+      id: row.id,
+      is_primary: row.MetodoAutenticacionUsuario.is_primary,
     }));
     const token = await Auth.createToken({
       id: usuario.id,
@@ -109,10 +147,13 @@ export default class ApiController {
   }
 
   static async logout(req, res) {
-    await Usuario.update({
-      token_valid_after: moment().tz('America/El_Salvador').format(),
-      two_factor_status: false,
-    }, { where: { id: req.usuario.id } });
+    await Usuario.update(
+      {
+        token_valid_after: moment().tz('America/El_Salvador').format(),
+        two_factor_status: false,
+      },
+      { where: { id: req.usuario.id } }
+    );
     return res.status(HttpCode.HTTP_OK).send({});
   }
 
@@ -127,8 +168,15 @@ export default class ApiController {
       const { id, email } = jwt.verify(receivedToken, process.env.SECRET_KEY);
       // eslint-disable-next-line camelcase
       if (!id_metodo || id_metodo == null || id_metodo === '') {
-        const getPrimaryMethod = await MetodoAutenticacionUsuario.findOne({ where: { id_usuario: id, is_primary: true } });
-        if (!getPrimaryMethod) throw new NotFoundException('NOT_FOUND', HttpCode.HTTP_BAD_REQUEST, 'Error al realizar la peticion...');
+        const getPrimaryMethod = await MetodoAutenticacionUsuario.findOne({
+          where: { id_usuario: id, is_primary: true },
+        });
+        if (!getPrimaryMethod)
+          throw new NotFoundException(
+            'NOT_FOUND',
+            HttpCode.HTTP_BAD_REQUEST,
+            'Error al realizar la peticion...'
+          );
         // eslint-disable-next-line camelcase
         id_metodo = getPrimaryMethod.id_metodo;
       }
@@ -136,15 +184,37 @@ export default class ApiController {
       if (id_metodo === 1) {
         const newToken = speakeasy.generateSecret({ length: 52 }).base32;
         // eslint-disable-next-line camelcase
-        await MetodoAutenticacionUsuario.update({ secret_key: newToken }, { where: { id_metodo, id_usuario: id } });
-        const verificationCode = await speakeasy.totp({ secret: newToken, encoding: 'base32', time: process.env.GOOGLE_AUTH_TIME_EMAIL });
-        await Mailer.sendMail(email, verificationCode, 'Codigo de verificacion de usuario', 'El codigo de verificacion es:');
-        return res.status(HttpCode.HTTP_OK).send({ message: 'Se ha enviado el codigo de verificacion a su correo electronico' });
+        await MetodoAutenticacionUsuario.update(
+          { secret_key: newToken },
+          { where: { id_metodo, id_usuario: id } }
+        );
+        const verificationCode = await speakeasy.totp({
+          secret: newToken,
+          encoding: 'base32',
+          time: process.env.GOOGLE_AUTH_TIME_EMAIL,
+        });
+        await Mailer.sendMail(
+          email,
+          verificationCode,
+          'Codigo de verificacion de usuario',
+          'El codigo de verificacion es:'
+        );
+        return res
+          .status(HttpCode.HTTP_OK)
+          .send({ message: 'Se ha enviado el codigo de verificacion a su correo electronico' });
       }
       next();
-      throw new NotFoundException('NOT_FOUND', HttpCode.HTTP_BAD_REQUEST, 'Error al realizar la peticion...');
+      throw new NotFoundException(
+        'NOT_FOUND',
+        HttpCode.HTTP_NOT_FOUND,
+        'Error al realizar la peticion...'
+      );
     }
-    throw new NoAuthException('UNAUTHORIZED', HttpCode.HTTP_UNAUTHORIZED, 'La informacion no es valida');
+    throw new NoAuthException(
+      'UNAUTHORIZED',
+      HttpCode.HTTP_UNAUTHORIZED,
+      'La informacion no es valida'
+    );
   }
 
   // eslint-disable-next-line consistent-return
@@ -162,18 +232,40 @@ export default class ApiController {
       // eslint-disable-next-line camelcase
       else dbQueryParams = { id_usuario: id, id_metodo };
       // eslint-disable-next-line camelcase,no-shadow
-      const metodoAutenticacion = await MetodoAutenticacionUsuario.findOne({ where: dbQueryParams });
+      const metodoAutenticacion = await MetodoAutenticacionUsuario.findOne({
+        where: dbQueryParams,
+      });
       // validar si existe metodo de autenticacion
-      if (!metodoAutenticacion) throw new NoAuthException('UNAUTHORIZED', HttpCode.HTTP_UNAUTHORIZED, 'El usuario no posee metodos de autenticacion');
+      if (!metodoAutenticacion)
+        throw new NoAuthException(
+          'UNAUTHORIZED',
+          HttpCode.HTTP_UNAUTHORIZED,
+          'El usuario no posee metodos de autenticacion'
+        );
       const usuario = await Usuario.findOne({
-        where: { id }, attributes: ['id', 'email', 'last_login', 'two_factor_status'],
+        where: { id },
+        attributes: ['id', 'email', 'last_login', 'two_factor_status'],
       });
       let timeToCodeValid = null;
       // eslint-disable-next-line camelcase,no-unused-expressions
-      if (Number(metodoAutenticacion.id_metodo) === 1) timeToCodeValid = process.env.GOOGLE_AUTH_TIME_EMAIL;
-      const isCodeValid = await Security.verifyTwoFactorAuthCode(codigo, metodoAutenticacion.secret_key, timeToCodeValid);
-      if (!isCodeValid) throw new NoAuthException('UNAUTHORIZED', HttpCode.HTTP_UNAUTHORIZED, 'El codigo proporcionado no es valido');
-      await usuario.update({ two_factor_status: true, last_login: moment().tz('America/El_Salvador').format(), token_valid_after: moment().subtract(5, 's').tz('America/El_Salvador').format() });
+      if (Number(metodoAutenticacion.id_metodo) === 1)
+        timeToCodeValid = process.env.GOOGLE_AUTH_TIME_EMAIL;
+      const isCodeValid = await Security.verifyTwoFactorAuthCode(
+        codigo,
+        metodoAutenticacion.secret_key,
+        timeToCodeValid
+      );
+      if (!isCodeValid)
+        throw new NoAuthException(
+          'UNAUTHORIZED',
+          HttpCode.HTTP_UNAUTHORIZED,
+          'El codigo proporcionado no es valido'
+        );
+      await usuario.update({
+        two_factor_status: true,
+        last_login: moment().tz('America/El_Salvador').format(),
+        token_valid_after: moment().subtract(5, 's').tz('America/El_Salvador').format(),
+      });
 
       const roles = getRols.roles(id);
       const refreshToken = await Auth.refresh_token(usuario);
@@ -202,14 +294,25 @@ export default class ApiController {
         {
           model: Usuario,
           attributes: ['id', 'email', 'last_login'],
-        }],
+        },
+      ],
     });
 
-    if (!refreshTokenExist) throw new NotFoundException('NOT_FOUND', HttpCode.HTTP_BAD_REQUEST, 'Error al realizar la peticion...');
+    if (!refreshTokenExist)
+      throw new NotFoundException(
+        'NOT_FOUND',
+        HttpCode.HTTP_BAD_REQUEST,
+        'Error al realizar la peticion...'
+      );
     const roles = await getRols.roles(refreshTokenExist.Usuario.id);
     const tokenValidTime = new Date(moment(refreshTokenExist.valid).format()).getTime();
     const nowTime = new Date(moment().tz('America/El_Salvador').format()).getTime();
-    if (tokenValidTime < nowTime) throw new NoAuthException('UNAUTHORIZED', HttpCode.HTTP_UNAUTHORIZED, 'El refresh token porporcionado no es valido');
+    if (tokenValidTime < nowTime)
+      throw new NoAuthException(
+        'UNAUTHORIZED',
+        HttpCode.HTTP_UNAUTHORIZED,
+        'El refresh token porporcionado no es valido'
+      );
     const token = await Auth.createToken({
       id: refreshTokenExist.Usuario.id,
       email: refreshTokenExist.Usuario.email,
@@ -218,11 +321,26 @@ export default class ApiController {
 
     const newRefreshToken = await Auth.refresh_token(refreshTokenExist.Usuario);
     await refreshTokenExist.update({
-      valid: moment().add(process.env.REFRESH_TOKEN_INVALID_EXPIRATION_TIME, process.env.REFRESH_TOKEN_INVALID_EXPIRATION_TYPE).tz('America/El_Salvador').format(),
+      valid: moment()
+        .add(
+          process.env.REFRESH_TOKEN_INVALID_EXPIRATION_TIME,
+          process.env.REFRESH_TOKEN_INVALID_EXPIRATION_TYPE
+        )
+        .tz('America/El_Salvador')
+        .format(),
     });
-    await Usuario.update({
-      token_valid_after: moment().add(process.env.REFRESH_TOKEN_INVALID_EXPIRATION_TIME, process.env.REFRESH_TOKEN_INVALID_EXPIRATION_TYPE).tz('America/El_Salvador').format(),
-    }, { where: { id: refreshTokenExist.Usuario.id } });
+    await Usuario.update(
+      {
+        token_valid_after: moment()
+          .add(
+            process.env.REFRESH_TOKEN_INVALID_EXPIRATION_TIME,
+            process.env.REFRESH_TOKEN_INVALID_EXPIRATION_TYPE
+          )
+          .tz('America/El_Salvador')
+          .format(),
+      },
+      { where: { id: refreshTokenExist.Usuario.id } }
+    );
     return res.status(HttpCode.HTTP_OK).json({
       token,
       refresh_token: newRefreshToken,
@@ -231,15 +349,19 @@ export default class ApiController {
   }
 
   static async recoveryPasswordSendEmail(req, res) {
-    const usuario = await Usuario.findOne(
-      {
-        where: {
-          email: req.params.email,
-          is_suspended: false,
-        },
+    const usuario = await Usuario.findOne({
+      where: {
+        email: req.params.email,
+        is_suspended: false,
       },
-    );
-    if (usuario === null) { throw new UnprocessableEntityException('UNPROCESSABLE_ENTITY', 422, 'El parametro no es un correo valido'); }
+    });
+    if (usuario === null) {
+      throw new UnprocessableEntityException(
+        'UNPROCESSABLE_ENTITY',
+        422,
+        'El parametro no es un correo valido'
+      );
+    }
 
     const token = await Auth.createToken({
       id: usuario.id,
@@ -249,7 +371,10 @@ export default class ApiController {
     // eslint-disable-next-line no-unused-vars
     const refreshToken = await Auth.refresh_token(usuario);
 
-    await usuario.update({ token_valid_after: moment().tz('America/El_Salvador').format() }, { where: { id: usuario.id } });
+    await usuario.update(
+      { token_valid_after: moment().tz('America/El_Salvador').format() },
+      { where: { id: usuario.id } }
+    );
 
     const uri = `http://${process.env.URL}/api/recovery_password/${token}`;
     const message = `
@@ -283,7 +408,11 @@ export default class ApiController {
   </mj-body>
 </mjml>`;
     if (!Mailer.sendMail(usuario.email, null, 'Restablecer Contraseña', null, message)) {
-      throw new NotFoundException('NOT_FOUND', 400, 'Error! Hubo un problema al enviar el correo, intente nuevamente.');
+      throw new NotFoundException(
+        'NOT_FOUND',
+        400,
+        'Error! Hubo un problema al enviar el correo, intente nuevamente.'
+      );
     }
 
     return res.status(HttpCode.HTTP_OK).json({ message: 'El correo ha sido enviado' });
@@ -295,7 +424,9 @@ export default class ApiController {
     const salt = bcrypt.genSaltSync();
     const passwordCrypt = bcrypt.hashSync(password, salt);
 
-    if (password !== confirmPassword) { throw new NotFoundException('BAD_REQUEST', 400, 'Error! Las contraseñas  no coinciden'); }
+    if (password !== confirmPassword) {
+      throw new NotFoundException('BAD_REQUEST', 400, 'Error! Las contraseñas  no coinciden');
+    }
     const { id } = jwt.verify(token, process.env.SECRET_KEY);
 
     // eslint-disable-next-line no-unused-vars
@@ -308,7 +439,7 @@ export default class ApiController {
         where: {
           id,
         },
-      },
+      }
     );
 
     return res.status(HttpCode.HTTP_OK).json({
