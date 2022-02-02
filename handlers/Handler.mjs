@@ -36,7 +36,9 @@ export default class Handler {
         message: row.message,
       })));
     }
-
+    if (err.name === 'SequelizeForeignKeyConstraintError') {
+      return res.status(HttpCode.HTTP_INTERNAL_SERVER_ERROR).json({ message: 'No se puede eliminar uno o más registros debido a que tienen acciones asociadas al sistema' });
+    }
     return res.status(err.statusCode || HttpCode.HTTP_INTERNAL_SERVER_ERROR).json({
       message: err.message,
     });

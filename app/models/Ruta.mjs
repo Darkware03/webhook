@@ -10,6 +10,26 @@ class Ruta extends psql.Model {
       through: RutaRol,
       foreignKey: 'id_ruta',
       otherKey: 'id_rol',
+      onDelete: 'CASCADE',
+      hooks: true,
+    });
+  }
+
+  static async getById(id) {
+    return this.findOne({
+      where: {
+        id,
+      },
+      attributes: ['id'],
+      include: [
+        {
+          model: Rol,
+          attributes: ['id', 'name'],
+          through: {
+            attributes: [],
+          },
+        },
+      ],
     });
   }
 }
@@ -39,6 +59,9 @@ Ruta.init({
   },
   orden: {
     type: psql.Sequelize.INTEGER,
+  },
+  admin: {
+    type: psql.Sequelize.BOOLEAN,
   },
   publico: {
     type: psql.Sequelize.BOOLEAN,

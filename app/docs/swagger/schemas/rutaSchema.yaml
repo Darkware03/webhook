@@ -1,0 +1,20 @@
+type: object
+properties:
+  nombre:
+    type: string
+  uri:
+    type: string
+  nombre_uri:
+    type: string
+  mostrar:
+    type: boolean
+  icono:
+    type: string
+  orden:
+    type: integer
+  admin:
+    type: boolean
+  publico:
+    type: boolean
+  id_ruta_padre:
+    type: integer             

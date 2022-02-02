@@ -1,18 +1,18 @@
-/api/v1/perfiles:
+/api/v1/rutas:
   post:
     tags:
-      - perfil
+      - ruta
     operationId: addPerfil
     requestBody:
-      description: Objeto Perfil que será agregado al servicio
+      description: Objeto Ruta que será agregado al servicio
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/Perfil"
+            $ref: "#/components/schemas/Ruta"
       required: true
     responses:
       201:
-        description: Perfil agregado
+        description: Ruta agregado
         content:
           application/json:
             schema:
@@ -22,8 +22,22 @@
                   type: integer
                 nombre:
                   type: string
-                codigo:
+                uri:
                   type: string
+                nombre_uri:
+                  type: string
+                mostrar:
+                  type: boolean
+                icono:
+                  type: string
+                orden:
+                  type: integer
+                admin:
+                  type: boolean
+                publico:
+                  type: boolean
+                id_ruta_padre:
+                  type: integer
       400:
         description: Bad Request
         content:
@@ -48,13 +62,13 @@
   x-codegen-request-body-name: body
   get:
     tags:
-      - perfil
-    operationId: perfiles
+      - ruta
+    operationId: rutas
     produces:
       - application/json
     responses:
       200:
-        description: Perfiles
+        description: Rutas
         content:
           application/json:
             schema:
@@ -64,8 +78,22 @@
                   type: integer
                 nombre:
                   type: string
-                codigo:
+                uri:
                   type: string
+                nombre_uri:
+                  type: string
+                mostrar:
+                  type: boolean
+                icono:
+                  type: string
+                orden:
+                  type: integer
+                admin:
+                  type: boolean
+                publico:
+                  type: boolean
+                id_ruta_padre:
+                  type: integer
       401:
         description: Unauthorized
         content:
@@ -83,7 +111,7 @@
         content:
   area: development
 
-api/v1/perfiles/{id}:
+api/v1/rutas/{id}:
   parameters:
   - in: path
     name: id
@@ -93,11 +121,11 @@ api/v1/perfiles/{id}:
     description:
   get:
     tags:
-      - perfil
+      - ruta
     operationId: viewRol
     responses:
       200:
-        description: Un objeto perfil
+        description: Un objeto ruta
         content:
           application/json:
             schema:
@@ -107,8 +135,22 @@ api/v1/perfiles/{id}:
                   type: integer
                 nombre:
                   type: string
-                codigo:
+                uri:
                   type: string
+                nombre_uri:
+                  type: string
+                mostrar:
+                  type: boolean
+                icono:
+                  type: string
+                orden:
+                  type: integer
+                admin:
+                  type: boolean
+                publico:
+                  type: boolean
+                id_ruta_padre:
+                  type: integer
       401:
         description: Unauthorized
         content:
@@ -126,8 +168,8 @@ api/v1/perfiles/{id}:
         content:
   put:
     tags:
-      - perfil
-    operationId: editPerfil
+      - ruta
+    operationId: editRuta
     parameters:
       - in: path
         name: id
@@ -139,11 +181,11 @@ api/v1/perfiles/{id}:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/Perfil"
+            $ref: "#/components/schemas/Ruta"
       required: true
     responses:
       201:
-        description: Perfil actualizado
+        description: Ruta actualizado
         content:
           application/json:
             schema:
@@ -179,11 +221,11 @@ api/v1/perfiles/{id}:
   x-codegen-request-body-name: body
   delete:
     tags:
-      - perfil
-    operationId: deletePerfil
+      - ruta
+    operationId: deleteRuta
     responses:
       200:
-        description: Rol eliminado
+        description: Ruta eliminado
         content:
           application/json:
             schema:
@@ -208,7 +250,7 @@ api/v1/perfiles/{id}:
         content:
   area: development
 
-api/v1/perfiles/{id}/roles:
+api/v1/rutas/{id}/roles:
   parameters:
     - in: path
       name: id
@@ -218,8 +260,8 @@ api/v1/perfiles/{id}/roles:
       description:
   post:
     tags:
-      - perfil
-    operationId: addUserRol
+      - ruta
+    operationId: addRutaRol
     requestBody:
       content:
         application/json:
@@ -230,7 +272,7 @@ api/v1/perfiles/{id}/roles:
       required: true
     responses:
       200:
-        description: Un objeto rol a perfil
+        description: Un objeto ruta a perfil
         content:
           application/json:
             schema:
@@ -239,12 +281,9 @@ api/v1/perfiles/{id}/roles:
                 perfil:
                   type: object
                   properties:
-                    id:
-                      type: integer
-                    nombre:
-                      type: string
-                    codigo:
-                      type: string
+                    roles:
+                      type: boolean
+                    
       401:
         description: Unauthorized
         content:
@@ -262,11 +301,11 @@ api/v1/perfiles/{id}/roles:
         content:
   delete:
     tags:
-      - perfil
-    operationId: destroyUserRol
+      - ruta
+    operationId: destroyRutaRol
     responses:
       200:
-        description: Roles de usuarios eliminados
+        description: Roles de rutas eliminados
         content:
           application/json:
             schema:

@@ -17,6 +17,24 @@ beforeAll((done) => {
     });
 });
 
+describe('test de update email', () => {
+  test('put updateEmail Usuario', (done) => {
+    request(host)
+      .put('/api/v1/users/update/mail')
+      .send({
+        email: 'first_test@mail.com',
+      })
+      .set('Authorization', `Bearer ${token}`)
+      .then((response) => {
+        expect(response.statusCode).toBe(200);
+        done();
+      })
+      .catch((err) => {
+        done(err);
+      });
+  });
+});
+
 describe('test de get usarios', () => {
   test('get Index Usuario', (done) => {
     request(host)

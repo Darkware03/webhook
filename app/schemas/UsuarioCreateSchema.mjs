@@ -16,7 +16,7 @@ const usuarioCreateSchema = {
     perfiles: {
       type: 'array',
       uniqueItems: true,
-      minItems: 1,
+      minItems: 0,
       items: {
         type: 'integer',
       },
@@ -27,7 +27,7 @@ const usuarioCreateSchema = {
     roles: {
       type: 'array',
       uniqueItems: true,
-      minItems: 1,
+      minItems: 0,
       items: {
         type: 'integer',
       },
@@ -36,7 +36,7 @@ const usuarioCreateSchema = {
       },
     },
   },
-  oneOf: [{ required: ['roles'], errorMessage: { required: 'Debe poseer un rol o un pefil' } }, { required: ['perfiles'], errorMessage: { required: 'Debe poseer un rol o un pefil' } }],
+  anyOf: [{ required: ['roles'], errorMessage: { required: 'Debe poseer un rol o un pefil' } }, { required: ['perfiles'], errorMessage: { required: 'Debe poseer un rol o un pefil' } }],
   required: ['password', 'email'],
   errorMessage: {
     required: {

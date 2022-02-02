@@ -3,3 +3,7 @@ node_modules/
 .idea
 package-lock.json
 .eslintcache
+app/docs/index.yaml
+app/docs/index.json
+app/docs/test.json
+app/docs/test.yaml

@@ -34,17 +34,9 @@ paths:
                 properties:
                   token:
                     type: string
-                  refresh_token:
-                    type: string
-                  user:
-                    type: object
-                    properties:
-                      email:
-                        type: string
-                      password:
-                        type: string
-                      last_login:
-                        type: string
+                  metodos_autenticacion:
+                    type: array
+                    items: null
         '400':
           description: Bad Request
           content: {}
@@ -83,6 +75,55 @@ paths:
                     type: string
                   refresh_token:
                     type: string
+                  user:
+                    type: object
+                    properties:
+                      email:
+                        type: string
+                      password:
+                        type: string
+                      last_login:
+                        type: string
+        '400':
+          description: Bad Request
+          content: {}
+        '401':
+          description: Acceso no Autorizado
+          content: {}
+        '404':
+          description: Not Found
+        '405':
+          description: Not Allowed
+          content: {}
+        '500':
+          description: Internal Server Error
+          content: {}
+      x-codegen-request-body-name: body
+    area: api
+  /2fa/check:
+    post:
+      tags:
+        - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TwoFactorAuth'
+        required: true
+      responses:
+        '200':
+          description: null
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  refresh_token:
+                    type: string
+                  2fa:
+                    type: boolean
                   user:
                     type: object
                     properties:
@@ -516,6 +557,92 @@ paths:
           description: Internal Server Error
           content: null
     area: development
+  api/v1/update/password:
+    post:
+      tags:
+        - usuario
+      summary: Modifica la contraseña del usuario
+      requestBody:
+        description: Password a cambiar y la confirmacion de esta
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecoveryPassword'
+        required: true
+      responses:
+        '201':
+          description: Password modificada con exito
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: null
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content: null
+    x-codegen-request-body-name: body
+    area: development
+  api/v1/update/email:
+    post:
+      tags:
+        - usuario
+      summary: Modifica el email del usuario
+      requestBody:
+        description: email a cambiar y password para validar informacion
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEmail'
+        required: true
+      responses:
+        '201':
+          description: Email actualizado con exito
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: null
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content: null
+    x-codegen-request-body-name: body
+    area: development
   /api/v1/perfiles:
     post:
       tags:
@@ -701,6 +828,88 @@ paths:
       responses:
         '200':
           description: Rol eliminado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content: null
+    area: development
+  'api/v1/perfiles/{id}/roles':
+    parameters:
+      - in: path
+        name: id
+        required: true
+        type: integer
+        minimum: 1
+        description: null
+    post:
+      tags:
+        - perfil
+      operationId: addUserRol
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: integer
+        required: true
+      responses:
+        '200':
+          description: Un objeto rol a perfil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  perfil:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      nombre:
+                        type: string
+                      codigo:
+                        type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content: null
+    delete:
+      tags:
+        - perfil
+      operationId: destroyUserRol
+      responses:
+        '200':
+          description: Roles de usuarios eliminados
           content:
             application/json:
               schema:
@@ -922,6 +1131,332 @@ paths:
           description: Internal Server Error
           content: null
     area: development
+  /api/v1/rutas:
+    post:
+      tags:
+        - ruta
+      operationId: addPerfil
+      requestBody:
+        description: Objeto Ruta que será agregado al servicio
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Ruta'
+        required: true
+      responses:
+        '201':
+          description: Ruta agregado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  nombre:
+                    type: string
+                  uri:
+                    type: string
+                  nombre_uri:
+                    type: string
+                  mostrar:
+                    type: boolean
+                  icono:
+                    type: string
+                  orden:
+                    type: integer
+                  admin:
+                    type: boolean
+                  publico:
+                    type: boolean
+                  id_ruta_padre:
+                    type: integer
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content: null
+    x-codegen-request-body-name: body
+    get:
+      tags:
+        - ruta
+      operationId: rutas
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Rutas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  nombre:
+                    type: string
+                  uri:
+                    type: string
+                  nombre_uri:
+                    type: string
+                  mostrar:
+                    type: boolean
+                  icono:
+                    type: string
+                  orden:
+                    type: integer
+                  admin:
+                    type: boolean
+                  publico:
+                    type: boolean
+                  id_ruta_padre:
+                    type: integer
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content: null
+    area: development
+  'api/v1/rutas/{id}':
+    parameters:
+      - in: path
+        name: id
+        required: true
+        type: integer
+        minimum: 1
+        description: null
+    get:
+      tags:
+        - ruta
+      operationId: viewRol
+      responses:
+        '200':
+          description: Un objeto ruta
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  nombre:
+                    type: string
+                  uri:
+                    type: string
+                  nombre_uri:
+                    type: string
+                  mostrar:
+                    type: boolean
+                  icono:
+                    type: string
+                  orden:
+                    type: integer
+                  admin:
+                    type: boolean
+                  publico:
+                    type: boolean
+                  id_ruta_padre:
+                    type: integer
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content: null
+    put:
+      tags:
+        - ruta
+      operationId: editRuta
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: integer
+          minimum: 1
+          description: null
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Ruta'
+        required: true
+      responses:
+        '201':
+          description: Ruta actualizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  nombre:
+                    type: string
+                  codigo:
+                    type: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content: null
+    x-codegen-request-body-name: body
+    delete:
+      tags:
+        - ruta
+      operationId: deleteRuta
+      responses:
+        '200':
+          description: Ruta eliminado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content: null
+    area: development
+  'api/v1/rutas/{id}/roles':
+    parameters:
+      - in: path
+        name: id
+        required: true
+        type: integer
+        minimum: 1
+        description: null
+    post:
+      tags:
+        - ruta
+      operationId: addRutaRol
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: integer
+        required: true
+      responses:
+        '200':
+          description: Un objeto ruta a perfil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  perfil:
+                    type: object
+                    properties:
+                      roles:
+                        type: boolean
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content: null
+    delete:
+      tags:
+        - ruta
+      operationId: destroyRutaRol
+      responses:
+        '200':
+          description: Roles de rutas eliminados
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content: null
+    area: development
 components:
   schemas:
     Usuario:
@@ -975,6 +1510,29 @@ components:
         type: array
         items:
           type: integer
+    TwoFactorAuth:
+      type: object
+      properties:
+        codigo:
+          type: string
+        id_metodo:
+          type: integer
+    RecoveryPassword:
+      type: object
+      properties:
+        password_actual:
+          type: string
+        password:
+          type: string
+        confirm_password:
+          type: string
+    UpdateEmail:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
     Error:
       type: object
       properties:
@@ -982,6 +1540,29 @@ components:
           type: string
         message:
           type: string
+    Ruta:
+      type: object
+      properties:
+        id:
+          type: integer
+        nombre:
+          type: string
+        uri:
+          type: string
+        nombre_uri:
+          type: string
+        mostrar:
+          type: boolean
+        icono:
+          type: string
+        orden:
+          type: integer
+        admin:
+          type: boolean
+        publico:
+          type: boolean
+        id_ruta_padre:
+          type: integer
     ArrayOfInt:
       type: object
       items:

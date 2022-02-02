@@ -12,9 +12,8 @@ const transporter = nodemailer.createTransport({
   },
 });
 export default class Mailer {
-  static async sendMail(email = null, message = null, subject = null, header = '') {
-    if (email !== null && message !== null && subject !== null) {
-      const defaultHtml = mjml2html(` 
+  static async sendMail(email = null, message = null, subject = null, header = '', customHtml = null) {
+    let html = `
 <mjml>
   <mj-body>
     <mj-section>
@@ -28,25 +27,24 @@ export default class Mailer {
         <mj-spacer css-class="primary"></mj-spacer>
         <mj-divider border-width="3px" border-color="#175efb" />
         <mj-text  align="center" font-weight="bold" font-size="17px">${message}</mj-text>
-
       </mj-column>
     </mj-section>
   </mj-body>
-</mjml>
-`, {});
-      const mailConfig = {
-        from: `${process.env.SISTEM_NAME} <${process.env.MAIL_USER}>`,
-        to: email,
-        subject,
-        html: defaultHtml.html,
-      };
-      await transporter.sendMail(mailConfig, (error, info) => {
-        if (error) {
-          return false;
-        }
-        console.log(`Email sent: ${info.response}`);
-        return true;
-      });
-    }
+</mjml>`;
+    if (customHtml !== null) html = customHtml;
+
+    const formattedHtml = mjml2html(html, {});
+    const mailConfig = {
+      from: `${process.env.SISTEM_NAME} <${process.env.MAIL_USER}>`,
+      to: email,
+      subject,
+      html: formattedHtml.html,
+    };
+    await transporter.sendMail(mailConfig, (error) => {
+      if (error) {
+        return false;
+      }
+      return true;
+    });
   }
 }

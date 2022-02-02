@@ -28,6 +28,9 @@ module.exports = {
       orden: {
         type: psql.Sequelize.INTEGER,
       },
+      admin: {
+        type: psql.Sequelize.BOOLEAN,
+      },
       publico: {
         type: psql.Sequelize.BOOLEAN,
       },
