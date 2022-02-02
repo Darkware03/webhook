@@ -1,17 +1,22 @@
 const AddPerfilRolesSchema = {
   type: 'object',
   properties: {
-    rol: {
-      type: 'integer',
+    roles: {
+      type: 'array',
+      uniqueItems: true,
+      minItems: 1,
+      items: {
+        type: 'integer',
+      },
       errorMessage: {
-        type: 'El rol debe de ser de tipo entero',
+        type: 'El id del rol debe ser de tipo entero',
       },
     },
   },
-  required: ['rol'],
+  required: ['roles'],
   errorMessage: {
     required: {
-      rol: 'El campo rol es obligatorio',
+      roles: 'El campo rol es obligatorio',
     },
   },
 };

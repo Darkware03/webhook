@@ -60,12 +60,13 @@ export default class ApiController {
       ],
     });
 
-    if (!usuario)
+    if (!usuario) {
       throw new NoAuthException(
         'UNAUTHORIZED',
         HttpCode.HTTP_UNAUTHORIZED,
         'Credenciales no validas'
       );
+    }
     const validPassword = bcrypt.compareSync(password, usuario.password);
     if (!validPassword) {
       throw new NoAuthException(
@@ -171,12 +172,13 @@ export default class ApiController {
         const getPrimaryMethod = await MetodoAutenticacionUsuario.findOne({
           where: { id_usuario: id, is_primary: true },
         });
-        if (!getPrimaryMethod)
+        if (!getPrimaryMethod) {
           throw new NotFoundException(
             'NOT_FOUND',
             HttpCode.HTTP_BAD_REQUEST,
             'Error al realizar la peticion...'
           );
+        }
         // eslint-disable-next-line camelcase
         id_metodo = getPrimaryMethod.id_metodo;
       }
@@ -186,6 +188,7 @@ export default class ApiController {
         // eslint-disable-next-line camelcase
         await MetodoAutenticacionUsuario.update(
           { secret_key: newToken },
+          // eslint-disable-next-line camelcase
           { where: { id_metodo, id_usuario: id } }
         );
         const verificationCode = await speakeasy.totp({
@@ -236,31 +239,34 @@ export default class ApiController {
         where: dbQueryParams,
       });
       // validar si existe metodo de autenticacion
-      if (!metodoAutenticacion)
+      if (!metodoAutenticacion) {
         throw new NoAuthException(
           'UNAUTHORIZED',
           HttpCode.HTTP_UNAUTHORIZED,
           'El usuario no posee metodos de autenticacion'
         );
+      }
       const usuario = await Usuario.findOne({
         where: { id },
         attributes: ['id', 'email', 'last_login', 'two_factor_status'],
       });
       let timeToCodeValid = null;
       // eslint-disable-next-line camelcase,no-unused-expressions
-      if (Number(metodoAutenticacion.id_metodo) === 1)
+      if (Number(metodoAutenticacion.id_metodo) === 1) {
         timeToCodeValid = process.env.GOOGLE_AUTH_TIME_EMAIL;
+      }
       const isCodeValid = await Security.verifyTwoFactorAuthCode(
         codigo,
         metodoAutenticacion.secret_key,
         timeToCodeValid
       );
-      if (!isCodeValid)
+      if (!isCodeValid) {
         throw new NoAuthException(
           'UNAUTHORIZED',
           HttpCode.HTTP_UNAUTHORIZED,
           'El codigo proporcionado no es valido'
         );
+      }
       await usuario.update({
         two_factor_status: true,
         last_login: moment().tz('America/El_Salvador').format(),
@@ -298,21 +304,23 @@ export default class ApiController {
       ],
     });
 
-    if (!refreshTokenExist)
+    if (!refreshTokenExist) {
       throw new NotFoundException(
         'NOT_FOUND',
         HttpCode.HTTP_BAD_REQUEST,
         'Error al realizar la peticion...'
       );
+    }
     const roles = await getRols.roles(refreshTokenExist.Usuario.id);
     const tokenValidTime = new Date(moment(refreshTokenExist.valid).format()).getTime();
     const nowTime = new Date(moment().tz('America/El_Salvador').format()).getTime();
-    if (tokenValidTime < nowTime)
+    if (tokenValidTime < nowTime) {
       throw new NoAuthException(
         'UNAUTHORIZED',
         HttpCode.HTTP_UNAUTHORIZED,
         'El refresh token porporcionado no es valido'
       );
+    }
     const token = await Auth.createToken({
       id: refreshTokenExist.Usuario.id,
       email: refreshTokenExist.Usuario.email,
