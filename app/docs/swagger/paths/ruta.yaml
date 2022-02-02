@@ -283,7 +283,7 @@ api/v1/rutas/{id}/roles:
                   properties:
                     roles:
                       type: boolean
-                    
+
       401:
         description: Unauthorized
         content:
@@ -313,6 +313,113 @@ api/v1/rutas/{id}/roles:
               properties:
                 message:
                   type: string
+      401:
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      403:
+        description: Not Found
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      500:
+        description: Internal Server Error
+        content:
+  area: development
+
+
+/api/v1/rutas/get-rutas:
+  post:
+    tags:
+      - ruta
+    operationId: getRutas
+    responses:
+      201:
+        description: Obtener rutas permitidas al usuario para que navege
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                nombre:
+                  type: string
+                uri:
+                  type: string
+                nombre_uri:
+                  type: string
+                mostrar:
+                  type: boolean
+                icono:
+                  type: string
+                orden:
+                  type: integer
+                admin:
+                  type: boolean
+                publico:
+                  type: boolean
+                id_ruta_padre:
+                  type: integer
+      400:
+        description: Bad Request
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      401:
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      403:
+        description: Not Found
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      500:
+        description: Internal Server Error
+        content:
+  x-codegen-request-body-name: body
+  get:
+    tags:
+      - ruta
+    operationId: rutas
+    produces:
+      - application/json
+    responses:
+      200:
+        description: Rutas
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                nombre:
+                  type: string
+                uri:
+                  type: string
+                nombre_uri:
+                  type: string
+                mostrar:
+                  type: boolean
+                icono:
+                  type: string
+                orden:
+                  type: integer
+                admin:
+                  type: boolean
+                publico:
+                  type: boolean
+                id_ruta_padre:
+                  type: integer
       401:
         description: Unauthorized
         content:
