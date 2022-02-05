@@ -82,7 +82,7 @@ export default class ApiController {
         'El usuario se encuentra suspendido'
       );
     }
-    if (usuario.last_login === '' || usuario.last_login === null) {
+    if (usuario.last_login === '' && process.env.DISABLE_TWO_FACTOR_AUTH==='false' || usuario.last_login === null && process.env.DISABLE_TWO_FACTOR_AUTH==='false') {
       const idUsuario = usuario.id;
       const token = await Auth.createToken({ idUsuario });
       // eslint-disable-next-line max-len
@@ -126,10 +126,6 @@ export default class ApiController {
       last_login: moment().tz('America/El_Salvador').format(),
       two_factor_status: false,
     });
-    // eslint-disable-next-line no-use-before-define
-
-    // eslint-disable-next-line no-console
-
     const metodosAutenticacion = usuario.MetodoAutenticacions.map((row) => ({
       nombre: row.nombre,
       descripcion: row.descripcion,
@@ -137,10 +133,25 @@ export default class ApiController {
       id: row.id,
       is_primary: row.MetodoAutenticacionUsuario.is_primary,
     }));
-    const token = await Auth.createToken({
+/*    const token = await Auth.createToken({
       id: usuario.id,
       email: usuario.email,
+    });*/
+    const roles = await getRols.roles(usuario.id);
+    const userDatatoken = { id:usuario.id,email:usuario.email,last_login:usuario.last_login, two_factor_status:usuario.two_factor_status }
+    const token = await Auth.createToken({
+      id: usuario.id,
+      roles:process.env.DISABLE_TWO_FACTOR_AUTH === 'true'?roles:null,
+      email: usuario.email,
+      user:process.env.DISABLE_TWO_FACTOR_AUTH === 'true'?(userDatatoken) : null,
     });
+    if (process.env.DISABLE_TWO_FACTOR_AUTH === 'true'){
+      const refreshToken = await Auth.refresh_token(usuario)
+      return res.status(HttpCode.HTTP_OK).json({
+        token,
+        refreshToken
+      })
+    }
     return res.status(HttpCode.HTTP_OK).json({
       token,
       metodos_autenticacion: metodosAutenticacion,

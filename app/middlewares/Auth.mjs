@@ -29,7 +29,7 @@ const Auth = async (req, res, next) => {
     if (fechaValidacionToken >= fechaCreacionToken) {
       throw new NoAuthException();
     }
-    if (!usuario.two_factor_status) throw new NoAuthException();
+    if (!usuario.two_factor_status && process.env.DISABLE_TWO_FACTOR_AUTH==='false') throw new NoAuthException();
     req.usuario = usuario;
     next();
   } catch (err) {
