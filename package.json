@@ -16,6 +16,7 @@
     "migration:run": "sequelize-cli db:migrate",
     "migration:revert": "sequelize-cli db:migrate:undo",
     "migration:delete": "sequelize-cli db:migrate:undo:all",
+    "seed:run:all": "sequelize-cli db:seed:all",
     "prepare": "husky install"
   },
   "keywords": [],
