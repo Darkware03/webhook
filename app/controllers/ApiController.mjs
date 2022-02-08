@@ -82,7 +82,7 @@ export default class ApiController {
         'El usuario se encuentra suspendido'
       );
     }
-    if (usuario.last_login === '' && process.env.DISABLE_TWO_FACTOR_AUTH==='false' || usuario.last_login === null && process.env.DISABLE_TWO_FACTOR_AUTH==='false') {
+    if ((usuario.last_login === '' && process.env.DISABLE_TWO_FACTOR_AUTH==='false' )|| (usuario.last_login === null && process.env.DISABLE_TWO_FACTOR_AUTH==='false')) {
       const idUsuario = usuario.id;
       const token = await Auth.createToken({ idUsuario });
       // eslint-disable-next-line max-len
