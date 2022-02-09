@@ -20,7 +20,7 @@ router.post('/v1/refresh', Call(ApiController.RefreshToken));
 router.use('/v1/users', [auth], routesUsers);
 router.use('/v1/perfiles', [auth, bitacora], routesPerfil);
 router.use('/v1/roles', [auth, bitacora], routesRoles);
-router.use('/v1/rutas', [auth, bitacora], routesRutas);
+router.use('/v1/rutas', [auth], routesRutas);
 router.put(
   '/v1/recovery_password/change_password',
   [validate(recoveryPasswordSchema)],
