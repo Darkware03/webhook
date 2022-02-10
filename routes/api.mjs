@@ -21,13 +21,6 @@ router.use('/v1/users', [auth], routesUsers);
 router.use('/v1/perfiles', [auth, bitacora], routesPerfil);
 router.use('/v1/roles', [auth, bitacora], routesRoles);
 router.use('/v1/rutas', [auth], routesRutas);
-router.put(
-  '/v1/recovery_password/change_password',
-  [validate(recoveryPasswordSchema)],
-  Call(ApiController.recoveryPassword),
-);
-router.use(
-  '/v1/recovery_password/send_email/:email',
-  Call(ApiController.recoveryPasswordSendEmail),
-);
+router.put('/v1/recovery_password/change_password', [validate(recoveryPasswordSchema)], Call(ApiController.recoveryPassword));
+router.use('/v1/recovery_password/send_email/:email', Call(ApiController.recoveryPasswordSendEmail));
 export default router;
