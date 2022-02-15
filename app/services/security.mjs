@@ -11,7 +11,7 @@ export default class Security {
     if (!authorization.length < 2) {
       const token = authorization[1];
       const { id } = jwt.verify(token, process.env.SECRET_KEY);
-      const isAthenticatedFully = await Usuario.findOne({ where: { id }, attributes: ['tw -no_factor_status'] });
+      const isAthenticatedFully = await Usuario.findOne({ where: { id }, attributes: ['two_factor_status'] });
       if (!isAthenticatedFully.two_factor_status && !process.env.DISABLE_TWO_FACTOR_AUTH) return false;
       const allRols = await getRols.roles(id);
       const havePermision = await allRols.find((rol) => rol === receivedRol);
