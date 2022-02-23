@@ -12,7 +12,7 @@ module.exports = {
         'mnt_rol',
         [
           {
-            name: 'SUPER-ADMIN',
+            name: 'SUPER_ADMIN',
           },
         ],
         {
@@ -36,13 +36,13 @@ module.exports = {
         ],
         { returning: ['id'], transaction: TRANSACTION },
       );
-      const passwordCrypt = bcrypt.hashSync('admin', salt);
+      const passwordCrypt = bcrypt.hashSync(process.env.PASSWORD_INICIAL, salt);
 
       const USUARIO = await queryInterface.bulkInsert(
         'mnt_usuario',
         [
           {
-            email: 'admin@salud.gob.sv',
+            email: process.env.EMAIL_INICIAL,
             password: passwordCrypt,
             is_suspended: false,
           },
@@ -216,7 +216,6 @@ module.exports = {
           { name: 'ROLE_ADMIN_USER_EDIT' },
           { name: 'ROLE_ADMIN_ROLE_CREATE' },
           { name: 'ROLE_ADMIN_ROLE_LIST' },
-
         ],
         {
           returning: ['id'],
@@ -275,41 +274,41 @@ module.exports = {
       );
 
       const roles = [
-        { name: 'ROLE_ADMIN_PERFIL_DELETE' },
-        { name: 'ROLE_ADMIN_ROLE_DELETE' },
-        { name: 'ROLE_ADMIN_ROLE_EDIT' },
-        { name: 'ROLE_ADMIN_RUTA_DELETE' },
-        { name: 'ROLE_ADMIN_USER_DELETE' },
-        { name: 'ROLE_ADMIN_USER_VIEW' },
-        { name: 'ROLE_SUPER_ADMIN' },
-        { name: 'ROLE_PERFIL_LIST' },
-        { name: 'ROLE_PERFIL_CREATE' },
-        { name: 'ROLE_PERFIL_UPDATE' },
-        { name: 'ROLE_PERFIL_DELETE' },
-        { name: 'ROLE_PERFIL_ROL_CREATE' },
-        { name: 'ROLE_PERFIL_ROL_DELETE' },
-        { name: 'ROLE_ROL_LIST' },
-        { name: 'ROLE_ROL_CREATE' },
-        { name: 'ROLE_ROL_UPDATE' },
-        { name: 'ROLE_ROL_DELETE' },
-        { name: 'ROLE_RUTA_LIST' },
-        { name: 'ROLE_RUTA_CREATE' },
-        { name: 'ROLE_RUTA_LIST' },
-        { name: 'ROLE_RUTA_ROL_CREATE' },
-        { name: 'ROLE_RUTA_UPDATE' },
-        { name: 'ROLE_RUTA_DELETE' },
-        { name: 'ROLE_RUTA_ROL_DELETE' },
-        { name: 'ROLE_USER_METHOD_LIST' },
-        { name: 'ROLE_USER_LIST' },
-        { name: 'ROLE_USER_PERFIL_CREATE' },
-        { name: 'ROLE_USER_PERFIL_DELETE' },
-        { name: 'ROLE_USER_ROL_DELETE' },
-        { name: 'ROLE_USER_UPDATE' },
-        { name: 'ROLE_USER_DELETE' },
-        { name: 'ROLE_USER_CREATE' },
-        { name: 'ROLE_USER_PERFIL_LIST' },
-        { name: 'ROLE_USER_PASSWORD_UPDATE' },
-        { name: 'ROLE_USER_EMAIL_DELETE' },
+        { name: 'ROLE_ADMIN_PERFIL_DELETE' }, // 0
+        { name: 'ROLE_ADMIN_ROLE_DELETE' }, // 1
+        { name: 'ROLE_ADMIN_ROLE_EDIT' }, // 2
+        { name: 'ROLE_ADMIN_RUTA_DELETE' }, // 3
+        { name: 'ROLE_ADMIN_USER_DELETE' }, // 4
+        { name: 'ROLE_ADMIN_USER_VIEW' }, // 5
+        { name: 'ROLE_SUPER_ADMIN' }, // 6
+        { name: 'ROLE_PERFIL_LIST' }, // 7
+        { name: 'ROLE_PERFIL_CREATE' }, // 8
+        { name: 'ROLE_PERFIL_UPDATE' }, // 9
+        { name: 'ROLE_PERFIL_DELETE' }, // 10
+        { name: 'ROLE_PERFIL_ROL_CREATE' }, // 11
+        { name: 'ROLE_PERFIL_ROL_DELETE' }, // 12
+        { name: 'ROLE_ROL_LIST' }, // 13
+        { name: 'ROLE_ROL_CREATE' }, // 14
+        { name: 'ROLE_ROL_UPDATE' }, // 15
+        { name: 'ROLE_ROL_DELETE' }, // 16
+        { name: 'ROLE_RUTA_LIST' }, // 17
+        { name: 'ROLE_RUTA_CREATE' }, // 18
+        { name: 'ROLE_RUTA_LIST' }, // 19
+        { name: 'ROLE_RUTA_ROL_CREATE' }, // 20
+        { name: 'ROLE_RUTA_UPDATE' }, // 21
+        { name: 'ROLE_RUTA_DELETE' }, // 22
+        { name: 'ROLE_RUTA_ROL_DELETE' }, // 23
+        { name: 'ROLE_USER_METHOD_LIST' }, // 24
+        { name: 'ROLE_USER_LIST' }, // 25
+        { name: 'ROLE_USER_PERFIL_CREATE' }, // 26
+        { name: 'ROLE_USER_PERFIL_DELETE' }, // 27
+        { name: 'ROLE_USER_ROL_DELETE' }, // 28
+        { name: 'ROLE_USER_UPDATE' }, // 29
+        { name: 'ROLE_USER_DELETE' }, // 30
+        { name: 'ROLE_USER_CREATE' }, // 31
+        { name: 'ROLE_USER_PERFIL_LIST' }, // 32
+        { name: 'ROLE_USER_PASSWORD_UPDATE' }, // 33
+        { name: 'ROLE_USER_EMAIL_DELETE' }, // 34
       ];
 
       const rutas = [
@@ -356,40 +355,183 @@ module.exports = {
         returning: ['id'],
         transaction: TRANSACTION,
       });
-      /** Otros roles con usuarios */
-      await queryInterface.bulkInsert(
-        'mnt_usuario_rol',
+
+      /** Perfil */
+      const perfil = await queryInterface.bulkInsert(
+        'mnt_perfil',
         [
           {
-            id_usuario: USUARIO[0].id,
-            id_rol: rolesUsuario[0].id,
-          },
-          {
-            id_usuario: USUARIO[0].id,
-            id_rol: rolesUsuario[1].id,
-          },
-          {
-            id_usuario: USUARIO[0].id,
-            id_rol: rolesUsuario[2].id,
-          },
-          {
-            id_usuario: USUARIO[0].id,
-            id_rol: rolesUsuario[3].id,
-          },
-          {
-            id_usuario: USUARIO[0].id,
-            id_rol: rolesUsuario[4].id,
-          },
-          {
-            id_usuario: USUARIO[0].id,
-            id_rol: rolesUsuario[5].id,
-          },
-          {
-            id_usuario: USUARIO[0].id,
-            id_rol: rolesUsuario[6].id,
+            nombre: 'SUPER_ADMIN',
+            codigo: '1',
           },
         ],
         {
+          returning: ['id'],
+          transaction: TRANSACTION,
+        },
+      );
+
+      /** Otros roles con perfil */
+      await queryInterface.bulkInsert(
+        'mnt_perfil_rol',
+        [
+          {
+            id_perfil: perfil[0].id,
+            id_rol: rolesUsuario[0].id,
+          },
+          {
+            id_perfil: perfil[0].id,
+            id_rol: rolesUsuario[1].id,
+          },
+          {
+            id_perfil: perfil[0].id,
+            id_rol: rolesUsuario[2].id,
+          },
+          {
+            id_perfil: perfil[0].id,
+            id_rol: rolesUsuario[3].id,
+          },
+          {
+            id_perfil: perfil[0].id,
+            id_rol: rolesUsuario[4].id,
+          },
+          {
+            id_perfil: perfil[0].id,
+            id_rol: rolesUsuario[5].id,
+          },
+          {
+            id_perfil: perfil[0].id,
+            id_rol: rolesUsuario[6].id,
+          },
+          {
+            id_perfil: perfil[0].id,
+            id_rol: rolesUsuario[7].id,
+          },
+          {
+            id_perfil: perfil[0].id,
+            id_rol: rolesUsuario[8].id,
+          },
+          {
+            id_perfil: perfil[0].id,
+            id_rol: rolesUsuario[9].id,
+          },
+          {
+            id_perfil: perfil[0].id,
+            id_rol: rolesUsuario[10].id,
+          },
+          {
+            id_perfil: perfil[0].id,
+            id_rol: rolesUsuario[11].id,
+          },
+          {
+            id_perfil: perfil[0].id,
+            id_rol: rolesUsuario[12].id,
+          },
+          {
+            id_perfil: perfil[0].id,
+            id_rol: rolesUsuario[13].id,
+          },
+          {
+            id_perfil: perfil[0].id,
+            id_rol: rolesUsuario[14].id,
+          },
+          {
+            id_perfil: perfil[0].id,
+            id_rol: rolesUsuario[15].id,
+          },
+          {
+            id_perfil: perfil[0].id,
+            id_rol: rolesUsuario[16].id,
+          },
+          {
+            id_perfil: perfil[0].id,
+            id_rol: rolesUsuario[17].id,
+          },
+          {
+            id_perfil: perfil[0].id,
+            id_rol: rolesUsuario[18].id,
+          },
+          {
+            id_perfil: perfil[0].id,
+            id_rol: rolesUsuario[19].id,
+          },
+          {
+            id_perfil: perfil[0].id,
+            id_rol: rolesUsuario[20].id,
+          },
+          {
+            id_perfil: perfil[0].id,
+            id_rol: rolesUsuario[21].id,
+          },
+          {
+            id_perfil: perfil[0].id,
+            id_rol: rolesUsuario[22].id,
+          },
+          {
+            id_perfil: perfil[0].id,
+            id_rol: rolesUsuario[23].id,
+          },
+          {
+            id_perfil: perfil[0].id,
+            id_rol: rolesUsuario[24].id,
+          },
+          {
+            id_perfil: perfil[0].id,
+            id_rol: rolesUsuario[25].id,
+          },
+          {
+            id_perfil: perfil[0].id,
+            id_rol: rolesUsuario[26].id,
+          },
+          {
+            id_perfil: perfil[0].id,
+            id_rol: rolesUsuario[27].id,
+          },
+          {
+            id_perfil: perfil[0].id,
+            id_rol: rolesUsuario[28].id,
+          },
+          {
+            id_perfil: perfil[0].id,
+            id_rol: rolesUsuario[29].id,
+          },
+          {
+            id_perfil: perfil[0].id,
+            id_rol: rolesUsuario[30].id,
+          },
+          {
+            id_perfil: perfil[0].id,
+            id_rol: rolesUsuario[31].id,
+          },
+          {
+            id_perfil: perfil[0].id,
+            id_rol: rolesUsuario[32].id,
+          },
+          {
+            id_perfil: perfil[0].id,
+            id_rol: rolesUsuario[33].id,
+          },
+          {
+            id_perfil: perfil[0].id,
+            id_rol: rolesUsuario[34].id,
+          },
+        ],
+        {
+          transaction: TRANSACTION,
+        },
+      );
+
+      /** Perfil relacionar con Usuario */
+      await queryInterface.bulkInsert(
+        'mnt_usuario_perfil',
+        [
+          {
+            id_perfil: perfil[0].id,
+            id_usuario: USUARIO[0].id,
+          },
+        ],
+        {
+          returning: ['id'],
           transaction: TRANSACTION,
         },
       );
