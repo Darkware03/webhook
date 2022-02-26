@@ -11,9 +11,9 @@ import perfilesDeleteSchema from '../../app/schemas/PerfilesDeleteSchema.mjs';
 import validateRole from '../../app/middlewares/validateRole.mjs';
 
 const router = Router();
-router.get('/', [validateRole('ROLE_PERFIL_VIEW')], Call(PerfilController.index));
+router.get('/', [validateRole('ROLE_PERFIL_LIST')], Call(PerfilController.index));
 router.post('/', [validateRole('ROLE_PERFIL_CREATE'), validate(perfilCreateSchema)], Call(PerfilController.store));
-router.get('/:id', [validateRole('ROLE_PERFIL_VIEW')], Call(PerfilController.show));
+router.get('/:id', [validateRole('ROLE_PERFIL_LIST')], Call(PerfilController.show));
 router.put('/:id', [validateRole('ROLE_PERFIL_UPDATE'), validate(perfilUpdateSchema)], Call(PerfilController.update));
 router.delete('/:id', [validateRole('ROLE_PERFIL_DELETE')], Call(PerfilController.destroy));
 router.delete('/', [validateRole('ROLE_PERFIL_DELETE')], validate(perfilesDeleteSchema), Call(PerfilController.destroyMany));
