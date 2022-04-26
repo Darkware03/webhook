@@ -3,10 +3,8 @@ import HttpCode from '../configs/httpCode.mjs';
 
 export default class BadRequestException extends BaseError {
   constructor(
-    name = 'BAD_REQUEST',
-    statusCode = HttpCode.HTTP_BAD_REQUEST,
-    description = 'Valores no válidos'
+    description = 'Valores no válidos',
   ) {
-    super(name, statusCode, description);
+    super('BAD_REQUEST', HttpCode.HTTP_BAD_REQUEST, description);
   }
 }
