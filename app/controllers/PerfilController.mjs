@@ -16,9 +16,7 @@ export default class PerfilController {
     const cod = await Perfil.findOne({ where: { codigo } });
     if (cod) {
       throw new UnprocessableEntityException(
-        'UNPROCESSABLE_ENTITY',
-        422,
-        'El codigo no puede ser igual a otro registrado con anterioridad'
+        'El codigo no puede ser igual a otro registrado con anterioridad',
       );
     }
     const perfil = await Perfil.create({
@@ -43,9 +41,7 @@ export default class PerfilController {
     const { id } = req.params;
     if (Number.isNaN(id)) {
       throw new UnprocessableEntityException(
-        'UNPROCESSABLE_ENTITY',
-        422,
-        'El parámetro no es un id válido'
+        'El parámetro no es un id válido',
       );
     }
 
@@ -69,7 +65,7 @@ export default class PerfilController {
           id: req.params.id,
         },
         returning: ['nombre', 'codigo'],
-      }
+      },
     );
     return res.status(HttpCode.HTTP_OK).json(perfil[1]);
   }
@@ -78,9 +74,7 @@ export default class PerfilController {
     const { id } = req.params;
     if (Number.isNaN(id)) {
       throw new UnprocessableEntityException(
-        'UNPROCESSABLE_ENTITY',
-        422,
-        'El parámetro no es un id válido'
+        'El parámetro no es un id válido',
       );
     }
 
@@ -103,7 +97,7 @@ export default class PerfilController {
         {
           where: { id_perfil: perfiles },
         },
-        { transaction: t }
+        { transaction: t },
       );
       await Perfil.destroy(
         {
@@ -111,7 +105,7 @@ export default class PerfilController {
             id: perfiles,
           },
         },
-        { transaction: t }
+        { transaction: t },
       );
       await t.commit();
       return res
@@ -128,25 +122,19 @@ export default class PerfilController {
     const { rol } = req.body;
     if (Number.isNaN(idPerfil)) {
       throw new UnprocessableEntityException(
-        'UNPROCESSABLE_ENTITY',
-        422,
-        'El parametro no es un id válido'
+        'El parametro no es un id válido',
       );
     }
     const perfil = await Perfil.findOne({ where: { id: idPerfil } });
     const role = await Rol.findOne({ where: { id: rol } });
     if (!perfil) {
       throw new NotFoundException(
-        'NOT_FOUND',
-        404,
-        'El usuario ingresado no coincide con ninguno registrado'
+        'El usuario ingresado no coincide con ninguno registrado',
       );
     }
     if (!role) {
       throw new NotFoundException(
-        'NOT_FOUND',
-        404,
-        'El rol ingresado no coincide con ninguno registrado'
+        'El rol ingresado no coincide con ninguno registrado',
       );
     }
     const perfilRols = await perfil.addRols(rol);
@@ -164,9 +152,7 @@ export default class PerfilController {
 
     if (Number.isNaN(idPerfil)) {
       throw new UnprocessableEntityException(
-        'UNPROCESSABLE_ENTITY',
-        422,
-        'El parametro no es un id válido'
+        'El parametro no es un id válido',
       );
     }
 

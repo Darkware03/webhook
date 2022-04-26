@@ -32,7 +32,7 @@ export default class RutaController {
         for (let index = 0; index < roles.length; index++) {
           // eslint-disable-next-line no-await-in-loop
           const rol = await Rol.findOne({ where: { id: roles[index] } });
-          if (!rol) throw new NotFoundException('NOT_FOUND', 404, `No se encontró el rol con id ${roles[index]}`);
+          if (!rol) throw new NotFoundException(`No se encontró el rol con id ${roles[index]}`);
         }
       }
       const ruta = await Ruta.create(
@@ -69,7 +69,7 @@ export default class RutaController {
   static async show(req, res) {
     const { id } = req.params;
 
-    if (Number.isNaN(id)) throw new UnprocessableEntityException('UNPROCESSABLE_ENTITY', 422, 'El parámetro no es un id válido');
+    if (Number.isNaN(id)) throw new UnprocessableEntityException('El parámetro no es un id válido');
 
     const ruta = await Ruta.findOne({
       where: {
@@ -85,23 +85,21 @@ export default class RutaController {
     const { id_ruta: idRuta } = req.params;
     const { roles } = req.body;
 
-    if (Number.isNaN(idRuta)) throw new UnprocessableEntityException('UNPROCESSABLE_ENTITY', 422, 'El parametro no es un id válido');
+    if (Number.isNaN(idRuta)) throw new UnprocessableEntityException('El parametro no es un id válido');
 
     for (let index = 0; index < roles.length; index++) {
       // eslint-disable-next-line no-await-in-loop
       const rol = await Rol.findOne({ where: { id: roles[index] } });
-      if (!rol) throw new NotFoundException('NOT_FOUND', 404, `No se encontró el rol con id ${roles[index]}`);
+      if (!rol) throw new NotFoundException(`No se encontró el rol con id ${roles[index]}`);
     }
 
     if (roles.length === 0) {
       throw new BadRequestException(
-        'BAD_REQUEST',
-        400,
         'No se envío ningún rol',
       );
     }
     const ruta = await Ruta.findOne({ where: { id: idRuta } });
-    if (!ruta) throw new NotFoundException('NOT_FOUND', 404, `No se encontró una ruta con id ${idRuta}`);
+    if (!ruta) throw new NotFoundException(`No se encontró una ruta con id ${idRuta}`);
     const rutaRols = await ruta.addRols(roles);
 
     return res.status(HttpCode.HTTP_CREATED).json({
@@ -132,8 +130,8 @@ export default class RutaController {
   static async destroy(req, res) {
     const { id } = req.params;
     const ruta = await Ruta.findOne({ where: { id } });
-    if (!ruta) throw new NotFoundException('NOT_FOUND', 404, `No se encontró una ruta con id ${id}`);
-    if (Number.isNaN(id)) throw new UnprocessableEntityException('UNPROCESSABLE_ENTITY', 422, 'El parámetro no es un id válido');
+    if (!ruta) throw new NotFoundException(`No se encontró una ruta con id ${id}`);
+    if (Number.isNaN(id)) throw new UnprocessableEntityException('El parámetro no es un id válido');
     await Ruta.destroy({
       where: { id },
     });
@@ -147,7 +145,7 @@ export default class RutaController {
   static async destroyRutaRol(req, res) {
     const { id_ruta: idRuta } = req.params;
 
-    if (Number.isNaN(idRuta)) throw new UnprocessableEntityException('UNPROCESSABLE_ENTITY', 422, 'El parametro no es un id válido');
+    if (Number.isNaN(idRuta)) throw new UnprocessableEntityException('El parametro no es un id válido');
 
     await RutaRol.destroy({
       where: {

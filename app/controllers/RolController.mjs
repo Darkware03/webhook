@@ -22,7 +22,7 @@ export default class RolController {
 
   static async show(req, res) {
     const { id } = req.params;
-    if (Number.isNaN(id)) throw new UnprocessableEntityException('UNPROCESSABLE_ENTITY', 422, 'El parámetro no es un id válido');
+    if (Number.isNaN(id)) throw new UnprocessableEntityException('El parámetro no es un id válido');
 
     const rol = await Rol.findOne({
       where: {
@@ -36,7 +36,7 @@ export default class RolController {
   static async update(req, res) {
     const { name } = req.body;
     const { id } = req.params;
-    if (Number.isNaN(id)) throw new UnprocessableEntityException('UNPROCESSABLE_ENTITY', 422, 'El parametro no es un id válido');
+    if (Number.isNaN(id)) throw new UnprocessableEntityException('El parametro no es un id válido');
     const rol = await Rol.update({
       name,
     }, {
@@ -50,7 +50,7 @@ export default class RolController {
 
   static async destroy(req, res) {
     const { id } = req.params;
-    if (Number.isNaN(id)) throw new UnprocessableEntityException('UNPROCESSABLE_ENTITY', 422, 'El parametro no es un id válido');
+    if (Number.isNaN(id)) throw new UnprocessableEntityException('El parametro no es un id válido');
     try {
       await Rol.destroy({
         where: {
@@ -58,7 +58,7 @@ export default class RolController {
         },
       });
     } catch (error) {
-      throw new BadRequestException('No se pudo eliminar', HttpCode.HTTP_BAD_REQUEST, 'No se puede eliminar el rol seleccionado');
+      throw new BadRequestException('No se puede eliminar el rol seleccionado');
     }
 
     return res.status(HttpCode.HTTP_OK).json({
