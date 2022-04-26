@@ -1,7 +1,7 @@
 const disks = {
   local: {
     type: 'local',
-    path: './storage',
+    path: 'app',
   },
   s3: {
     type: 'aws',
@@ -9,6 +9,10 @@ const disks = {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID || 'ACCESS_KEY',
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || 'SECRET_KEY',
     bucket: process.env.AWS_BUCKET || 'bucket',
+  },
+  secundary: {
+    type: 'local',
+    path: 'secundary',
   },
 };
 
