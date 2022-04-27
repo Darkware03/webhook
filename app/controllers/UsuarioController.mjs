@@ -334,7 +334,7 @@ export default class UsuarioController {
     const { email, password } = req.body;
     /** Validacion que el correo ingresado no sea igual al correo actual */
     if (email === req.usuario.email) {
-      throw new NotFoundException(
+      throw new UnprocessableEntityException(
         'El correo no puede ser igual al anterior',
       );
     }
