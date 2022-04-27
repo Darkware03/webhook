@@ -1,12 +1,12 @@
 import path from 'path';
-import UnprocessableEntityException from '../../handlers/UnprocessableEntityException.mjs';
+import LogicalException from '../../handlers/LogicalException.mjs';
 
 export default class File {
   #file;
 
   constructor(file) {
     if (!Buffer.isBuffer(file.data)) {
-      throw new UnprocessableEntityException('No se puede cargar este objeto como archivo');
+      throw new LogicalException('ERR_INVALID_FILE', 'No se puede cargar este objeto como archivo');
     }
 
     this.#file = file;
@@ -24,7 +24,7 @@ export default class File {
     else if (medida === 'MB') conversion = 1048576;
 
     if (size === 0) {
-      throw new UnprocessableEntityException('No es posible obtener el tamaño del archivo');
+      throw new LogicalException('ERR_INVALID_FILE_SIZE', 'No es posible obtener el tamaño del archivo');
     }
     return (size / (conversion)).toFixed(1);
   }

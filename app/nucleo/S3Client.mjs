@@ -4,7 +4,7 @@ import {
   PutObjectCommand,
 } from '@aws-sdk/client-s3';
 import path from 'path';
-import UnprocessableEntityException from '../../handlers/UnprocessableEntityException.mjs';
+import LogicalException from '../../handlers/LogicalException.mjs';
 
 const region = process.env.AWS_REGION;
 const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
@@ -38,8 +38,9 @@ const uploadFile = async (bucketName, archivo) => {
   };
 
   const data = await storage.send(new PutObjectCommand(params)).catch(() => {
-    throw new UnprocessableEntityException(
-      'No se ha podido guardar la fotografía.',
+    throw new LogicalException(
+      'FILE_NOT_SAVED',
+      'No se ha podido guardar el archivo.',
     );
   });
   return data;
