@@ -108,6 +108,6 @@ Luego de realizar los pasos anteriores iniciar el servidor a través del comando
 npm run start
 ```
 
-#### 2.11 Pruebas de acceso a la API
+#### 1.5 Pruebas de acceso a la API
 
 Una vez realizado los pasos anteriores puede realizar las pruebas de acceso, para ello puede acceder a la documentación de la **[forma de uso](README.md#forma-de-uso)** del **[README.md](README.md)**
