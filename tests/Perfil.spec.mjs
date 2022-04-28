@@ -5,7 +5,7 @@ import url from './config.mjs';
 
 chai.use(chaiHttp);
 
-describe('Test de post de usuarios', () => {
+describe('Test de Perfil', () => {
   let token;
   beforeEach((done) => {
     // se ejecuta antes de cada prueba en este bloque

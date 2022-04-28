@@ -56,7 +56,7 @@ describe('Inicializando pruebas para /api/v1/roles', () => {
 
   it('Test de get rol especifico [get] /api/v1/roles/:id, caso exitoso', (done) => {
     chai.request(url)
-      .get('/api/v1/roles/19')
+      .get('/api/v1/roles/55')
       .set('Authorization', `Bearer ${token}`)
       .then((response) => {
         // console.log(response.body);
@@ -76,8 +76,8 @@ describe('Inicializando pruebas para /api/v1/roles', () => {
       })
       .set('Authorization', `Bearer ${token}`)
       .then((response) => {
-        console.log(response.body);
-        expect(response).to.have.status(200);
+        console.log(`hola ${response}`);
+        expect(response).to.have.status(201);
         done();
       })
       .catch((err) => {
@@ -93,7 +93,7 @@ describe('Inicializando pruebas para /api/v1/roles', () => {
       })
       .set('Authorization', `Bearer ${token}`)
       .then((response) => {
-        // console.log(response.body);
+        // console.log(response.body.data);
         expect(response).to.have.status(400);
         done();
       })
@@ -104,7 +104,7 @@ describe('Inicializando pruebas para /api/v1/roles', () => {
 
   it('Test de update roles [put] /api/v1/roles/:id, Parametro correcto', (done) => {
     chai.request(url)
-      .put('/api/v1/roles/20')
+      .put('/api/v1/roles/55')
       .send({
         name: 'ROL_PRUEBA',
       })
@@ -120,7 +120,7 @@ describe('Inicializando pruebas para /api/v1/roles', () => {
 
   it('Test de update roles [put] /api/v1/roles/:id, parametro incorrecto', (done) => {
     chai.request(url)
-      .put('/api/v1/roles/20')
+      .put('/api/v1/roles/55')
       .send({
         nam: 'ROL_PRUEBA',
       })
@@ -137,7 +137,7 @@ describe('Inicializando pruebas para /api/v1/roles', () => {
 
   it('Test de delete roles [delete] /api/v1/roles/:id, parametro correcto', (done) => {
     chai.request(url)
-      .delete('/api/v1/roles/20')
+      .delete('/api/v1/roles/55')
       .set('Authorization', `Bearer ${token}`)
       .then((response) => {
         // console.log(response.body);
