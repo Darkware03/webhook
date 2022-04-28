@@ -79,10 +79,6 @@ DB_PASSWORD=admin
 ```
 
 #### 1.4 Ejecución de migraciones
-Ejecutar el siguiente comando para iniciar el servidor nodemon:
-```bash
-npm run start
-```
 Crear el esquema de la base de datos segun las migraciones con el siguiente comando:
 ```bash
 npm run migration:run
@@ -92,7 +88,7 @@ Ejecutar los seeders para poblar la base de datos para configurar roles, perfile
 ```bash
 npm run seed:run:all
 ```
-Luego de realizar los pasos anteriores iniciar el servidor a través del comando:
+Luego de realizar los pasos anteriores iniciar el proyecto a través del comando:
 ```bash
 npm run start
 ```
