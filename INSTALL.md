@@ -81,12 +81,12 @@ DB_PASSWORD=admin
 #### 1.4 Ejecución de migraciones
 Crear el esquema de la base de datos segun las migraciones con el siguiente comando:
 ```bash
-npm run migration:run
+npm run migrate
 ```
 
 Ejecutar los seeders para poblar la base de datos para configurar roles, perfiles y rutas con el siguiente comando en la terminal:
 ```bash
-npm run seed:run:all
+npm run seed
 ```
 Luego de realizar los pasos anteriores iniciar el proyecto a través del comando:
 ```bash
