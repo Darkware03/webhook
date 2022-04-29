@@ -8,14 +8,14 @@ import validateRole from '../../app/middlewares/validateRole.mjs';
 
 const router = Router();
 
-router.get('/', Call(RutaController.index));
+router.get('/', [validateRole('ROLE_PATH_LIST')], Call(RutaController.index));
 
-router.post('/', [validateRole('ROLE_RUTA_CREATE'), validate(rutaCreateSchema)], Call(RutaController.store));
+router.post('/', [validateRole('ROLE_PATH_CREATE'), validate(rutaCreateSchema)], Call(RutaController.store));
 router.get('/get-rutas', Call(RutaController.getRutas));
-router.get('/:id', [validateRole('ROLE_RUTA_LIST')], Call(RutaController.show));
-router.post('/:id_ruta/roles', [validateRole('ROLE_RUTA_ROL_CREATE'), validate(usuarioAddUserRoleSchema)], Call(RutaController.addRutaRole));
-router.put('/:id', [validateRole('ROLE_RUTA_UPDATE'), validate(rutaCreateSchema)], Call(RutaController.update));
-router.delete('/:id', [validateRole('ROLE_RUTA_DELETE')], Call(RutaController.destroy));
-router.delete('/:id_ruta/roles', [validateRole('ROLE_RUTA_ROL_DELETE')], Call(RutaController.destroyRutaRol));
+router.get('/:id', [validateRole('ROLE_PATH_LIST')], Call(RutaController.show));
+router.put('/:id', [validateRole('ROLE_PATH_UPDATE'), validate(rutaCreateSchema)], Call(RutaController.update));
+router.delete('/:id', [validateRole('ROLE_PATH_DELETE')], Call(RutaController.destroy));
+router.post('/:id_ruta/roles', [validateRole('ROLE_PATH_ROLE_CREATE'), validate(usuarioAddUserRoleSchema)], Call(RutaController.addRutaRole));
+router.delete('/:id_ruta/roles', [validateRole('ROLE_PATH_ROLE_DELETE')], Call(RutaController.destroyRutaRol));
 
 export default router;
