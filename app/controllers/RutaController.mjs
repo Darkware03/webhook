@@ -2,14 +2,13 @@
 // eslint-disable-next-line no-unused-vars
 import Sequelize, { Op } from 'sequelize';
 import {
-  Rol, Ruta, Usuario, Perfil, RutaRol,
+  Rol, Ruta, RutaRol,
 } from '../models/index.mjs';
 import DB from '../nucleo/DB.mjs';
 import HttpCode from '../../configs/httpCode.mjs';
 import UnprocessableEntityException from '../../handlers/UnprocessableEntityException.mjs';
 import NotFoundException from '../../handlers/NotFoundExeption.mjs';
 import BadRequestException from '../../handlers/BadRequestException.mjs';
-import Security from '../services/security.mjs';
 
 export default class RutaController {
   static async index(req, res) {
@@ -156,49 +155,7 @@ export default class RutaController {
   }
 
   static async getRutas(req, res) {
-    let filter = null;
-    let data;
-    if (req.headers.origin === process.env.FRONT_ADMIN_ADDRESS) {
-      if (await Security.isGranted(req, 'SUPER-ADMIN') || await Security.isGranted(req, 'ROLE_ADMIN')) {
-        filter = 'admin = true or publico = true';
-      }
-    }
-    if (req.headers.origin === process.env.FRONT_USER_ADDRESS) {
-      filter = 'admin = false or publico = true';
-    }
-    if (filter !== null) {
-      data = await Ruta.findAll({
-        include: [
-          {
-            model: Rol,
-            attributes: [],
-            include: [
-              {
-                model: Perfil,
-                required: true,
-                attributes: [],
-              },
-              {
-                model: Usuario,
-                required: true,
-                attributes: [],
-                where: { id: req.usuario.id },
-              },
-            ],
-          },
-        ],
-        where: Sequelize.literal(filter),
-        order: [
-          ['orden', 'ASC'],
-        ],
-      });
-    }
-
-    if (data === null || data === undefined) {
-      return res.status(HttpCode.HTTP_UNAUTHORIZED).send({ message: 'El usuario no posee permisos para realizar la peticion' });
-
-      // throw new NoAuthException('UNAUTHORIZED', 401, 'El usuario no posee permisos para realizar la peticion');
-    }
-    return res.status(HttpCode.HTTP_OK).send(data);
+    const menu = await Ruta.getMenu(req.usuario.id);
+    return res.status(HttpCode.HTTP_OK).json(menu);
   }
 }
