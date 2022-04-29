@@ -135,7 +135,7 @@ Cargar el archivo **CSV** [**libros.csv**](https://next.salud.gob.sv/index.php/s
 
 Antes de comenzar con la creación del controlador es necesario la creación de la modelo en la carpeta app/models.
 
-Posterior a la creación de la modelo, editar el archivo `Libro.mjs` que se encuentra en el directorio `app/models` y agregar al final de la clase la función `__toString` tal y como se muestra a continuación:
+Posterior a la creación de la modelo, editar el archivo `Libro.mjs` que se encuentra en el directorio `app/models` tal y como se muestra a continuación:
 
 **Libro.mjs**
 
@@ -189,28 +189,26 @@ Antes de comenzar con la creación de los métodos es necesario la creación del
 ```mjs
 import { Libro } from '../models/index.mjs';
 import HttpCode from '../../configs/httpCode.mjs';
-import UnprocessableEntityException from '../../handlers/UnprocessableEntityException.mjs';
-import BadRequestException from '../../handlers/BadRequestException.mjs';
 
 export default class LibroController {
-    //codigo
+    //...codigo
 }
 
 ```
 ## Creación Métodos REST
-Una vez ya configurado y ejecutándose la app, lo siguiente es crear los **endpoints** o métodos del servicio web que permitirá la interacción con el cliente, basándose en los [Estándares de Desarrollo de Servicios Web](https://github.com/klb-rodriguez/EstandaresInteroperabilidad/blob/master/Desarrollo.md) desarrollados por diferentes instituciones en coordinación con Gobierno Electrónico de El Salvador.
+Una vez ya configurado y ejecutándose la app, lo siguiente es crear los **endpoints** o métodos del servicio web que permitirá la interacción con el cliente.
 
-### get
+### GET
 Endpoint que permite listar todos los libros según los parámetros de búsqueda proporcionados.
 
-Editar el archivo `LibroController.php` que se encuentra dentro del directorio `app/LibroController` y agregar el código que se lista a continuación:
+Editar el archivo `LibroController.mjs` que se encuentra dentro del directorio `app/LibroController` y agregar el código que se lista a continuación:
 **LibroController.mjs**
 
 ```mjs
-//codigo
+//...codigo
 
 export default class LibroController {
-    //codigo
+    //...codigo
  static async index(req, res) {
     const libros = await Libro.findAll();
     return res.status(HttpCode.HTTP_OK).json(libros);
@@ -221,10 +219,9 @@ export default class LibroController {
 ### POST
 Enpoint que permite insertar libros a la base a través del servicio web.
 versión: **v1**
-uri: **/libros** (Lo crearemos luego)
 datos de entrada: **JSONs**
 dato de respuesta: **JSON**
-En el directorio `app/schemas` crear un directorio si no existiera llamado `schemas`, y además crear un archivo llamado **libroCreateSchema.mjs** el cual debe de contener las restricciones JSON que se han de utilizar para validar los datos entrantes como el siguiente código:
+En el directorio `app/schemas` crear un archivo llamado **libroCreateSchema.mjs** el cual debe de contener las restricciones de cada propiedad del objeto JSON de entrada para validar los datos entrantes como el siguiente código:
 **libroCreateSchema.mjs**
 ```mjs
 const libroCreateSchema = {
@@ -272,16 +269,16 @@ export default libroCreateSchema;
 
 ```
 
-Para más información ver la documentación oficial de [JsonSchema](https://json-schema.org/learn/getting-started-step-by-step.html)
+Para más información ver la documentación oficial de [Ajv JSON schema validator](https://ajv.js.org/)
 Editar el archivo `LibroController.mjs` que se encuentra dentro del directorio `app/controllers`, asegurarse de haber importado todas las librerías que se definieron en la sección de [Creación del controlador](#creación-del-controlador) de esta guía. Agregar el código que se lista a continuación:
 
 **LibroController.mjs**
 ```mjs
-//codigo
+//...codigo
 
 export default class LibroController {
    
-   //codigo
+   //...codigo
 
  static async store(req, res) {
    const { isbn, descripcion, autor, fecha_publicacion } = req.body;
@@ -299,7 +296,7 @@ export default class LibroController {
 ```
 
 ### Routes
-Ahora procedemos a crear las rutas de los controladores que hemos realizado, dentro del directorio `app/routes/api` crearemos un archivo llamado `libro.mjs`, y el codigo listado a continuación:
+Ahora procedemos a crear las rutas de los controladores que hemos desarrollado, dentro del directorio `app/routes/api` crearemos un archivo llamado `libro.mjs`, y el codigo listado a continuación:
 
 **libro.mjs**
 ```mjs
@@ -320,11 +317,146 @@ export default router;
 Ahora que tenemos la ruta procedemos a agregarlas en `api.mjs` ubicado en directorio `app/routes`, agregamos el codigo a continuación:
 
 ```mjs
-//codigo 
+//...codigo 
 import routesLbros from './api/libro.mjs';
 
 router.use('/v1/libros', [auth], routesLbros);
 ```
 
 ## Documentación Swagger
-Gracias a lasdafdwefiuaeuir
+
+Para desarrollar la documentación es necesario crear el archivo `libroSchema.yaml`, en el directorio `app/docs/swagger/schemas` con el que se definirá la estructura del `requestBody` o `responses`.
+
+```YAML
+type: object
+properties:
+  isbn:
+    type: string
+  descripcion:
+    type: string
+  autor:
+    type: string
+  fecha_publicacion:
+    type: string
+    format: date
+```
+
+Luego de crear el archivo anterior se declarará esta estructura en el archivo `schemas.yaml` situado en la ruta `app/docs/swagger/schemas` de la siguiente manera: 
+
+```YAML
+Libro:
+  $include: "libroSchema.yaml"
+```
+Posteriormente se creara el archivo `libro.yaml` en el directorio `app/docs/swagger/paths` y se definirá la documentación de cada endpoint de la siguiente manera: 
+
+```YAML
+/api/v1/libro:
+  post:
+    tags:
+      - libro
+    operationId: addLibro
+    requestBody:
+      description: Objeto libro que será agregado al servicio
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Libro"
+      required: true
+    responses:
+      201:
+        description: Libro agregado
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                isbn:
+                  type: string
+                descripcion:
+                  type: string
+                autor:
+                  type: string
+                fecha_publicacion:
+                  type: string
+                  format: date
+      400:
+        description: Bad Request
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      401:
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      403:
+        description: Not Found
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      500:
+        description: Internal Server Error
+        content:
+  x-codegen-request-body-name: body
+  get:
+    tags:
+      - libro
+    operationId: libros
+    produces:
+      - application/json
+    responses:
+      200:
+        description: Listado de libros
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                isbn:
+                  type: string
+                  example: '1000'
+                descripcion:
+                  type: string
+                  example: descripcion
+                autor:
+                  type: string
+                  example: autor
+                fecha_publicacion:
+                  type: string
+                  format: date
+                  example: '2022-01-01'
+      401:
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      403:
+        description: Not Found
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      500:
+        description: Internal Server Error
+        content:
+  area: api
+```
+
+Luego de crear el archivo `libro.yaml` se declarará la documentación desarrollada en el archivo `paths.yaml` situado en el directorio `app/docs/swagger/paths` de la siguiente manera: 
+```YAML
+$include: "libro.yaml"
+```
+
+Una vez concluidos todos los pasos anteriores, ejecutamos el siguiente comando en la terminal dentro del directorio raíz del proyecto para compilar el archivo `index.yaml`:
+
+```bash
+npm run swagger
+```
+
+Para acceder a la documentación nos aseguramos que el proyecto se esta ejecutando, e ingresamos a la ruta `http://localhost:8000/docs/`.
+
+Si deseamos agregar la colección a un API Client como por ejemplo [Insomnia](https://insomnia.rest/) ingresamos a la ruta `http://localhost:8000/api/doc.json` e importamos la respuesta al API Client.
