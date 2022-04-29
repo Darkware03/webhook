@@ -213,51 +213,51 @@ Este proyecto está bajo la <a rel="license" href="http://codigo.salud.gob.sv/pl
 
 **Manejo de Variables de Entorno**
 
-Las variables de entorno nos permiten administrar la configuración de nuestro sistema por separado de nuestro código base. Las configuraciones separadas facilitan la implementación de nuestra aplicación en diferentes entornos (desarrollo,producción).
+*Las variables de entorno nos permiten administrar la configuración de nuestro sistema por separado de nuestro código base. Las configuraciones separadas facilitan la implementación de nuestra aplicación en diferentes entornos (desarrollo,producción).*
 
- 				|	Variables |													| Descripción |
-
-| -----------------------------------:      | --------------------------------------------------------------------------------------------------------: |
-HOST=localhost 							                | Es el encargado de replicar servidores en un entorno local. 
-PORT=8000      					  	                | Es el puerto que se usara para la conexion local.
-APP_ENV=development						              | Es el entorno de desarrollo que se usara para la conexion local.
-DB_HOST=localhost							              | Es el host de la base de datos a la cual nuestro back end se conectara.
-DB_PORT=5432								                | Es el puerto de la base de datos.
-DB_DATABASE=api_nodes 						          | Es el nombre de la base de datos que hemos asignado, el cual va relacionado con el proyecto a desarrollar. 
-DB_USERNAME=admin							              | Es el nombre de usuario de la base de datos
-DB_PASSWORD=admin                           | Es la contraseña de la base de datos.
-SECRET_KEY=clave_secreta                    | Es la clave secreta para encriptar las cookies.
-APP_DEBUG=true                              | Es el modo de depuración de la aplicación.
-JWT_EXPIRATION_TIME=60m                     | Es el tiempo de expiración del token de acceso en minutos. 
-REFRESH_EXPIRATION_TYPE=h                   | Es el tipo de expiración del token de refresco, puede ser h, d, m, y.
-REFRESH_EXPIRATION_TIME=2                   | Es el tiempo de expiración del token de refresco segun el tipo espicificado en la variable anterior.
-REFRESH_TOKEN_INVALID_EXPIRATION_TYPE=s     | Es utilizado para evitar una excepcion de expiración cuando se encuentre peticiones en cola. 
-REFRESH_TOKEN_INVALID_EXPIRATION_TIME=4	    | Es el tiempo de expiración especificado en el variable anterior.	
-MONGOOSE_USERNAME = admin				        	  | Es el nombre de usuario de la base de datos de mongo.  			
-MONGOOSE_PASSWORD = admin				        	  | Es la contraseña de la base de datos de mongo.  
-MONGOOSE_HOST= 10.168.241.53			        	| Es el host de la base de datos de mongo. 	
-MONGOOSE_PORT= 27017						            | Es el puerto de la base de datos de mongo. 
-MONGOSE_DATABASE = plantilla_node		    	  | Es el nombre de la base de datos de mongo.
+ 				  | Variables| Descripción|  
+| ----------- | -----------|
+|host=localhost 	                     |Es el encargado de replicar servidores en un entorno local.
+|PORT=8000                               |Es el puerto que se usara para la conexion local.
+|APP_ENV=development                     | Es el entorno de desarrollo que se usara para la conexion local.
+| DB_HOST=localhost                      |Es el host de la base de datos a la cual nuestro back end se conectara.
+|DB_PORT=5432    			             |Es el puerto de la base de datos.
+|DB_DATABASE=api_nodes                   | Es el nombre de la base de datos que hemos asignado, el cual va relacionado con el proyecto a desarrollar. 
+|DB_USERNAME=admin       	             | Es el nombre de usuario de la base de datos
+|DB_PASSWORD=admin      	             | Es la contraseña de la base de datos.
+|SECRET_KEY=clave_secreta                | Es la clave secreta para encriptar las cookies.
+|APP_DEBUG=true                          | Es el modo de depuración de la aplicación.
+|JWT_EXPIRATION_TIME=60m                 | Es el tiempo de expiración del token de acceso en minutos. 
+|REFRESH_EXPIRATION_TYPE=h               |  Es el tipo de expiración del token de refresco, puede ser h, d, m, y.
+|REFRESH_EXPIRATION_TIME=2               | Es el tiempo de expiración del token de refresco segun el tipo espicificado en la variable anterior.
+|REFRESH_TOKEN_INVALID_EXPIRATION_TYPE=s | Es utilizado para evitar una excepcion de expiración cuando se encuentre peticiones en cola.
+|REFRESH_TOKEN_INVALID_EXPIRATION_TIME=4 | Es el tiempo de expiración especificado en el variable anterior.
+|MONGOOSE_USERNAME = admin	             | Es el nombre de usuario de la base de datos de mongo.
+|MONGOOSE_PASSWORD = admin	             | Es la contraseña de la base de datos de mongo.
+|MONGOOSE_HOST= 10.168.241.53            | Es el host de la base de datos de mongo.
+|MONGOOSE_PORT= 27017                    | Es el puerto de la base de datos de mongo.
+|MONGOSE_DATABASE = plantilla_nod        | Es el nombre de la base de datos de mongo.
 
 
 
 **Package.json**
 
- Este archivo contiene la información del paquete incluyendo la descripción del mismo, versión, autor y más importante aún dependencias de terceros.
+ *Este archivo contiene la información del paquete incluyendo la descripción del mismo, versión, autor y más importante aún dependencias de terceros.*
 
-**npm** (Node Package Manage):es un gestor de paquetes utilizado en NodeJS, es decir, sirve para instalar y gestionar versiones de paquetes y librerías que seran utilizados en proyectos Node.js.
+ `npm ` *(Node Package Manage):es un gestor de paquetes utilizado en NodeJS, es decir, sirve para instalar y gestionar versiones de paquetes y librerías que seran utilizados en proyectos Node.js.*
 
-el comando  `npm run` sera el encargado de la ajecucion de los paquetes . 
+*El comando  `npm run` sera el encargado de la ajecucion de los paquetes.*
 
 
+| Paquetes requeridos |  Descripción|  
+| ----------- | -----------|
+|"test"                    |Es el comando para ejecutar los tests
+|"tdd"                     |Es el comando para ejecutar los tests de desarrollo
+|"swagger"                 |Es el comando para generar el swagger de la API 
+|"migration:generate"      |Es el comando para generar migraciones de la base de datos
+|"migration:run"           |Es el comando para ejecutar migraciones de la base de datos
+|"migration:revert"        |Es el comando para revertir migraciones de la base de datos	
+|"migration:delete"        |Es el comando para eliminar migraciones de la base de datos
+|"seed: run:all"           |Es el comando para ejecutar todos los seeders de la base de datos 
 
-  Paquetes requeridos                           Descripción
-| -----------------------:      | --------------------------------------- |
-	  "test":                     | Es el comando para ejecutar los tests
-    "tdd":                      | Es el comando para ejecutar los tests de desarrollo
-    "swagger":                  | Es el comando para generar el swagger de la API 
-    "migration:generate":       | Es el comando para generar migraciones de la base de datos					
-    "migration:run":            | Es el comando para ejecutar migraciones de la base de datos
-    "migration:revert":         | Es el comando para revertir migraciones de la base de datos	
-    "migration:delete":         | Es el comando para eliminar migraciones de la base de datos
-    "seed:run:all":             | Es el comando para ejecutar todos los seeders de la base de datos 
+
