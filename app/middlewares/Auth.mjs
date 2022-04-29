@@ -26,10 +26,10 @@ const Auth = async (req, res, next) => {
 
     if (usuario.is_suspended) throw new NoAuthException();
 
-    if (fechaValidacionToken >= fechaCreacionToken) {
+    if (fechaValidacionToken > fechaCreacionToken) {
       throw new NoAuthException();
     }
-    if (!usuario.two_factor_status && process.env.DISABLE_TWO_FACTOR_AUTH==='false') throw new NoAuthException();
+    if (!usuario.two_factor_status && process.env.DISABLE_TWO_FACTOR_AUTH === 'false') throw new NoAuthException();
     req.usuario = usuario;
     next();
   } catch (err) {
