@@ -199,23 +199,11 @@ Como parte de esta plantilla se brinda una guía de inicio rápido para la creac
 
 
 
-
-## Licencia
-
-
-
-<a rel="license" href="https://www.gnu.org/licenses/gpl-3.0.en.html"><img alt="Licencia GNU GPLv3" style="border-width:0" src="https://next.salud.gob.sv/index.php/s/qxdZd5iwcqCyJxn/preview" width="96" /></a>
-
-
-
-Este proyecto está bajo la <a rel="license" href="http://codigo.salud.gob.sv/plantillas/api-rest-admin/blob/master/LICENSE">licencia GNU General&nbsp;Public&nbsp;License&nbsp;v3.0</a>
-
-
 **Manejo de Variables de Entorno**
 
 *Las variables de entorno nos permiten administrar la configuración de nuestro sistema por separado de nuestro código base. Las configuraciones separadas facilitan la implementación de nuestra aplicación en diferentes entornos (desarrollo,producción).*
 
- 				  | Variables| Descripción|  
+| Variables| Descripción|  
 | ----------- | -----------|
 |host=localhost 	                     |Es el encargado de replicar servidores en un entorno local.
 |PORT=8000                               |Es el puerto que se usara para la conexion local.
@@ -251,13 +239,24 @@ Este proyecto está bajo la <a rel="license" href="http://codigo.salud.gob.sv/pl
 
 | Paquetes requeridos |  Descripción|  
 | ----------- | -----------|
-|"test"                    |Es el comando para ejecutar los tests
-|"tdd"                     |Es el comando para ejecutar los tests de desarrollo
-|"swagger"                 |Es el comando para generar el swagger de la API 
-|"migration:generate"      |Es el comando para generar migraciones de la base de datos
-|"migration:run"           |Es el comando para ejecutar migraciones de la base de datos
-|"migration:revert"        |Es el comando para revertir migraciones de la base de datos	
-|"migration:delete"        |Es el comando para eliminar migraciones de la base de datos
-|"seed: run:all"           |Es el comando para ejecutar todos los seeders de la base de datos 
+|"test"                    |Es el comando para ejecutar los tests.
+|"tdd"                     |Es el comando para ejecutar los tests de desarrollo.
+|"swagger"                 |Es el comando para generar el swagger de la API.
+|"migration:generate"      |Es el comando para generar migraciones de la base de datos.
+|"migration:run"           |Es el comando para ejecutar migraciones de la base de datos.
+|"migration:revert"        |Es el comando para revertir migraciones de la base de datos.	
+|"migration:delete"        |Es el comando para eliminar migraciones de la base de datos.
+|"seed: run:all"           |Es el comando para ejecutar todos los seeders de la base de datos. 
 
+
+
+## Licencia
+
+
+
+<a rel="license" href="https://www.gnu.org/licenses/gpl-3.0.en.html"><img alt="Licencia GNU GPLv3" style="border-width:0" src="https://next.salud.gob.sv/index.php/s/qxdZd5iwcqCyJxn/preview" width="96" /></a>
+
+
+
+Este proyecto está bajo la <a rel="license" href="http://codigo.salud.gob.sv/plantillas/api-rest-admin/blob/master/LICENSE">licencia GNU General&nbsp;Public&nbsp;License&nbsp;v3.0</a>
 
