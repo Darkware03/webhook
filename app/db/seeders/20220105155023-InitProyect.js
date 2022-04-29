@@ -120,27 +120,11 @@ module.exports = {
           /**
                      * ROLES PARA EL ADMIN
                      * */
-          { name: 'ROLE_ADMIN_DASHBOARD_VIEW', id_tipo_rol: admin.id },
-          // Roles de perfil
-          { name: 'ROLE_ADMIN_PROFILE_LIST', id_tipo_rol: admin.id },
-          { name: 'ROLE_ADMIN_PROFILE_CREATE', id_tipo_rol: admin.id },
-          { name: 'ROLE_ADMIN_PROFILE_UPDATE', id_tipo_rol: admin.id },
           { name: 'ROLE_ADMIN_PROFILE_DELETE', id_tipo_rol: admin.id },
-          // Roles de rol :(
-          { name: 'ROLE_ADMIN_ROLE_LIST', id_tipo_rol: admin.id },
-          { name: 'ROLE_ADMIN_ROLE_CREATE', id_tipo_rol: admin.id },
-          { name: 'ROLE_ADMIN_ROLE_UPDATE', id_tipo_rol: admin.id },
           { name: 'ROLE_ADMIN_ROLE_DELETE', id_tipo_rol: admin.id },
-          // Roles de ruta
-          { name: 'ROLE_ADMIN_PATH_LIST', id_tipo_rol: admin.id },
-          { name: 'ROLE_ADMIN_PATH_CREATE', id_tipo_rol: admin.id },
-          { name: 'ROLE_ADMIN_PATH_UPDATE', id_tipo_rol: admin.id },
           { name: 'ROLE_ADMIN_PATH_DELETE', id_tipo_rol: admin.id },
-          // Roles de Usuario
-          { name: 'ROLE_ADMIN_USER_LIST', id_tipo_rol: admin.id },
-          { name: 'ROLE_ADMIN_USER_CREATE', id_tipo_rol: admin.id },
-          { name: 'ROLE_ADMIN_USER_UPDATE', id_tipo_rol: admin.id },
           { name: 'ROLE_ADMIN_USER_DELETE', id_tipo_rol: admin.id },
+          { name: 'ROLE_ADMIN_ROLE_UPDATE', id_tipo_rol: admin.id },
         ],
         {
           returning: ['id'],
@@ -148,7 +132,36 @@ module.exports = {
         },
       );
 
-      await queryInterface.bulkInsert(
+      /**
+             * ROLES PARA LAS RUTAS DEL ADMIN
+             * */
+      const ROLES_RUTAS_ADMIN = await queryInterface.bulkInsert(
+        'mnt_rol',
+        [
+          { name: 'ROLE_ADMIN_DASHBOARD_VIEW', id_tipo_rol: admin.id },
+          // Roles de perfil
+          { name: 'ROLE_ADMIN_PROFILE_LIST', id_tipo_rol: admin.id },
+          { name: 'ROLE_ADMIN_PROFILE_CREATE', id_tipo_rol: admin.id },
+          { name: 'ROLE_ADMIN_PROFILE_UPDATE', id_tipo_rol: admin.id },
+          // Roles de rol :(
+          { name: 'ROLE_ADMIN_ROLE_LIST', id_tipo_rol: admin.id },
+          { name: 'ROLE_ADMIN_ROLE_CREATE', id_tipo_rol: admin.id },
+          // Roles de ruta
+          { name: 'ROLE_ADMIN_PATH_LIST', id_tipo_rol: admin.id },
+          { name: 'ROLE_ADMIN_PATH_CREATE', id_tipo_rol: admin.id },
+          { name: 'ROLE_ADMIN_PATH_UPDATE', id_tipo_rol: admin.id },
+          // Roles de Usuario
+          { name: 'ROLE_ADMIN_USER_LIST', id_tipo_rol: admin.id },
+          { name: 'ROLE_ADMIN_USER_CREATE', id_tipo_rol: admin.id },
+          { name: 'ROLE_ADMIN_USER_UPDATE', id_tipo_rol: admin.id },
+        ],
+        {
+          returning: ['id'],
+          transaction: TRANSACTION,
+        },
+      );
+
+      const RUTAS = await queryInterface.bulkInsert(
         'mnt_ruta',
         [
           {
@@ -160,26 +173,6 @@ module.exports = {
             orden: 1,
             publico: false,
             admin: true,
-          },
-          {
-            nombre: 'perfil',
-            uri: '/perfil',
-            nombre_uri: 'perfil',
-            mostrar: false,
-            icono: 'mdi-account-lock',
-            orden: null,
-            publico: true,
-            admin: true,
-          },
-          {
-            nombre: 'seguridad',
-            uri: '/seguridad',
-            nombre_uri: 'seguridad',
-            mostrar: false,
-            icono: null,
-            orden: null,
-            publico: false,
-            admin: false,
           },
           {
             nombre: 'perfiles',
@@ -212,11 +205,21 @@ module.exports = {
             admin: true,
           },
           {
-            nombre: 'perfiles',
-            uri: '/perfiles/edit',
-            nombre_uri: 'perfilesEdit',
+            nombre: 'roles',
+            uri: '/roles/list',
+            nombre_uri: 'rolesList',
+            mostrar: true,
+            icono: 'mdi-account-group',
+            orden: null,
+            publico: false,
+            admin: true,
+          },
+          {
+            nombre: 'roles',
+            uri: '/roles/create',
+            nombre_uri: 'rolesCreate',
             mostrar: false,
-            icono: 'mdi-account',
+            icono: 'mdi-account-multiple-plus',
             orden: null,
             publico: false,
             admin: true,
@@ -282,24 +285,24 @@ module.exports = {
             admin: true,
           },
           {
-            nombre: 'roles',
-            uri: '/roles/list',
-            nombre_uri: 'rolesList',
-            mostrar: true,
-            icono: 'mdi-account-group',
+            nombre: 'perfil',
+            uri: '/perfil',
+            nombre_uri: 'perfil',
+            mostrar: false,
+            icono: 'mdi-account-lock',
             orden: null,
             publico: false,
             admin: true,
           },
           {
-            nombre: 'roles',
-            uri: '/roles/create',
-            nombre_uri: 'rolesCreate',
+            nombre: 'seguridad',
+            uri: '/seguridad',
+            nombre_uri: 'seguridad',
             mostrar: false,
-            icono: 'mdi-account-multiple-plus',
+            icono: null,
             orden: null,
             publico: false,
-            admin: true,
+            admin: false,
           },
         ],
         {
@@ -311,11 +314,23 @@ module.exports = {
       // ASIGNAR ROLES AL PERFIL ADMIN
       await queryInterface.bulkInsert(
         'mnt_perfil_rol',
-        ROLES.map((role) => ({
+        ROLES.concat(ROLES_RUTAS_ADMIN).map((role) => ({
           id_perfil: PROFILE.id,
           id_rol: role.id,
         })),
         {
+          transaction: TRANSACTION,
+        },
+      );
+
+      await queryInterface.bulkInsert(
+        'mnt_ruta_rol',
+        ROLES_RUTAS_ADMIN.map((role, index) => ({
+          id_ruta: RUTAS[index].id,
+          id_rol: role.id,
+        })),
+        {
+          returning: ['id'],
           transaction: TRANSACTION,
         },
       );
@@ -351,11 +366,13 @@ module.exports = {
 
     await Promise.all([
       queryInterface.bulkDelete('mnt_usuario_perfil', null, {}),
+      queryInterface.bulkDelete('mnt_ruta_rol', null, {}),
       queryInterface.bulkDelete('mnt_perfil_rol', null, {}),
       queryInterface.bulkDelete('mnt_ruta', null, {}),
       queryInterface.bulkDelete('mnt_rol', null, {}),
       queryInterface.bulkDelete('ctl_tipo_rol', null, {}),
       queryInterface.bulkDelete('mnt_metodo_autenticacion_usuario', null, {}),
+      queryInterface.bulkDelete('refresh_tokens', null, {}),
       queryInterface.bulkDelete('mnt_usuario', null, {}),
       queryInterface.bulkDelete('mnt_metodo_autenticacion', null, {}),
       queryInterface.bulkDelete('mnt_perfil', null, {}),
