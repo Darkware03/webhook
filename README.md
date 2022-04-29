@@ -69,42 +69,30 @@ URI: **`/api/v1/login`**
 
 **Headers:**
 
-| Parámetro | Descripción |
-
-| -----------------------------------: | -------------------------------------------------------------------------------------------------------- |
-
-| `Content-type` <br />_semi-opcional_ | Parámetro que le indica al servidor que tipo de contenido es enviado, valor a enviar: `application/json` |
-
+| Parámetro| Descripción|
+| ----------- | -----------|
+|`Content-type` _semi-opcional_ | Parámetro que le indica al servidor que tipo de contenido es enviado, valor a enviar: `application/json`
 
 **Query String:**
 
-> No se requiere ningún parámetro de búsqueda.
+>No se requiere ningún parámetro de búsqueda.
+
 
 **Body: **
 
-Formato: **`JSON`**
-
 | Parámetro | Descripción |
+| ----------- | -----------|
+| `username` _requerido_ | Nombre de usuario con el que se iniciará sesión para obtener el token. |
+| `password` _requerido_ | Contraseña con el que se iniciará sesión para obtener el token. |
 
-| ---------------------------: | ---------------------------------------------------------------------- |
-
-| `username` <br />_requerido_ | Nombre de usuario con el que se iniciará sesión para obtener el token. |
-
-| `password` <br />_requerido_ | Contraseña con el que se iniciará sesión para obtener el token. |
-
+Formato:  **`JSON`**
 
 
 ```json
-
 {
-
 "username": "username",
-
 "password": "passwrod"
-
 }
-
-```
 
 
 
@@ -137,21 +125,14 @@ HTTP 200 OK
 
 
 
-| Código | Descripción |
-
-| -------------------------------: | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-
-| `200`<br />OK | Implica que la petición fue completada exitosamente |
-
-| `400`<br />Bad Request | Implica que hubo un error en la petición, <br />esto puede darse debido a que alguno de los parámetros<br />requeridos de Encabezado o Query String no ha sido proporcionado. |
-
-| `401`<br />Unauthorized | Implica que los datos de acceso son erróneo o que no se posee<br />privilegio para acceder al recurso. |
-
-| `403`<br />Forbidden | Implica que no ha sido posible procesar la operación. |
-
-| `422`<br />Unproccesable Entity | Implica que no ha sido posible procesar la operación. |
-
-| `500`<br />Internal Server Error | Indica que hubo un error interno dentro de la API. |
+| Código                            | Descripción |
+| -----------                       | -----------|
+| `200` OK                          | *Implica que la petición fue completada exitosamente* |
+| `400` Bad Request                 |*Implica que hubo un error en la petición, esto puede darse debido a que alguno de los parámetros requeridos de Encabezado o Query String no ha sido proporcionado.*                |
+| `401` Unauthorized                |*Implica que los datos de acceso son erróneo o que no se posee privilegio para acceder al recurso.*|
+| `403`  Forbidden                  | *Implica que no ha sido posible procesar la operación.* |
+| `422`  Unproccesable Entity       | *Implica que no ha sido posible procesar la operación.* |
+| `500`  Internal Server Error      | *Indica que hubo un error interno dentro de la API.* |
 
 
 
@@ -213,7 +194,7 @@ Como parte de esta plantilla se brinda una guía de inicio rápido para la creac
 |DB_DATABASE=api_nodes                   | Es el nombre de la base de datos que hemos asignado, el cual va relacionado con el proyecto a desarrollar. 
 |DB_USERNAME=admin       	             | Es el nombre de usuario de la base de datos
 |DB_PASSWORD=admin      	             | Es la contraseña de la base de datos.
-|SECRET_KEY=clave_secreta                | Es la clave secreta para encriptar las cookies.
+|SECRET_KEY=clave_secreta                | Es la clave secreta para encriptar.
 |APP_DEBUG=true                          | Es el modo de depuración de la aplicación.
 |JWT_EXPIRATION_TIME=60m                 | Es el tiempo de expiración del token de acceso en minutos. 
 |REFRESH_EXPIRATION_TYPE=h               |  Es el tipo de expiración del token de refresco, puede ser h, d, m, y.
@@ -232,9 +213,9 @@ Como parte de esta plantilla se brinda una guía de inicio rápido para la creac
 
  *Este archivo contiene la información del paquete incluyendo la descripción del mismo, versión, autor y más importante aún dependencias de terceros.*
 
- `npm ` *(Node Package Manage):es un gestor de paquetes utilizado en NodeJS, es decir, sirve para instalar y gestionar versiones de paquetes y librerías que seran utilizados en proyectos Node.js.*
+ `npm ` *(Node Package Manage):es un gestor de paquetes utilizado en NodeJS, es decir, sirve para instalar y gestionar versiones de paquetes y librerías que serán utilizados en proyectos Node.js.*
 
-*El comando  `npm run` sera el encargado de la ajecucion de los paquetes.*
+*El comando  `npm run` sera el encargado de la ajecución de los paquetes.*
 
 
 | Paquetes requeridos |  Descripción|  
