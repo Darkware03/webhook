@@ -260,4 +260,4 @@ el comando  `npm run` sera el encargado de la ajecucion de los paquetes .
     "migration:run":            | Es el comando para ejecutar migraciones de la base de datos
     "migration:revert":         | Es el comando para revertir migraciones de la base de datos	
     "migration:delete":         | Es el comando para eliminar migraciones de la base de datos
-    "seed:run:all":             | Es el comando para ejecutar todos los seeders de la base de datos
+    "seed:run:all":             | Es el comando para ejecutar todos los seeders de la base de datos 
