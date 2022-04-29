@@ -12,24 +12,13 @@ A continuación se muestra la guía para la instalación de la plantilla para un
 
 - [Requisitos](#requisitos)
   - [Software](#1-software)
-  - [Sistema Operativo](#2-sistema-operativo)
-- [Instalación del Sistema](#instalación-de-la-aplicación)
-  - [Preparación del servidor](#1-preparación-del-servidor)
-    - [Configuración de repositorios Debian](#11-configuración-de-repositorios-debian)
-    - [Instalación de Docker](#12-instalación-de-docker)
-    - [Instalación de Docker-Compose](#13-instalación-de-docker-compose)
-  - [Instalación y configuración del Sistema](#2-instalación-y-configuración-del-sistema)
-    - [Clonación del proyecto](#21-clonación-del-proyecto)
-    - [Instalación de vendors](#22-instalación-de-vendors)
-    - [Configurar la conexión a la base de datos](#23-configurar-las-conexiones-a-la-base-de-datos)
-    - [Creación del esquema](#24-creación-del-esquema)
-    - [Generar SSH Keys](#25-generar-ssh-keys)
-    - [Brindar permisos directorios cache y logs](#26-brindar-permisos-directorios-cache-y-logs)
-    - [Compilado de assets](#27-compilado-de-assets)
-    - [Limpiar cache y assets](#28-limpiar-cache-y-assets)
-    - [Creación del usuario inicial](#29-creación-del-usuario-inicial)
-    - [Creación del VirtualHost](#210-creación-del-virtualhost)
-    - [Pruebas de acceso a la api](#211-pruebas-de-acceso-a-la-api)
+- [Instalación del aplicación](#instalación-de-la-aplicación)
+  - [Instalación y configuración de la plantilla](#1-instalación-y-configuración-de-la-plantilla)
+    - [Clonación del proyecto](#11-clonación-del-proyecto)
+    - [Instalación de modules](#12-instalación-de-modules)
+    - [Configurar la conexión a la base de datos](#13-configurar-las-conexiones-a-la-base-de-datos)
+    - [Ejecución de migraciones](#14-ejecución-de-migraciones)
+    - [Pruebas de acceso a la API](#15-pruebas-de-acceso-a-la-api)
 
 ## Requisitos
 
@@ -49,7 +38,7 @@ Para el consumo de la API es necesario que cliente se conecte a través del prot
 
 En esta sección se brinda una serie de pasos a seguir para la instalación del software, como se ha mencionado anteriormente, la instalación se realizará bajo el entorno del Sistema Operativo Linux.
 
-### 1 Instalación y configuración de la Plantilla
+### 1 Instalación y configuración de la plantilla
 
 A continuación se listan los pasos para la instalación y configuración de la API-REST:
 
@@ -61,7 +50,7 @@ Clonar el proyecto desde los repositorios oficiales ejecutando el siguiente coma
 git clone http://codigo.salud.gob.sv/plantillas/JavasScript/api-node-express.git
 ```
 
-#### 1.2 Instalación de vendors
+#### 1.2 Instalación de modules
 
 Instalar los modules en el directorio raíz del proyecto ejecutando el siguiente comando:
 
@@ -90,10 +79,6 @@ DB_PASSWORD=admin
 ```
 
 #### 1.4 Ejecución de migraciones
-Ejecutar el siguiente comando para iniciar el servidor nodemon:
-```bash
-npm run start
-```
 Crear el esquema de la base de datos segun las migraciones con el siguiente comando:
 ```bash
 npm run migration:run
@@ -103,7 +88,7 @@ Ejecutar los seeders para poblar la base de datos para configurar roles, perfile
 ```bash
 npm run seed:run:all
 ```
-Luego de realizar los pasos anteriores iniciar el servidor a través del comando:
+Luego de realizar los pasos anteriores iniciar el proyecto a través del comando:
 ```bash
 npm run start
 ```
