@@ -76,7 +76,7 @@ describe('Inicializando pruebas para /api/v1/roles', () => {
       })
       .set('Authorization', `Bearer ${token}`)
       .then((response) => {
-        console.log(`hola ${response}`);
+        console.log(`hola ${response.body}`);
         expect(response).to.have.status(201);
         done();
       })

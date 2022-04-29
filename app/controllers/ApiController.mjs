@@ -312,10 +312,21 @@ export default class ApiController {
         'El refresh token porporcionado no es valido',
       );
     }
+
+    const { Usuario: usuario } = refreshTokenExist;
+
+    const userDatatoken = {
+      id: usuario.id,
+      username: usuario.username,
+      last_login: usuario.last_login,
+      two_factor_status: usuario.two_factor_status,
+    };
+
     const token = await Auth.createToken({
       id: refreshTokenExist.Usuario.id,
       email: refreshTokenExist.Usuario.email,
       roles,
+      user: userDatatoken,
     });
 
     const newRefreshToken = await Auth.refresh_token(refreshTokenExist.Usuario);
@@ -328,18 +339,7 @@ export default class ApiController {
         .tz('America/El_Salvador')
         .format(),
     });
-    await Usuario.update(
-      {
-        token_valid_after: moment()
-          .add(
-            process.env.REFRESH_TOKEN_INVALID_EXPIRATION_TIME,
-            process.env.REFRESH_TOKEN_INVALID_EXPIRATION_TYPE,
-          )
-          .tz('America/El_Salvador')
-          .format(),
-      },
-      { where: { id: refreshTokenExist.Usuario.id } },
-    );
+
     return res.status(HttpCode.HTTP_OK).json({
       token,
       refresh_token: newRefreshToken,
