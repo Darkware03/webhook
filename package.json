@@ -9,7 +9,6 @@
   "scripts": {
     "start": "nodemon app.mjs",
     "start:test": "export APP_ENV=test&& nodemon app.mjs",
-    "start:prod": "export APP_ENV=prod&& nodemon app.mjs",
     "serve": "webpack --config webpack.config.js",
     "build": "webpack --config webpack.config.build.js",
     "test": "mocha --u bdd tests/**/*.spec.mjs",
