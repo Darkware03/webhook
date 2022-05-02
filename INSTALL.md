@@ -93,6 +93,11 @@ Luego de realizar los pasos anteriores iniciar el proyecto a través del comando
 npm run start
 ```
 
+Para iniciar el proyecto en un entorno de test creamos un archivo de entorno a partir de `.env.example` con el nombre `.env.test` y ejecutamos el siguiente comando:
+```bash
+npm run start:test
+```
+
 #### 1.5 Pruebas de acceso a la API
 
 Una vez realizado los pasos anteriores puede realizar las pruebas de acceso, para ello puede acceder a la documentación de la **[forma de uso](README.md#forma-de-uso)** del **[README.md](README.md)**
