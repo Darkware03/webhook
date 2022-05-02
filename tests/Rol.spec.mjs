@@ -75,7 +75,7 @@ describe('Inicializando pruebas para /api/v1/roles', () => {
       .post('/api/v1/roles')
       .send({
         name: 'ROL_PRUEBaaa22',
-        idTipoRol: 28,
+        idTipoRol: 1,
       })
       .set('Authorization', `Bearer ${token}`)
       .then((response) => {
@@ -93,8 +93,7 @@ describe('Inicializando pruebas para /api/v1/roles', () => {
       .post('/api/v1/roles')
       .send({
         nam: 'ROL_PRUEBaaa',
-        idTipoRol: 28,
-        roles: [385, 386, 387, 388, 389],
+        idTipoRol: 1,
       })
       .set('Authorization', `Bearer ${token}`)
       .then((response) => {
@@ -112,7 +111,7 @@ describe('Inicializando pruebas para /api/v1/roles', () => {
       .put(`/api/v1/roles/${idPrueba}`)
       .send({
         name: 'ROL_PRUEBA',
-        idTipoRol: 28,
+        idTipoRol: 1,
       })
       .set('Authorization', `Bearer ${token}`)
       .then((response) => {

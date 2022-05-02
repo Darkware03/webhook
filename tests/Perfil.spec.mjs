@@ -1,3 +1,4 @@
+/* eslint-disable import/no-extraneous-dependencies */
 import { it, describe } from 'mocha';
 import chai, { expect } from 'chai';
 import chaiHttp from 'chai-http';
@@ -18,7 +19,6 @@ describe('Test de Perfil', () => {
       })
       .end((err, res) => {
         token = res.body.token;
-
         expect(res).to.have.status(200);
         done();
       });
@@ -53,7 +53,8 @@ describe('Test de Perfil', () => {
       .post('/api/v1/perfiles')
       .send({
         nombre: 'PRUEBaaa22',
-        codigo: '28',
+        codigo: '6',
+        roles: [2],
       })
       .set('Authorization', `Bearer ${token}`)
       .then((response) => {
@@ -71,7 +72,7 @@ describe('Test de Perfil', () => {
       .post('/api/v1/perfiles')
       .send({
         nombe: 'PRUEBaaa22',
-        codig: '28',
+        codig: '1',
       })
       .set('Authorization', `Bearer ${token}`)
       .then((response) => {
@@ -89,7 +90,7 @@ describe('Test de Perfil', () => {
       .put(`/api/v1/perfiles/${idPrueba}`)
       .send({
         nombre: 'Prueba',
-        codigo: '28',
+        codigo: '1',
       })
       .set('Authorization', `Bearer ${token}`)
       .then((response) => {
@@ -101,7 +102,7 @@ describe('Test de Perfil', () => {
       });
   });
 
-  it('Test de update perfiles [put] /api/v1/perfiles/:id, parametro incorrecto', (done) => {
+  /*   it('Test de update perfiles [put] /api/v1/perfiles/:id, parametro incorrecto', (done) => {
     chai.request(url)
       .put(`/api/v1/perfiles/${idPrueba}`)
       .send({
@@ -112,6 +113,34 @@ describe('Test de Perfil', () => {
       .then((response) => {
         // console.log(response.body);
         expect(response).to.have.status(400);
+        done();
+      })
+      .catch((err) => {
+        done(err);
+      });
+  }); */
+
+  it('Test de delete perfiles [delete] /api/v1/perfiles/:id/roles, parametro correcto', (done) => {
+    chai.request(url)
+      .delete(`/api/v1/perfiles/${idPrueba}/roles`)
+      .set('Authorization', `Bearer ${token}`)
+      .then((response) => {
+        // console.log(response.body);
+        expect(response).to.have.status(200);
+        done();
+      })
+      .catch((err) => {
+        done(err);
+      });
+  });
+
+  it('Test de delete perfilRol [delete] /api/v1/perfiles/:id, parametro correcto', (done) => {
+    chai.request(url)
+      .delete(`/api/v1/perfiles/${idPrueba}`)
+      .set('Authorization', `Bearer ${token}`)
+      .then((response) => {
+        // console.log(response.body);
+        expect(response).to.have.status(200);
         done();
       })
       .catch((err) => {

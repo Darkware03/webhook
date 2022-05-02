@@ -149,7 +149,7 @@ export default class PerfilController {
 
   static async destroyPerfilRol(req, res) {
     const { id_perfil: idPerfil } = req.params;
-
+    console.log('HOla', idPerfil);
     if (Number.isNaN(idPerfil)) {
       throw new UnprocessableEntityException(
         'El parametro no es un id válido',
