@@ -18,7 +18,6 @@ describe('Inicializando pruebas para /api/v1/usuarios', () => {
         })
         .end((err, res) => {
           token = res.body.token;
-          // console.log(token);
           expect(res).to.have.status(200);
           done();
         });
@@ -47,7 +46,6 @@ describe('Inicializando pruebas para /api/v1/usuarios', () => {
           password: 'admin',
         })
         .end((err, res) => {
-          // console.log(res.body);
           expect(res).to.have.status(400);
           done();
         });
@@ -161,7 +159,7 @@ describe('Inicializando pruebas para /api/v1/usuarios', () => {
         .send({
           email: 'admin2@salud.gob.sv',
           password: 'admin',
-          roles: [2],
+          roles: [394],
         })
         .set('Authorization', `Bearer ${token}`)
         .then((response) => {
@@ -267,6 +265,18 @@ describe('Inicializando pruebas para /api/v1/usuarios', () => {
         .set('Authorization', `Bearer ${token}`)
         .then((response) => {
           expect(response).to.have.status(403);
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
+    it('Test de delete user [delete] /api/v1/users/:id, caso exitoso', (done) => {
+      chai.request(url)
+        .delete('/api/v1/users/10')
+        .set('Authorization', `Bearer ${token}`)
+        .then((response) => {
+          expect(response).to.have.status(200);
           done();
         })
         .catch((err) => {

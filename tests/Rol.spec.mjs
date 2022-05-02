@@ -20,34 +20,17 @@ describe('Inicializando pruebas para /api/v1/roles', () => {
         password: 'admin',
       })
       .end((err, res) => {
-        // console.log(res.body.token);
         token = res.body.token;
 
         expect(res).to.have.status(200);
         done();
       });
   });
-  /*
-  it('Test de get usuarios [get] /api/v1/users, caso de error: sin rol asignado', (done) => {
-    chai.request(url)
-      .get('/api/v1/users')
-      .set('Authorization', `Bearer ${token}`)
-      .then((response) => {
-        // console.log(response.body);
-        expect(response).to.have.status(403);
-        done();
-      })
-      .catch((err) => {
-        done(err);
-      });
-  });
-  */
   it('Test de get roles [get] /api/v1/roles, caso exitoso', (done) => {
     chai.request(url)
       .get('/api/v1/roles')
       .set('Authorization', `Bearer ${token}`)
       .then((response) => {
-        // console.log(response.body);
         expect(response).to.have.status(200);
         done();
       })
@@ -61,7 +44,6 @@ describe('Inicializando pruebas para /api/v1/roles', () => {
       .get('/api/v1/roles/55')
       .set('Authorization', `Bearer ${token}`)
       .then((response) => {
-        // console.log(response.body);
         expect(response).to.have.status(200);
         done();
       })
@@ -97,7 +79,6 @@ describe('Inicializando pruebas para /api/v1/roles', () => {
       })
       .set('Authorization', `Bearer ${token}`)
       .then((response) => {
-        // console.log(response.body.data);
         expect(response).to.have.status(400);
         done();
       })
@@ -131,7 +112,6 @@ describe('Inicializando pruebas para /api/v1/roles', () => {
       })
       .set('Authorization', `Bearer ${token}`)
       .then((response) => {
-        // console.log(response.body);
         expect(response).to.have.status(400);
         done();
       })
@@ -145,7 +125,6 @@ describe('Inicializando pruebas para /api/v1/roles', () => {
       .delete(`/api/v1/roles/${idPrueba}`)
       .set('Authorization', `Bearer ${token}`)
       .then((response) => {
-        // console.log(response.body);
         expect(response).to.have.status(200);
         done();
       })

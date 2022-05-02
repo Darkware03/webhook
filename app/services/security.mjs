@@ -17,7 +17,6 @@ export default class Security {
       const allRols = await getRols.roles(id);
 
       const havePermision = await allRols.find((rol) => rol === receivedRol);
-      console.log(receivedRol, 'respuesta');
       if (havePermision) return true;
       return false;
     }

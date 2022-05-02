@@ -40,7 +40,6 @@ describe('Test de Perfil', () => {
       .get('/api/v1/perfiles/1')
       .set('Authorization', `Bearer ${token}`)
       .then((response) => {
-        // console.log(response.body);
         expect(response).to.have.status(200);
         done();
       })
@@ -76,7 +75,6 @@ describe('Test de Perfil', () => {
       })
       .set('Authorization', `Bearer ${token}`)
       .then((response) => {
-        // console.log(response.body.data);
         expect(response).to.have.status(400);
         done();
       })
@@ -102,30 +100,11 @@ describe('Test de Perfil', () => {
       });
   });
 
-  /*   it('Test de update perfiles [put] /api/v1/perfiles/:id, parametro incorrecto', (done) => {
-    chai.request(url)
-      .put(`/api/v1/perfiles/${idPrueba}`)
-      .send({
-        nmbre: 'Prueba',
-        odigo: '28',
-      })
-      .set('Authorization', `Bearer ${token}`)
-      .then((response) => {
-        // console.log(response.body);
-        expect(response).to.have.status(400);
-        done();
-      })
-      .catch((err) => {
-        done(err);
-      });
-  }); */
-
   it('Test de delete perfiles [delete] /api/v1/perfiles/:id/roles, parametro correcto', (done) => {
     chai.request(url)
       .delete(`/api/v1/perfiles/${idPrueba}/roles`)
       .set('Authorization', `Bearer ${token}`)
       .then((response) => {
-        // console.log(response.body);
         expect(response).to.have.status(200);
         done();
       })
@@ -139,7 +118,6 @@ describe('Test de Perfil', () => {
       .delete(`/api/v1/perfiles/${idPrueba}`)
       .set('Authorization', `Bearer ${token}`)
       .then((response) => {
-        // console.log(response.body);
         expect(response).to.have.status(200);
         done();
       })
