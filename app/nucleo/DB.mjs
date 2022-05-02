@@ -12,7 +12,7 @@ export default class DB {
       host: config.options.db_host,
       port: config.options.db_port,
       dialect: config.motor,
-      logging: process.env.DB_LOGGER || false,
+      logging: process.env.DB_LOGGER === 'true',
     });
   }
 
