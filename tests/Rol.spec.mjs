@@ -1,3 +1,4 @@
+/* eslint-disable import/no-extraneous-dependencies */
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { it, describe } from 'mocha';
 import chai, { expect } from 'chai';
@@ -8,6 +9,7 @@ chai.use(chaiHttp);
 
 describe('Inicializando pruebas para /api/v1/roles', () => {
   let token;
+  let idPrueba;
 
   beforeEach((done) => {
     // se ejecuta antes de cada prueba en este bloque
@@ -68,15 +70,16 @@ describe('Inicializando pruebas para /api/v1/roles', () => {
       });
   });
 
-  it('Test de post roles [post] /api/v1/roles/, caso exitoso', (done) => {
+  it('Test de post roles [post] /api/v1/roles, caso exitoso', (done) => {
     chai.request(url)
       .post('/api/v1/roles')
       .send({
-        name: 'ROL_PRUEBaaa',
+        name: 'ROL_PRUEBaaa22',
+        idTipoRol: 28,
       })
       .set('Authorization', `Bearer ${token}`)
       .then((response) => {
-        console.log(`hola ${response.body}`);
+        idPrueba = response.body.id;
         expect(response).to.have.status(201);
         done();
       })
@@ -90,6 +93,8 @@ describe('Inicializando pruebas para /api/v1/roles', () => {
       .post('/api/v1/roles')
       .send({
         nam: 'ROL_PRUEBaaa',
+        idTipoRol: 28,
+        roles: [385, 386, 387, 388, 389],
       })
       .set('Authorization', `Bearer ${token}`)
       .then((response) => {
@@ -104,9 +109,10 @@ describe('Inicializando pruebas para /api/v1/roles', () => {
 
   it('Test de update roles [put] /api/v1/roles/:id, Parametro correcto', (done) => {
     chai.request(url)
-      .put('/api/v1/roles/55')
+      .put(`/api/v1/roles/${idPrueba}`)
       .send({
         name: 'ROL_PRUEBA',
+        idTipoRol: 28,
       })
       .set('Authorization', `Bearer ${token}`)
       .then((response) => {
@@ -120,7 +126,7 @@ describe('Inicializando pruebas para /api/v1/roles', () => {
 
   it('Test de update roles [put] /api/v1/roles/:id, parametro incorrecto', (done) => {
     chai.request(url)
-      .put('/api/v1/roles/55')
+      .put(`/api/v1/roles/${idPrueba}`)
       .send({
         nam: 'ROL_PRUEBA',
       })
@@ -137,11 +143,11 @@ describe('Inicializando pruebas para /api/v1/roles', () => {
 
   it('Test de delete roles [delete] /api/v1/roles/:id, parametro correcto', (done) => {
     chai.request(url)
-      .delete('/api/v1/roles/55')
+      .delete(`/api/v1/roles/${idPrueba}`)
       .set('Authorization', `Bearer ${token}`)
       .then((response) => {
         // console.log(response.body);
-        expect(response).to.have.status(400);
+        expect(response).to.have.status(200);
         done();
       })
       .catch((err) => {
