@@ -57,7 +57,7 @@ describe('Inicializando pruebas para /api/v1/usuarios', () => {
         .send({
           email: 'admin2@salud.gob.sv',
           password: 'admin',
-          perfiles: [10],
+          perfiles: [1],
         })
         .set('Authorization', `Bearer ${token}`)
         .then((response) => {
@@ -159,7 +159,7 @@ describe('Inicializando pruebas para /api/v1/usuarios', () => {
         .send({
           email: 'admin2@salud.gob.sv',
           password: 'admin',
-          roles: [394],
+          roles: [1],
         })
         .set('Authorization', `Bearer ${token}`)
         .then((response) => {

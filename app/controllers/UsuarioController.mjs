@@ -77,7 +77,7 @@ export default class UsuarioController {
       await MetodoAutenticacionUsuario.create(
         {
           id_usuario: usuario.id,
-          id_metodo: 19,
+          id_metodo: 1,
           is_primary: true,
           secret_key: newToken.secret_code,
           temporal_key: null,
