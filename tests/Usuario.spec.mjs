@@ -283,5 +283,62 @@ describe('Inicializando pruebas para /api/v1/usuarios', () => {
           done(err);
         });
     });
+
+    it('Test de delete roles user [delete] /api/v1/users/:id_usuario/roles, caso de error: el parametro no es un id valido', (done) => {
+      chai.request(url)
+        .delete('/api/v1/users/2a/roles')
+        .set('Authorization', `Bearer ${token}`)
+        .then((response) => {
+          expect(response).to.have.status(422);
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
+    it('Test de delete roles user [delete] /api/v1/users/:id_usuario/roles, caso exitoso', (done) => {
+      chai.request(url)
+        .delete('/api/v1/users/2/roles')
+        .set('Authorization', `Bearer ${token}`)
+        .then((response) => {
+          expect(response).to.have.status(200);
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
+    it('Test de post [post] /api/v1/users/2fa/add/verify, caso de error: El usuario no tiene este metodo de autenticacion asociado', (done) => {
+      chai.request(url)
+        .post('/api/v1/users/2fa/add/verify')
+        .send({
+          id_metodo: 2,
+          codigo: '1234',
+        })
+        .set('Authorization', `Bearer ${token}`)
+        .then((response) => {
+          expect(response).to.have.status(404);
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
+    it('Test de post [post] /api/v1/users/2fa/add/verify, caso de error: el codigo proporcionado no es valido', (done) => {
+      chai.request(url)
+        .post('/api/v1/users/2fa/add/verify')
+        .send({
+          id_metodo: 1,
+          codigo: '1234',
+        })
+        .set('Authorization', `Bearer ${token}`)
+        .then((response) => {
+          expect(response).to.have.status(422);
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
   });
 });

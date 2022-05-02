@@ -255,8 +255,8 @@ export default class UsuarioController {
 
   static async destroyUserRol(req, res) {
     const { id_usuario: idUsuario } = req.params;
-
-    if (Number.isNaN(idUsuario)) {
+    // eslint-disable-next-line no-restricted-globals
+    if (isNaN(idUsuario)) {
       throw new UnprocessableEntityException(
         'El parametro no es un id válido',
       );
