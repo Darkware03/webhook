@@ -15,10 +15,10 @@
     "tdd": "mocha --u bdd",
     "swagger": "yamlinc -o ./app/docs/index.yaml ./app/docs/swagger/include.yaml && yaml2json ./app/docs/test.yaml > ./app/docs/test.json",
     "migration:generate": "sequelize-cli migration:generate --name",
-    "migration:run": "sequelize-cli db:migrate",
+    "migrate": "sequelize-cli db:migrate",
     "migration:revert": "sequelize-cli db:migrate:undo",
     "migration:delete": "sequelize-cli db:migrate:undo:all",
-    "seed:run:all": "sequelize-cli db:seed:all",
+    "seed": "sequelize-cli db:seed:all",
     "prepare": "husky install"
   },
   "keywords": [],
