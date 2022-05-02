@@ -1,7 +1,7 @@
 const config = {
   connections: {
     postgres: {
-      motor: 'postgres', // mysql, mariadb, sqlite, postgres
+      motor: process.env.DB_DIALECT || 'postgres', // mysql, mariadb, sqlite, postgres
       options: {
         db_host: process.env.DB_HOST || 'localhost',
         db_port: process.env.DB_PORT || 5432,
