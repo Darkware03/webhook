@@ -41,7 +41,6 @@ export default class ApiController {
 
   static async login(req, res) {
     const { email, password } = req.body;
-
     const usuario = await Usuario.findOne({
       where: {
         email,

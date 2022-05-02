@@ -1,8 +1,7 @@
 import { Rol } from '../models/index.mjs';
 import HttpCode from '../../configs/httpCode.mjs';
-import UnprocessableEntityException from '../../handlers/UnprocessableEntityException.mjs';
 import BadRequestException from '../../handlers/BadRequestException.mjs';
-// import NotFoundExeption from '../../handlers/UnprocessableEntityException.mjs';
+import VerifyModel from '../utils/VerifyModel.mjs';
 
 export default class RolController {
   static async index(req, res) {
@@ -22,22 +21,15 @@ export default class RolController {
 
   static async show(req, res) {
     const { id } = req.params;
-    if (Number.isNaN(id)) throw new UnprocessableEntityException('El parámetro no es un id válido');
-
-    const rol = await Rol.findOne({
-      where: {
-        id,
-      },
-    });
-
+    const rol = await VerifyModel.exist(Rol, id, 'El parámetro no es un id válido');
     return res.status(HttpCode.HTTP_OK).json(rol);
   }
 
   static async update(req, res) {
     const { name } = req.body;
     const { id } = req.params;
-    if (Number.isNaN(id)) throw new UnprocessableEntityException('El parametro no es un id válido');
-    const rol = await Rol.update({
+    const rol = await VerifyModel.exist(Rol, id, 'El id no es un id válido');
+    await rol.update({
       name,
     }, {
       where: {
@@ -50,9 +42,9 @@ export default class RolController {
 
   static async destroy(req, res) {
     const { id } = req.params;
-    if (Number.isNaN(id)) throw new UnprocessableEntityException('El parametro no es un id válido');
+    const rol = await VerifyModel.exist(Rol, id, ' El id no es un id válido');
     try {
-      await Rol.destroy({
+      await rol.destroy({
         where: {
           id,
         },

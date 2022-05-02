@@ -2,13 +2,13 @@
 // eslint-disable-next-line no-unused-vars
 import Sequelize, { Op } from 'sequelize';
 import {
-  Rol, Ruta, RutaRol,
+  Rol, Ruta,
 } from '../models/index.mjs';
 import DB from '../nucleo/DB.mjs';
 import HttpCode from '../../configs/httpCode.mjs';
-import UnprocessableEntityException from '../../handlers/UnprocessableEntityException.mjs';
 import NotFoundException from '../../handlers/NotFoundExeption.mjs';
 import BadRequestException from '../../handlers/BadRequestException.mjs';
+import VerifyModel from '../utils/VerifyModel.mjs';
 
 export default class RutaController {
   static async index(req, res) {
@@ -30,8 +30,7 @@ export default class RutaController {
         // eslint-disable-next-line no-plusplus
         for (let index = 0; index < roles.length; index++) {
           // eslint-disable-next-line no-await-in-loop
-          const rol = await Rol.findOne({ where: { id: roles[index] } });
-          if (!rol) throw new NotFoundException(`No se encontró el rol con id ${roles[index]}`);
+          await VerifyModel.exist(Rol, roles[index], `No se encontró el rol con id ${roles[index]}`);
         }
       }
       const ruta = await Ruta.create(
@@ -67,24 +66,14 @@ export default class RutaController {
 
   static async show(req, res) {
     const { id } = req.params;
-
-    if (Number.isNaN(id)) throw new UnprocessableEntityException('El parámetro no es un id válido');
-
-    const ruta = await Ruta.findOne({
-      where: {
-        id,
-      },
-    });
-
-    return res.status(HttpCode.HTTP_OK)
-      .json(ruta);
+    VerifyModel.exist(Ruta, id, `No se encontró una ruta con id ${id}`);
+    return res.status(HttpCode.HTTP_OK).json(Ruta); // ?
   }
 
   static async addRutaRole(req, res) {
     const { id_ruta: idRuta } = req.params;
     const { roles } = req.body;
-
-    if (Number.isNaN(idRuta)) throw new UnprocessableEntityException('El parametro no es un id válido');
+    VerifyModel.exist(Ruta, idRuta, `El parametro no es un id válido ${idRuta}`);
 
     for (let index = 0; index < roles.length; index++) {
       // eslint-disable-next-line no-await-in-loop
@@ -128,11 +117,8 @@ export default class RutaController {
 
   static async destroy(req, res) {
     const { id } = req.params;
-    const ruta = await Ruta.findOne({ where: { id } });
-    if (!ruta) throw new NotFoundException(`No se encontró una ruta con id ${id}`);
-    if (Number.isNaN(id)) throw new UnprocessableEntityException('El parámetro no es un id válido');
-    await Ruta.destroy({
-      where: { id },
+    const ruta = await VerifyModel.exist(Ruta, id, `No se encontró una ruta con id ${id}`);
+    await ruta.destroy({
     });
 
     return res.status(HttpCode.HTTP_OK)
@@ -143,13 +129,8 @@ export default class RutaController {
 
   static async destroyRutaRol(req, res) {
     const { id_ruta: idRuta } = req.params;
-
-    if (Number.isNaN(idRuta)) throw new UnprocessableEntityException('El parametro no es un id válido');
-
-    await RutaRol.destroy({
-      where: {
-        id_ruta: idRuta,
-      },
+    const ruta = await VerifyModel.exist(Ruta, idRuta, `El parametro no es un id válido ${idRuta}`);
+    await ruta.destroy({
     });
     return res.status(HttpCode.HTTP_OK).json({ message: 'roles eliminados' });
   }
