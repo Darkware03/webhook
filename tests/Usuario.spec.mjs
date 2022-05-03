@@ -1,9 +1,14 @@
 import { it, describe } from 'mocha';
 import chai, { expect } from 'chai';
 import chaiHttp from 'chai-http';
+import moment from 'moment-timezone';
 import url from './config.mjs';
 
 chai.use(chaiHttp);
+const fecha = moment().format('X');
+const email = `admin${fecha}@salud.gob.sv`;
+let idUsuario;
+const emailUpdate = `admin${fecha}update@salud.gob.sv`;
 
 describe('Inicializando pruebas para /api/v1/usuarios', () => {
   let token;
@@ -55,12 +60,13 @@ describe('Inicializando pruebas para /api/v1/usuarios', () => {
       chai.request(url)
         .post('/api/v1/users')
         .send({
-          email: 'admin2@salud.gob.sv',
+          email,
           password: 'admin',
           perfiles: [1],
         })
         .set('Authorization', `Bearer ${token}`)
         .then((response) => {
+          idUsuario = response.body.id;
           expect(response).to.have.status(201);
           done();
         })
@@ -90,7 +96,7 @@ describe('Inicializando pruebas para /api/v1/usuarios', () => {
       chai.request(url)
         .put('/api/v1/users/update/email')
         .send({
-          email: 'admin1@salud.gob.sv',
+          email: emailUpdate,
           password: 'admin',
         })
         .set('Authorization', 'Bearer')
@@ -118,23 +124,6 @@ describe('Inicializando pruebas para /api/v1/usuarios', () => {
           done(err);
         });
     });
-
-    it('Test de update email [put] /api/v1/users/update/email, caso exitoso', (done) => {
-      chai.request(url)
-        .put('/api/v1/users/update/email')
-        .send({
-          email: 'admin1@salud.gob.sv',
-          password: 'admin',
-        })
-        .set('Authorization', `Bearer ${token}`)
-        .then((response) => {
-          expect(response).to.have.status(200);
-          done();
-        })
-        .catch((err) => {
-          done(err);
-        });
-    });
   });
 
   describe('Test de post de usuarios', () => {
@@ -143,7 +132,7 @@ describe('Inicializando pruebas para /api/v1/usuarios', () => {
       chai.request(url)
         .post('/api/v1/login')
         .send({
-          email: 'admin1@salud.gob.sv',
+          email: 'admin@salud.gob.sv',
           password: 'admin',
         })
         .end((err, res) => {
@@ -157,7 +146,7 @@ describe('Inicializando pruebas para /api/v1/usuarios', () => {
       chai.request(url)
         .post('/api/v1/users')
         .send({
-          email: 'admin2@salud.gob.sv',
+          email,
           password: 'admin',
           roles: [1],
         })
@@ -170,45 +159,11 @@ describe('Inicializando pruebas para /api/v1/usuarios', () => {
           done(err);
         });
     });
-  });
-
-  describe('Test de verificacion de expiracion de token', () => {
-    beforeEach((done) => {
-      // se ejecuta antes de cada prueba en este bloque
+    it('Test de put [put] /api/v1/users, caso de exito: cambio de estado suspendido', (done) => {
       chai.request(url)
-        .post('/api/v1/login')
+        .put(`/api/v1/users/${idUsuario}`)
         .send({
-          email: 'admin1@salud.gob.sv',
-          password: 'admin',
-        })
-        .end((err, res) => {
-          token = res.body.token;
-
-          expect(res).to.have.status(200);
-          done();
-        });
-    });
-    afterEach((done) => {
-      // se ejecuta antes de cada prueba en este bloque
-      chai.request(url)
-        .post('/api/v1/login')
-        .send({
-          email: 'admin1@salud.gob.sv',
-          password: 'admin',
-        })
-        .end((err, res) => {
-          token = res.body.token;
-
-          expect(res).to.have.status(401);
-          done();
-        });
-    });
-    it('Test de verificacion de token, caso de error: token debe expirar al actualizar datos', (done) => {
-      chai.request(url)
-        .put('/api/v1/users/update/email')
-        .send({
-          email: 'admin@salud.gob.sv',
-          password: 'admin',
+          is_suspended: false,
         })
         .set('Authorization', `Bearer ${token}`)
         .then((response) => {
@@ -227,7 +182,7 @@ describe('Inicializando pruebas para /api/v1/usuarios', () => {
       chai.request(url)
         .post('/api/v1/login')
         .send({
-          email: 'admin@salud.gob.sv',
+          email,
           password: 'admin',
         })
         .end((err, res) => {
