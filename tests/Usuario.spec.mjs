@@ -5,7 +5,7 @@ import moment from 'moment-timezone';
 import url from './config.mjs';
 
 chai.use(chaiHttp);
-const fecha = moment().format('X');
+const fecha = moment().format('x');
 const email = `admin${fecha}@salud.gob.sv`;
 let idUsuario;
 const emailUpdate = `admin${fecha}update@salud.gob.sv`;
@@ -148,7 +148,6 @@ describe('Inicializando pruebas para /api/v1/usuarios', () => {
         .send({
           email,
           password: 'admin',
-          roles: [1],
         })
         .set('Authorization', `Bearer ${token}`)
         .then((response) => {
