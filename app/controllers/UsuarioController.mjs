@@ -31,9 +31,6 @@ export default class UsuarioController {
   }
 
   static async store(req, res) {
-    if (!(await Security.isGranted(req, 'SUPER-ADMIN'))) {
-      throw new ForbiddenException('ERROR NO SE HA AUTENTICADO');
-    }
     const connection = DB.connection();
     const t = await connection.transaction();
     const {
@@ -258,8 +255,8 @@ export default class UsuarioController {
 
   static async destroyUserRol(req, res) {
     const { id_usuario: idUsuario } = req.params;
-
-    if (Number.isNaN(idUsuario)) {
+    // eslint-disable-next-line no-restricted-globals
+    if (isNaN(idUsuario)) {
       throw new UnprocessableEntityException(
         'El parametro no es un id válido',
       );
@@ -334,7 +331,7 @@ export default class UsuarioController {
     const { email, password } = req.body;
     /** Validacion que el correo ingresado no sea igual al correo actual */
     if (email === req.usuario.email) {
-      throw new NotFoundException(
+      throw new UnprocessableEntityException(
         'El correo no puede ser igual al anterior',
       );
     }
