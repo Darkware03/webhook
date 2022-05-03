@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */
 import psql from 'sequelize';
 import DB from '../nucleo/DB.mjs';
 // eslint-disable-next-line import/no-cycle
@@ -9,6 +10,7 @@ import PerfilRol from './PerfilRol.mjs';
 // eslint-disable-next-line import/no-cycle
 import Usuario from './Usuario.mjs';
 import UsuarioRol from './UsuarioRol.mjs';
+import TipoRol from './TipoRol.mjs';
 
 class Rol extends psql.Model {
   static associate() {
@@ -28,6 +30,9 @@ class Rol extends psql.Model {
       foreignKey: 'id_rol',
       otherKey: 'id_usuario',
     });
+    this.belongsTo(TipoRol, {
+      foreignKey: 'id_tipo_rol',
+    });
   }
 }
 
@@ -39,6 +44,10 @@ Rol.init({
   },
   name: {
     type: psql.Sequelize.STRING(255),
+    allowNull: false,
+  },
+  id_tipo_rol: {
+    type: psql.Sequelize.INTEGER,
     allowNull: false,
   },
 }, {
