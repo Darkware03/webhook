@@ -16,9 +16,11 @@
     "swagger": "yamlinc -o ./app/docs/index.yaml ./app/docs/swagger/include.yaml && yaml2json ./app/docs/test.yaml > ./app/docs/test.json",
     "migration:generate": "sequelize-cli migration:generate --name",
     "migrate": "sequelize-cli db:migrate",
+    "migrate:test": "export APP_ENV=test&& sequelize-cli db:migrate",
     "migration:revert": "sequelize-cli db:migrate:undo",
     "migration:delete": "sequelize-cli db:migrate:undo:all",
     "seed": "sequelize-cli db:seed:all",
+    "seed:test": "export APP_ENV=test&& sequelize-cli db:seed:all",
     "prepare": "husky install"
   },
   "keywords": [],
