@@ -4,11 +4,10 @@ import disks from '../../configs/disk.mjs';
 import File from './File.mjs';
 import { uploadFile, getFile } from './S3Client.mjs';
 import LogicalException from '../../handlers/LogicalException.mjs';
+import BadRequestException from '../../handlers/BadRequestException.mjs';
 
 export default class Storage {
   static diskObject = {};
-
-  static mimeTypes = [];
 
   static disk(name) {
     Storage.diskObject = disks[name];
@@ -16,22 +15,16 @@ export default class Storage {
     return Storage;
   }
 
-  static fileTypes(mimeTypes) {
-    if (!Array.isArray(mimeTypes)) throw new LogicalException('ERR_INVALID_ARG_TYPE', 'El parametro recibido debe ser un arreglo');
-    Storage.mimeTypes = mimeTypes;
+  static async put(options) {
+    const { file, path, mimeTypes = [] } = options;
 
-    return Storage;
-  }
-
-  static validate(file) {
-    const mimeType = file.mimetype;
-    if (!Storage.mimeTypes.length) throw new LogicalException('ERR_INVALID_MIMETYPES', 'No se ha definido un arreglo de tipo de archivos');
-    return Storage.mimeTypes.includes(mimeType);
-  }
-
-  static async put(file, path) {
     if (!(file instanceof File)) {
       throw new LogicalException('ERR_INVALID_ARG_TYPE', 'El objeto no es una instancia de la clase esperada');
+    }
+
+    const mimeType = file.getFile().mimetype;
+    if (mimeTypes.length && !mimeTypes.includes(mimeType)) {
+      throw new BadRequestException('El formato del archivo no es valido');
     }
 
     const fileToUpload = file.getFile();
@@ -46,7 +39,7 @@ export default class Storage {
       await uploadFile(Storage.diskObject.bucket, fileToUpload);
     }
 
-    return fileToUpload;
+    return fileToUpload.data;
   }
 
   static async getFile(fileName, disk) {
