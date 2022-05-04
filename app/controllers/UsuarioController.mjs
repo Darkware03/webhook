@@ -10,7 +10,7 @@ import BadRequestException from '../../handlers/BadRequestException.mjs';
 import NotFoundException from '../../handlers/NotFoundExeption.mjs';
 import UnprocessableEntityException from '../../handlers/UnprocessableEntityException.mjs';
 import Mailer from '../services/mailer.mjs';
-
+import VerifyModel from '../utils/VerifyModel.mjs';
 import {
   Usuario, UsuarioRol, UsuarioPerfil, Perfil, Rol,
 } from '../models/index.mjs';
@@ -44,24 +44,14 @@ export default class UsuarioController {
         // eslint-disable-next-line no-plusplus
         for (let index = 0; index < perfiles.length; index++) {
           // eslint-disable-next-line no-await-in-loop
-          const perfil = await Perfil.findOne({ where: { id: perfiles[index] } });
-          if (!perfil) {
-            throw new NotFoundException(
-              `No se encontró el perfil con id ${perfiles[index]}`,
-            );
-          }
+          await VerifyModel.exist(Perfil, perfiles[index], `No se ha encontrado el perfil con id ${perfiles[index]}`);
         }
       }
       if (roles) {
         // eslint-disable-next-line no-plusplus
         for (let index = 0; index < roles.length; index++) {
           // eslint-disable-next-line no-await-in-loop
-          const rol = await Rol.findOne({ where: { id: roles[index] } });
-          if (!rol) {
-            throw new NotFoundException(
-              `No se encontró el rol con id ${roles[index]}`,
-            );
-          }
+          await VerifyModel.exist(Rol, roles[index], `No se ha encontrado el rol con id ${roles[index]}`);
         }
       }
 
@@ -134,46 +124,38 @@ export default class UsuarioController {
   }
 
   static async update(req, res) {
-    // eslint-disable-next-line camelcase
-    const { email, password, is_suspended } = req.body;
+    const { email, password, is_suspended: isSuspended } = req.body;
     const dataToUpdate = {};
-    if (req.body.password !== null && req.body.password !== '') {
-      dataToUpdate.password = req.body.password;
+    if (password !== null && password !== '') {
+      dataToUpdate.password = password;
     }
 
-    if (req.body.is_suspended !== null && req.body.is_suspended !== '') {
-      dataToUpdate.is_suspended = req.body.is_suspended;
+    if (isSuspended !== null && isSuspended !== '') {
+      dataToUpdate.is_suspended = isSuspended;
     }
 
-    if (req.body.email !== null && req.body.email !== '') {
-      dataToUpdate.email = req.body.email;
+    if (email !== null && email !== '') {
+      dataToUpdate.email = email;
     }
 
-    const usuario = await Usuario.update(dataToUpdate, {
+    const usuario = await VerifyModel.exist(Usuario, req.params.id, `No se ha encontrado el usuario con id ${req.params.id}`);
+
+    usuario.update(dataToUpdate, {
       where: {
         id: req.params.id,
       },
       returning: ['id', 'email', 'is_suspended'],
     });
-    return res.status(HttpCode.HTTP_OK).json(usuario[1]);
+    return res.status(HttpCode.HTTP_OK).json({ message: 'Usuario actualizado' });
   }
 
   static async destroy(req, res) {
     const { id } = req.params;
-    if (Number.isNaN(id)) {
-      throw new UnprocessableEntityException(
-        'El parámetro no es un id válido',
-      );
-    }
+    const usuario = await VerifyModel.exist(Usuario, id, `No se ha encontrado el usuario con id ${id}`);
 
-    await Usuario.update(
+    usuario.update(
       {
         is_suspended: true,
-      },
-      {
-        where: {
-          id,
-        },
       },
     );
 
@@ -184,37 +166,34 @@ export default class UsuarioController {
 
   static async show(req, res) {
     const { id } = req.params;
-    if (Number.isNaN(id)) {
-      throw new UnprocessableEntityException(
-        'El parámetro no es un id válido',
-      );
-    }
 
-    const user = await Usuario.getById(id);
+    const user = await VerifyModel.exist(
+      Usuario,
+      id,
+      `No se ha encontrado el usuario con id ${id}`,
+      {
+        include: [
+          { model: Perfil },
+          { model: Rol },
+        ],
+      },
+    );
 
-    if (!user) {
-      throw new NotFoundException();
-    }
-    const { Perfils: perfiles, Rols: roles, ...usuario } = user.dataValues;
-    res.status(HttpCode.HTTP_OK).json({ ...usuario, perfiles, roles });
+    // const { Perfils: perfiles, Rols: roles, ...usuario } = user.dataValues;
+    res.status(HttpCode.HTTP_OK).json(user);
   }
 
   static async addUserProfile(req, res) {
     const { id_usuario: idUsuario } = req.params;
-    if (Number.isNaN(idUsuario)) {
-      throw new UnprocessableEntityException(
-        'El parametro no es un id válido',
-      );
-    }
 
     const { perfiles } = req.body;
 
-    const user = await Usuario.findOne({ where: { id: idUsuario } });
-    const userProfils = await user.addPerfils(perfiles);
+    const user = await VerifyModel.exist(Usuario, idUsuario, `No se ha encontrado el usuario con id ${idUsuario}`);
+    const userProfiles = await user.addPerfils(perfiles);
 
     return res.status(HttpCode.HTTP_CREATED).json({
       user,
-      userProfils,
+      userProfiles,
     });
   }
 
@@ -222,13 +201,7 @@ export default class UsuarioController {
     const { id_usuario: idUsuario } = req.params;
     const { roles } = req.body;
 
-    if (Number.isNaN(idUsuario)) {
-      throw new UnprocessableEntityException(
-        'El parametro no es un id válido',
-      );
-    }
-
-    const user = await Usuario.findOne({ where: { id: idUsuario } });
+    const user = await VerifyModel.exist(Usuario, idUsuario, `No se ha encontrado el usuario con id ${idUsuario}`);
     const userRols = await user.addRols(roles);
 
     return res.status(HttpCode.HTTP_CREATED).json({
@@ -237,35 +210,35 @@ export default class UsuarioController {
   }
 
   static async destroyUserPerfil(req, res) {
-    const { id_usuario: idUsuario } = req.params;
+    const { id_usuario: idUsuario, id_perfil: idPerfil } = req.params;
 
-    if (Number.isNaN(idUsuario)) {
-      throw new UnprocessableEntityException(
-        'El parametro no es un id válido',
-      );
-    }
-
+    await VerifyModel.exist(Usuario, idUsuario, `No se ha encontrado el usuario con id ${idUsuario}`);
+    await VerifyModel.exist(Perfil, idPerfil, `No se ha encontrado el perfil con id ${idPerfil}`);
     await UsuarioPerfil.destroy({
       where: {
         id_usuario: idUsuario,
+        id_perfil: idPerfil,
       },
     });
     return res.status(HttpCode.HTTP_OK).json({ message: 'Perfiles eliminados' });
   }
 
   static async destroyUserRol(req, res) {
-    const { id_usuario: idUsuario } = req.params;
-    // eslint-disable-next-line no-restricted-globals
-    if (isNaN(idUsuario)) {
-      throw new UnprocessableEntityException(
-        'El parametro no es un id válido',
-      );
+    const { id_usuario: idUsuario, id_rol: idRol } = req.params;
+
+    const filtro = {};
+
+    await VerifyModel.exist(Usuario, idUsuario, `No se ha encontrado el usuario con id ${idUsuario}`);
+
+    filtro.id_usuario = idUsuario;
+
+    if (idRol) {
+      await VerifyModel.exist(Rol, idRol, `No se ha encontrado el rol con id ${idRol}`);
+      filtro.id_rol = idRol;
     }
 
     await UsuarioRol.destroy({
-      where: {
-        id_usuario: idUsuario,
-      },
+      where: filtro,
     });
     return res.status(HttpCode.HTTP_OK).json({ message: 'roles eliminados' });
   }
@@ -400,27 +373,23 @@ export default class UsuarioController {
   }
 
   static async storeMethodUser(req, res) {
-    // eslint-disable-next-line camelcase
-    const { id_metodo } = req.body;
-    // eslint-disable-next-line camelcase
+    const { id_metodo: idMetodo } = req.body;
+
     const existMethod = await MetodoAutenticacionUsuario.findOne({
       where: {
         id_usuario: req.usuario.id,
-        // eslint-disable-next-line camelcase
-        id_metodo,
+        id_metodo: idMetodo,
       },
     });
     const newToken = await Security.generateTwoFactorAuthCode(req.usuario.email);
     if (!existMethod) {
       await MetodoAutenticacionUsuario.create({
-        // eslint-disable-next-line camelcase
-        id_metodo,
+        id_metodo: idMetodo,
         id_usuario: req.usuario.id,
         is_primary: false,
         temporal_key: newToken.secret_code,
       });
-      // eslint-disable-next-line camelcase
-      if (Number(id_metodo) === 2) {
+      if (Number(idMetodo) === 2) {
         return res.status(HttpCode.HTTP_OK).send({
           message: 'Favor valide el nuevo metodo de autenticacion, escanee el codigo qr',
           codigoQr: await toDataURL(newToken.qrCode),
@@ -442,8 +411,7 @@ export default class UsuarioController {
       });
     }
     await existMethod.update({ temporal_key: newToken.secret_code });
-    // eslint-disable-next-line camelcase,max-len
-    if (Number(id_metodo) === 2) {
+    if (Number(idMetodo) === 2) {
       return res.status(HttpCode.HTTP_OK).send({
         message: 'Favor valide el nuevo metodo de autenticacion, escanee el codigo qr',
         codigoQr: await toDataURL(newToken.qrCode),
@@ -455,16 +423,13 @@ export default class UsuarioController {
   }
 
   static async verifyNewMethodUser(req, res) {
-    // eslint-disable-next-line camelcase
-    const { id_metodo, codigo } = req.body;
+    const { id_metodo: idMetodo, codigo } = req.body;
     let timeToCodeValid = null;
-    // eslint-disable-next-line camelcase,no-unused-expressions
-    if (Number(id_metodo) === 1) timeToCodeValid = process.env.GOOGLE_AUTH_TIME_EMAIL;
+    if (Number(idMetodo) === 1) timeToCodeValid = process.env.GOOGLE_AUTH_TIME_EMAIL;
     const methodUser = await MetodoAutenticacionUsuario.findOne({
       where: {
         id_usuario: req.usuario.id,
-        // eslint-disable-next-line camelcase
-        id_metodo,
+        id_metodo: idMetodo,
       },
     });
     if (!methodUser) {
@@ -529,9 +494,7 @@ export default class UsuarioController {
         },
       ],
     });
-    // eslint-disable-next-line array-callback-return
     const metodosAutenticacion = metodos.map((metodo) => {
-      // eslint-disable-next-line no-mixed-operators
       const isPrimary = usuario.MetodoAutenticacions.filter(
         (metodoUsuario) => metodoUsuario.id === metodo.id,
       );

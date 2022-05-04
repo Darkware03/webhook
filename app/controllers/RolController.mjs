@@ -1,9 +1,7 @@
 import { Rol } from '../models/index.mjs';
 import HttpCode from '../../configs/httpCode.mjs';
-import UnprocessableEntityException from '../../handlers/UnprocessableEntityException.mjs';
-import BadRequestException from '../../handlers/BadRequestException.mjs';
+import VerifyModel from '../utils/VerifyModel.mjs';
 import TipoRol from '../models/TipoRol.mjs';
-// import NotFoundExeption from '../../handlers/UnprocessableEntityException.mjs';
 
 export default class RolController {
   static async index(req, res) {
@@ -13,72 +11,41 @@ export default class RolController {
 
   static async store(req, res) {
     const { name, idTipoRol } = req.body;
+    await VerifyModel.exist(TipoRol, idTipoRol, 'El tipo de rol no se ha encontrado');
 
-    const verficarRol = await TipoRol.findByPk(idTipoRol);
-
-    if (!verficarRol) {
-      throw new BadRequestException('No exite el idTipoRol');
-    }
     const rol = await Rol.create({
       name,
       id_tipo_rol: idTipoRol,
     });
-
     return res.status(HttpCode.HTTP_CREATED).json(rol);
   }
 
   static async show(req, res) {
     const { id } = req.params;
-    if (Number.isNaN(id)) throw new UnprocessableEntityException('El parámetro no es un id válido');
-
-    const rol = await Rol.findOne({
-      where: {
-        id,
-      },
-      include: [TipoRol],
-    });
-
+    const rol = await VerifyModel.exist(Rol, id, 'El rol no ha sido encontrado');
     return res.status(HttpCode.HTTP_OK).json(rol);
   }
 
   static async update(req, res) {
     const { name, idTipoRol } = req.body;
     const { id } = req.params;
+    await VerifyModel.exist(Rol, id, 'El rol no ha sido encontrado');
 
-    const verficarRol = await TipoRol.findByPk(idTipoRol);
-
-    if (!verficarRol) {
-      throw new BadRequestException('No exite el idTipoRol');
-    }
-
-    if (Number.isNaN(id)) throw new UnprocessableEntityException('El parametro no es un id válido');
     const rol = await Rol.update({
-      name,
-      id_tipo_rol: idTipoRol,
+      name, id_tipo_rol: idTipoRol,
     }, {
       where: {
         id,
       },
-      returning: ['name'],
+      returning: ['name', 'id_tipo_rol'],
     });
     return res.status(HttpCode.HTTP_OK).json(rol[1]);
   }
 
   static async destroy(req, res) {
     const { id } = req.params;
-    if (Number.isNaN(id)) throw new UnprocessableEntityException('El parametro no es un id válido');
-    try {
-      await Rol.destroy({
-        where: {
-          id,
-        },
-      });
-    } catch (error) {
-      throw new BadRequestException('No se puede eliminar el rol seleccionado');
-    }
-
-    return res.status(HttpCode.HTTP_OK).json({
-      message: 'Rol Eliminado',
-    });
+    const rol = await VerifyModel.exist(Rol, id, 'El rol no ha sido encontrado');
+    rol.destroy();
+    return res.status(HttpCode.HTTP_OK).json({ message: 'Rol eliminado' });
   }
 }

@@ -1,9 +1,8 @@
 import { Perfil, PerfilRol, Rol } from '../models/index.mjs';
 import HttpCode from '../../configs/httpCode.mjs';
-import UnprocessableEntityException from '../../handlers/UnprocessableEntityException.mjs';
-import NotFoundException from '../../handlers/NotFoundExeption.mjs';
 import BaseError from '../../handlers/BaseError.mjs';
 import DB from '../nucleo/DB.mjs';
+import VerifyModel from '../utils/VerifyModel.mjs';
 
 export default class PerfilController {
   static async index(req, res) {
@@ -13,18 +12,18 @@ export default class PerfilController {
 
   static async store(req, res) {
     const { nombre, codigo } = req.body;
-    const cod = await Perfil.findOne({ where: { codigo } });
-    if (cod) {
-      throw new UnprocessableEntityException(
-        'El codigo no puede ser igual a otro registrado con anterioridad',
-      );
-    }
-    const perfil = await Perfil.create({
-      nombre,
-      codigo,
-    });
+    const t = await DB.connection().transaction();
+
     try {
-      await perfil.setRols(req.body.roles);
+      const perfil = await Perfil.create({
+        nombre,
+        codigo,
+      }, { transaction: t });
+
+      await perfil.setRols(req.body.roles, { transaction: t });
+
+      await t.commit();
+
       return res.status(HttpCode.HTTP_CREATED).json({
         id: perfil.id,
         nombre,
@@ -32,24 +31,14 @@ export default class PerfilController {
         roles: req.body.roles,
       });
     } catch (err) {
-      perfil.destroy();
+      t.rollback();
       throw err;
     }
   }
 
   static async show(req, res) {
     const { id } = req.params;
-    if (Number.isNaN(id)) {
-      throw new UnprocessableEntityException(
-        'El parámetro no es un id válido',
-      );
-    }
-
-    const perfil = await Perfil.findOne({
-      where: {
-        id,
-      },
-    });
+    const perfil = await VerifyModel.exist(Perfil, id, 'El perfil no ha sido encontrado');
     return res.status(HttpCode.HTTP_OK).json(perfil);
   }
 
@@ -72,17 +61,9 @@ export default class PerfilController {
 
   static async destroy(req, res) {
     const { id } = req.params;
-    if (Number.isNaN(id)) {
-      throw new UnprocessableEntityException(
-        'El parámetro no es un id válido',
-      );
-    }
+    const perfil = await VerifyModel.exist(Perfil, id, 'El perfil no ha sido encontado');
 
-    await Perfil.destroy({
-      where: {
-        id,
-      },
-    });
+    await perfil.destroy();
     return res.status(HttpCode.HTTP_OK).json({
       message: 'Perfil Eliminado',
     });
@@ -119,25 +100,12 @@ export default class PerfilController {
 
   static async addPerfilRol(req, res) {
     const { id_perfil: idPerfil } = req.params;
-    const { rol } = req.body;
-    if (Number.isNaN(idPerfil)) {
-      throw new UnprocessableEntityException(
-        'El parametro no es un id válido',
-      );
-    }
-    const perfil = await Perfil.findOne({ where: { id: idPerfil } });
-    const role = await Rol.findOne({ where: { id: rol } });
-    if (!perfil) {
-      throw new NotFoundException(
-        'El usuario ingresado no coincide con ninguno registrado',
-      );
-    }
-    if (!role) {
-      throw new NotFoundException(
-        'El rol ingresado no coincide con ninguno registrado',
-      );
-    }
-    const perfilRols = await perfil.addRols(rol);
+    const { id_rol: idRol } = req.body;
+    const perfil = await VerifyModel.exist(Perfil, idPerfil, 'El perfil no ha sido encontrado');
+
+    await VerifyModel.exist(Rol, idRol, 'El rol no ha sido encontrado');
+
+    const perfilRols = await perfil.addRols(idRol);
     if (!perfilRols) {
       //  304 Not Modified
       throw new BaseError('NOT_MODIFIED', 304, 'El rol ya pertenece a un perfil');
@@ -148,18 +116,21 @@ export default class PerfilController {
   }
 
   static async destroyPerfilRol(req, res) {
-    const { id_perfil: idPerfil } = req.params;
+    const { id_perfil: idPerfil, id_rol: idRol } = req.params;
 
-    if (Number.isNaN(idPerfil)) {
-      throw new UnprocessableEntityException(
-        'El parametro no es un id válido',
-      );
+    const filtro = {};
+
+    await VerifyModel.exist(Perfil, idPerfil, 'El perfil no ha sido encontrado');
+
+    filtro.id_perfil = idPerfil;
+
+    if (idRol) {
+      await VerifyModel.exist(Rol, idRol, 'El rol no ha sido encontrado');
+      filtro.id_rol = idRol;
     }
 
     await PerfilRol.destroy({
-      where: {
-        id_perfil: idPerfil,
-      },
+      where: filtro,
     });
     return res.status(HttpCode.HTTP_OK).json({ message: 'roles eliminados' });
   }
