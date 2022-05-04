@@ -226,19 +226,6 @@ describe('Inicializando pruebas para /api/v1/usuarios', () => {
           done(err);
         });
     });
-    it('Test de delete user [delete] /api/v1/users/:id, caso exitoso', (done) => {
-      chai.request(url)
-        .delete('/api/v1/users/10')
-        .set('Authorization', `Bearer ${token}`)
-        .then((response) => {
-          expect(response).to.have.status(200);
-          done();
-        })
-        .catch((err) => {
-          done(err);
-        });
-    });
-
     it('Test de delete roles user [delete] /api/v1/users/:id_usuario/roles, caso de error: el parametro no es un id valido', (done) => {
       chai.request(url)
         .delete('/api/v1/users/2a/roles')
@@ -289,6 +276,18 @@ describe('Inicializando pruebas para /api/v1/usuarios', () => {
         .set('Authorization', `Bearer ${token}`)
         .then((response) => {
           expect(response).to.have.status(422);
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+    });
+    it('Test de delete user [delete] /api/v1/users/:id, caso exitoso', (done) => {
+      chai.request(url)
+        .delete(`/api/v1/users/${idUsuario}`)
+        .set('Authorization', `Bearer ${token}`)
+        .then((response) => {
+          expect(response).to.have.status(200);
           done();
         })
         .catch((err) => {
