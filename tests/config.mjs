@@ -13,7 +13,7 @@ const port = process.env.PORT;
 
 if (appEnv === 'development') {
   url = `${protocol}${host}:${port}`;
-} else if (appEnv === 'production') {
+} else if (appEnv === 'test') {
   url = `${protocol}+${host}`;
 }
 
