@@ -19,9 +19,9 @@ router.delete('/:id', [validateRole('ROLE_USER_DELETE')], Call(UsuarioController
 router.post('/:id_usuario/perfiles', [validateRole('ROLE_USER_PERFIL_CREATE'), validate(usuarioAddUserProfileSchema)], Call(UsuarioController.addUserProfile));
 router.delete('/:id_usuario/perfiles', [validateRole('ROLE_USER_PERFIL_DELETE')], Call(UsuarioController.destroyUserPerfil));
 router.post('/:id_usuario/roles', [validate(usuarioAddUserRoleSchema)], Call(UsuarioController.addUserRole));
-router.delete('/:id_usuario/roles', [validateRole('ROLE_USER_ROL_DELETE')], Call(UsuarioController.destroyUserRol));
+router.delete('/:id_usuario/roles', [validateRole('ROLE_USER_ROLE_DELETE')], Call(UsuarioController.destroyUserRol));
 router.put('/update/password', [validateRole('ROLE_USER_PASSWORD_UPDATE'), validate(usuarioPasswordUpdate)], Call(UsuarioController.updatePassword));
-router.put('/update/email', [validateRole('ROLE_USER_EMAIL_DELETE'), validate(usuarioUpdateEmailSchema)], Call(UsuarioController.updateEmail));
+router.put('/update/email', [validateRole('ROLE_USER_EMAIL_UPDATE'), validate(usuarioUpdateEmailSchema)], Call(UsuarioController.updateEmail));
 router.post('/2fa/add', Call(UsuarioController.storeMethodUser));
 router.post('/2fa/add/verify', Call(UsuarioController.verifyNewMethodUser));
 router.post('/2fa/method/update', Call(UsuarioController.updatePrimaryMethod));

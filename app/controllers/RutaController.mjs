@@ -2,11 +2,11 @@
 // eslint-disable-next-line no-unused-vars
 import Sequelize, { Op } from 'sequelize';
 import {
+  RutaRol,
   Rol, Ruta,
 } from '../models/index.mjs';
 import DB from '../nucleo/DB.mjs';
 import HttpCode from '../../configs/httpCode.mjs';
-import NotFoundException from '../../handlers/NotFoundExeption.mjs';
 import BadRequestException from '../../handlers/BadRequestException.mjs';
 import VerifyModel from '../utils/VerifyModel.mjs';
 
@@ -22,7 +22,7 @@ export default class RutaController {
     const t = await connection.transaction();
     const {
       // eslint-disable-next-line camelcase
-      nombre, uri, nombre_uri, mostrar, icono, orden, admin, publico, id_ruta_padre, roles,
+      nombre, uri, nombre_uri: nombreUri, mostrar, icono, orden, admin, publico, id_ruta_padre: idRutaPadre, roles,
     } = req.body;
 
     try {
@@ -35,16 +35,20 @@ export default class RutaController {
       }
       const ruta = await Ruta.create(
         {
-          // eslint-disable-next-line camelcase
-          nombre, uri, nombre_uri, mostrar, icono, orden, admin, publico, id_ruta_padre,
+          nombre, uri, nombre_uri: nombreUri, mostrar, icono, orden, admin, publico, id_ruta_padre: idRutaPadre,
         },
         { transaction: t },
       );
       await ruta.addRols(roles, { transaction: t });
       await t.commit();
       const idRuta = ruta.id;
-      const us = await Ruta.getById(idRuta);
-      const { Rols } = us.dataValues;
+      const { Rols } = await Ruta.getById(idRuta, {
+        include: [
+          {
+            model: Rol,
+          },
+        ],
+      });
 
       return res.status(HttpCode.HTTP_CREATED).json({
         id: ruta.id,
@@ -66,45 +70,38 @@ export default class RutaController {
 
   static async show(req, res) {
     const { id } = req.params;
-    VerifyModel.exist(Ruta, id, `No se encontró una ruta con id ${id}`);
-    return res.status(HttpCode.HTTP_OK).json(Ruta); // ?
+    const ruta = await VerifyModel.exist(Ruta, id, `No se encontró una ruta con id ${id}`);
+    return res.status(HttpCode.HTTP_OK).json(ruta); // ?
   }
 
   static async addRutaRole(req, res) {
     const { id_ruta: idRuta } = req.params;
     const { roles } = req.body;
-    VerifyModel.exist(Ruta, idRuta, `El parametro no es un id válido ${idRuta}`);
+    await VerifyModel.exist(Ruta, idRuta, 'La ruta no ha sido encontrada');
 
     for (let index = 0; index < roles.length; index++) {
       // eslint-disable-next-line no-await-in-loop
-      const rol = await Rol.findOne({ where: { id: roles[index] } });
-      if (!rol) throw new NotFoundException(`No se encontró el rol con id ${roles[index]}`);
+      await VerifyModel.exist(Rol, roles[index], 'El rol no ha sido encontrado');
     }
 
     if (roles.length === 0) {
       throw new BadRequestException('No se envío ningún rol');
     }
-    await VerifyModel.exist(Ruta, idRuta, `No se encontró una ruta con id ${idRuta}`);
-
     return res.status(HttpCode.HTTP_CREATED).json({
-
+      message: 'Roles agregados',
     });
   }
 
   static async update(req, res) {
     const {
       // eslint-disable-next-line camelcase
-      nombre, uri, nombre_uri, mostrar, icono, orden, admin, publico, id_ruta_padre,
+      nombre, uri, nombre_uri: nombreUri, mostrar, icono, orden, admin, publico, id_ruta_padre: idRutaPadre,
     } = req.body;
 
-    // eslint-disable-next-line no-unused-vars
-    const ruta = await Ruta.update({
-      // eslint-disable-next-line camelcase
-      nombre, uri, nombre_uri, mostrar, icono, orden, admin, publico, id_ruta_padre,
-    }, {
-      where: {
-        id: req.params.id,
-      },
+    const { id } = req.params;
+    const ruta = await VerifyModel.exist(Ruta, id, `No se encontró una ruta con id ${id}`);
+    ruta.update({
+      nombre, uri, nombre_uri: nombreUri, mostrar, icono, orden, admin, publico, id_ruta_padre: idRutaPadre,
     });
 
     return res.status(HttpCode.HTTP_OK)
@@ -114,8 +111,7 @@ export default class RutaController {
   static async destroy(req, res) {
     const { id } = req.params;
     const ruta = await VerifyModel.exist(Ruta, id, `No se encontró una ruta con id ${id}`);
-    await ruta.destroy({
-    });
+    await ruta.destroy();
 
     return res.status(HttpCode.HTTP_OK)
       .json({
@@ -124,9 +120,14 @@ export default class RutaController {
   }
 
   static async destroyRutaRol(req, res) {
-    const { id_ruta: idRuta } = req.params;
-    const ruta = await VerifyModel.exist(Ruta, idRuta, `El parametro no es un id válido ${idRuta}`);
-    await ruta.destroy({
+    const { id_ruta: idRuta, id_rol: idRol } = req.params;
+    await VerifyModel.exist(Ruta, idRuta, 'La ruta no ha sido encontrada');
+    await VerifyModel.exist(Rol, idRol, 'El rol no ha sido encontrado');
+    await RutaRol.destroy({
+      where: {
+        id_ruta: idRuta,
+        id_rol: idRol,
+      },
     });
     return res.status(HttpCode.HTTP_OK).json({ message: 'roles eliminados' });
   }

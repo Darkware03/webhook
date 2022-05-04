@@ -29,7 +29,7 @@ export default class ApiController {
         res.status(HttpCode.HTTP_OK).send({ message: 'El usuario ha sido verificado con exito' });
       } else {
         throw BadRequestException(
-          'Error al realizar la peticion...',
+          'El id de usuario es requerido',
         );
       }
     }
@@ -42,10 +42,8 @@ export default class ApiController {
         email,
       },
       attributes: ['id', 'email', 'password', 'is_suspended', 'last_login'],
-      // eslint-disable-next-line max-len
       include: [
         {
-          // eslint-disable-next-line max-len
           model: MetodoAutenticacion,
           attributes: ['id', 'nombre', 'icono'],
           through: { attributes: ['is_primary'], where: { secret_key: { [Op.ne]: null } } },
@@ -72,7 +70,6 @@ export default class ApiController {
     if ((usuario.last_login === '' && process.env.DISABLE_TWO_FACTOR_AUTH === 'false') || (usuario.last_login === null && process.env.DISABLE_TWO_FACTOR_AUTH === 'false')) {
       const idUsuario = usuario.id;
       const token = await Auth.createToken({ idUsuario });
-      // eslint-disable-next-line max-len
       const htmlForEmail = `
 <mjml>
   <mj-body>
@@ -96,7 +93,7 @@ export default class ApiController {
     </mj-section>
   </mj-body>
 </mjml>`;
-      // eslint-disable-next-line max-len
+
       await Mailer.sendMail(
         usuario.email,
         null,
@@ -120,10 +117,7 @@ export default class ApiController {
       id: row.id,
       is_primary: row.MetodoAutenticacionUsuario.is_primary,
     }));
-    /*    const token = await Auth.createToken({
-      id: usuario.id,
-      email: usuario.email,
-    }); */
+
     const roles = await getRols.roles(usuario.id);
     const userDatatoken = {
       id: usuario.id, email: usuario.email, last_login: usuario.last_login, two_factor_status: usuario.two_factor_status,
@@ -158,17 +152,14 @@ export default class ApiController {
     return res.status(HttpCode.HTTP_OK).send({});
   }
 
-  // eslint-disable-next-line camelcase
   static async twoFactorAuthLoginChoose(req, res, next) {
-    // eslint-disable-next-line camelcase,prefer-const
-    let { id_metodo } = req.body;
+    let { id_metodo: idMetodo } = req.body;
     let { authorization } = req.headers;
     authorization = authorization.split(' ');
     if (!authorization.length < 2) {
       const receivedToken = authorization[1];
       const { id, email } = jwt.verify(receivedToken, process.env.SECRET_KEY);
-      // eslint-disable-next-line camelcase
-      if (!id_metodo || id_metodo == null || id_metodo === '') {
+      if (!idMetodo || idMetodo == null || idMetodo === '') {
         const getPrimaryMethod = await MetodoAutenticacionUsuario.findOne({
           where: { id_usuario: id, is_primary: true },
         });
@@ -177,17 +168,13 @@ export default class ApiController {
             'Error al realizar la peticion...',
           );
         }
-        // eslint-disable-next-line camelcase
-        id_metodo = getPrimaryMethod.id_metodo;
+        idMetodo = getPrimaryMethod.id_metodo;
       }
-      // eslint-disable-next-line camelcase
-      if (id_metodo === 1) {
+      if (idMetodo === 1) {
         const newToken = speakeasy.generateSecret({ length: 52 }).base32;
-        // eslint-disable-next-line camelcase
         await MetodoAutenticacionUsuario.update(
           { secret_key: newToken },
-          // eslint-disable-next-line camelcase
-          { where: { id_metodo, id_usuario: id } },
+          { where: { id_metodo: idMetodo, id_usuario: id } },
         );
         const verificationCode = await speakeasy.totp({
           secret: newToken,
@@ -218,17 +205,13 @@ export default class ApiController {
   static async verifyTwoFactorAuthLogin(req, res) {
     let dbQueryParams;
     let { authorization } = req.headers;
-    // eslint-disable-next-line camelcase
-    const { id_metodo, codigo } = req.body;
+    const { id_metodo: idMetodo, codigo } = req.body;
     authorization = authorization.split(' ');
     if (!authorization.length < 2) {
       const receivedToken = authorization[1];
       const { id } = jwt.verify(receivedToken, process.env.SECRET_KEY);
-      // eslint-disable-next-line camelcase
-      if (!id_metodo) dbQueryParams = { id_usuario: id, is_primary: true };
-      // eslint-disable-next-line camelcase
-      else dbQueryParams = { id_usuario: id, id_metodo };
-      // eslint-disable-next-line camelcase,no-shadow
+      if (!idMetodo) dbQueryParams = { id_usuario: id, is_primary: true };
+      else dbQueryParams = { id_usuario: id, id_metodo: idMetodo };
       const metodoAutenticacion = await MetodoAutenticacionUsuario.findOne({
         where: dbQueryParams,
       });
@@ -243,7 +226,6 @@ export default class ApiController {
         attributes: ['id', 'email', 'last_login', 'two_factor_status'],
       });
       let timeToCodeValid = null;
-      // eslint-disable-next-line camelcase,no-unused-expressions
       if (Number(metodoAutenticacion.id_metodo) === 1) {
         timeToCodeValid = process.env.GOOGLE_AUTH_TIME_EMAIL;
       }
@@ -271,7 +253,6 @@ export default class ApiController {
         email: usuario.email,
         user: usuario,
       });
-      // eslint-disable-next-line max-len
       return res.status(HttpCode.HTTP_OK).send({
         token,
         refreshToken,
@@ -360,8 +341,7 @@ export default class ApiController {
       email: usuario.email,
     });
 
-    // eslint-disable-next-line no-unused-vars
-    const refreshToken = await Auth.refresh_token(usuario);
+    await Auth.refresh_token(usuario);
 
     await usuario.update(
       { token_valid_after: moment().tz('America/El_Salvador').format() },
@@ -419,8 +399,7 @@ export default class ApiController {
     }
     const { id } = jwt.verify(token, process.env.SECRET_KEY);
 
-    // eslint-disable-next-line no-unused-vars
-    const usuario = await Usuario.update(
+    await Usuario.update(
       {
         password: passwordCrypt,
         token_valid_after: moment().tz('America/El_Salvador').format(),
