@@ -148,7 +148,7 @@ describe('Inicializando pruebas para /api/v1/usuarios', () => {
         .send({
           email,
           password: 'admin',
-          roles: [1],
+          // roles: [1],
         })
         .set('Authorization', `Bearer ${token}`)
         .then((response) => {
