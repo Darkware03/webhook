@@ -3,11 +3,7 @@ import moment from 'moment-timezone';
 import jwt from 'jsonwebtoken';
 import speakeasy from 'speakeasy';
 import { Op } from 'sequelize';
-import {
-  Usuario,
-  RefreshToken,
-  // eslint-disable-next-line import/no-unresolved
-} from '../models/index.mjs';
+import { Usuario, RefreshToken } from '../models/index.mjs';
 import HttpCode from '../../configs/httpCode.mjs';
 import NoAuthException from '../../handlers/NoAuthException.mjs';
 import Auth from '../utils/Auth.mjs';

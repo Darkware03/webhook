@@ -35,6 +35,7 @@ export default class UsuarioController {
       // throw new ForbiddenException('ERROR NO SE HA AUTENTICADO');
 
     }
+
     const connection = DB.connection();
     const t = await connection.transaction();
     const {
@@ -61,6 +62,7 @@ export default class UsuarioController {
         for (let index = 0; index < roles.length; index++) {
           // eslint-disable-next-line no-await-in-loop
           const rol = await Rol.findOne({ where: { id: roles[index] } });
+
           if (!rol) {
             throw new NotFoundException(
               `No se encontró el rol con id ${roles[index]}`,

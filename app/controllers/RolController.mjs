@@ -1,6 +1,5 @@
 import { Rol } from '../models/index.mjs';
 import HttpCode from '../../configs/httpCode.mjs';
-import BadRequestException from '../../handlers/BadRequestException.mjs';
 import VerifyModel from '../utils/VerifyModel.mjs';
 
 export default class RolController {
@@ -15,7 +14,6 @@ export default class RolController {
     const rol = await Rol.create({
       name,
     });
-
     return res.status(HttpCode.HTTP_CREATED).json(rol);
   }
 
@@ -42,16 +40,13 @@ export default class RolController {
 
   static async destroy(req, res) {
     const { id } = req.params;
-    const rol = await VerifyModel.exist(Rol, id, ' El id no es un id válido');
-    try {
-      await rol.destroy({
-        where: {
-          id,
-        },
-      });
-    } catch (error) {
-      throw new BadRequestException('No se puede eliminar el rol seleccionado');
-    }
+    const rol = await VerifyModel.exist(Rol, id, 'El id no es un id válido');
+
+    await rol.destroy({
+      where: {
+        id,
+      },
+    });
 
     return res.status(HttpCode.HTTP_OK).json({
       message: 'Rol Eliminado',

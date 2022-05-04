@@ -82,16 +82,12 @@ export default class RutaController {
     }
 
     if (roles.length === 0) {
-      throw new BadRequestException(
-        'No se envío ningún rol',
-      );
+      throw new BadRequestException('No se envío ningún rol');
     }
-    const ruta = await Ruta.findOne({ where: { id: idRuta } });
-    if (!ruta) throw new NotFoundException(`No se encontró una ruta con id ${idRuta}`);
-    const rutaRols = await ruta.addRols(roles);
+    await VerifyModel.exist(Ruta, idRuta, `No se encontró una ruta con id ${idRuta}`);
 
     return res.status(HttpCode.HTTP_CREATED).json({
-      ruta_rols: rutaRols,
+
     });
   }
 

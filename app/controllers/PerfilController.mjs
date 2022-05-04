@@ -1,7 +1,6 @@
 import { Perfil, PerfilRol, Rol } from '../models/index.mjs';
 import HttpCode from '../../configs/httpCode.mjs';
 import UnprocessableEntityException from '../../handlers/UnprocessableEntityException.mjs';
-import NotFoundException from '../../handlers/NotFoundExeption.mjs';
 import BaseError from '../../handlers/BaseError.mjs';
 import DB from '../nucleo/DB.mjs';
 import VerifyModel from '../utils/VerifyModel.mjs';
@@ -38,7 +37,7 @@ export default class PerfilController {
     if (Number.isNaN(id)) {
       throw new UnprocessableEntityException('El parámetro no es un id válido');
     }
-
+    await VerifyModel.exist(Perfil, id);
     const perfil = await Perfil.findOne({
       where: {
         id,
@@ -66,9 +65,7 @@ export default class PerfilController {
 
   static async destroy(req, res) {
     const { id } = req.params;
-    if (Number.isNaN(id)) {
-      throw new UnprocessableEntityException('El parámetro no es un id válido');
-    }
+    await VerifyModel.exist(Perfil, id, 'El parámetro no es un id válido');
 
     await Perfil.destroy({
       where: {
@@ -112,17 +109,12 @@ export default class PerfilController {
   static async addPerfilRol(req, res) {
     const { id_perfil: idPerfil } = req.params;
     const { rol } = req.body;
-    if (Number.isNaN(idPerfil)) {
-      throw new UnprocessableEntityException('El parametro no es un id válido');
-    }
+
+    await VerifyModel.exist(Perfil, idPerfil, 'El parámetro no es un id válido');
+
     const perfil = await Perfil.findOne({ where: { id: idPerfil } });
-    const role = await Rol.findOne({ where: { id: rol } });
-    if (!perfil) {
-      throw new NotFoundException('El usuario ingresado no coincide con ninguno registrado');
-    }
-    if (!role) {
-      throw new NotFoundException('El rol ingresado no coincide con ninguno registrado');
-    }
+    await VerifyModel.exist(Rol, rol, 'El parámetro no es un id válido');
+    await VerifyModel.exist(PerfilRol, { id_perfil: idPerfil, id_rol: rol }, 'El parámetro no es un id válido');
     const perfilRols = await perfil.addRols(rol);
     if (!perfilRols) {
       //  304 Not Modified
@@ -136,9 +128,7 @@ export default class PerfilController {
   static async destroyPerfilRol(req, res) {
     const { id_perfil: idPerfil } = req.params;
 
-    if (Number.isNaN(idPerfil)) {
-      throw new UnprocessableEntityException('El parametro no es un id válido');
-    }
+    await VerifyModel.exist(Perfil, idPerfil, 'El parámetro no es un id válido');
 
     await PerfilRol.destroy({
       where: {
