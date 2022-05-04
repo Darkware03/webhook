@@ -92,7 +92,7 @@ describe('Inicializando pruebas para /api/v1/roles', () => {
       .put(`/api/v1/roles/${idPrueba}`)
       .send({
         name: 'ROL_PRUEBA',
-        idTipoRol: 1,
+        id_tipo_rol: 1,
       })
       .set('Authorization', `Bearer ${token}`)
       .then((response) => {

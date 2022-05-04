@@ -100,12 +100,12 @@ export default class PerfilController {
 
   static async addPerfilRol(req, res) {
     const { id_perfil: idPerfil } = req.params;
-    const { rol } = req.body;
+    const { id_rol: idRol } = req.body;
     const perfil = await VerifyModel.exist(Perfil, idPerfil, 'El perfil no ha sido encontrado');
 
-    await VerifyModel.exist(Rol, rol, 'El rol no ha sido encontrado');
+    await VerifyModel.exist(Rol, idRol, 'El rol no ha sido encontrado');
 
-    const perfilRols = await perfil.addRols(rol);
+    const perfilRols = await perfil.addRols(idRol);
     if (!perfilRols) {
       //  304 Not Modified
       throw new BaseError('NOT_MODIFIED', 304, 'El rol ya pertenece a un perfil');
@@ -118,14 +118,19 @@ export default class PerfilController {
   static async destroyPerfilRol(req, res) {
     const { id_perfil: idPerfil, id_rol: idRol } = req.params;
 
+    const filtro = {};
+
     await VerifyModel.exist(Perfil, idPerfil, 'El perfil no ha sido encontrado');
-    await VerifyModel.exist(Rol, idRol, 'El rol no ha sido encontrado');
+
+    filtro.id_perfil = idPerfil;
+
+    if (idRol) {
+      await VerifyModel.exist(Rol, idRol, 'El rol no ha sido encontrado');
+      filtro.id_rol = idRol;
+    }
 
     await PerfilRol.destroy({
-      where: {
-        id_perfil: idPerfil,
-        id_rol: idRol,
-      },
+      where: filtro,
     });
     return res.status(HttpCode.HTTP_OK).json({ message: 'roles eliminados' });
   }

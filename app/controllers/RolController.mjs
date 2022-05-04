@@ -31,8 +31,15 @@ export default class RolController {
     const { id } = req.params;
     await VerifyModel.exist(Rol, id, 'El rol no ha sido encontrado');
 
-    const rol = await Rol.update({ name, id_tipo_rol: idTipoRol }, { returning: ['name', 'id_tipo_rol'] });
-    return res.status(HttpCode.HTTP_OK).json(rol);
+    const rol = await Rol.update({
+      name, id_tipo_rol: idTipoRol,
+    }, {
+      where: {
+        id,
+      },
+      returning: ['name', 'id_tipo_rol'],
+    });
+    return res.status(HttpCode.HTTP_OK).json(rol[1]);
   }
 
   static async destroy(req, res) {

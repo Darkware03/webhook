@@ -226,13 +226,19 @@ export default class UsuarioController {
   static async destroyUserRol(req, res) {
     const { id_usuario: idUsuario, id_rol: idRol } = req.params;
 
+    const filtro = {};
+
     await VerifyModel.exist(Usuario, idUsuario, `No se ha encontrado el usuario con id ${idUsuario}`);
-    await VerifyModel.exist(Rol, idRol, `No se ha encontrado el rol con id ${idRol}`);
+
+    filtro.id_usuario = idUsuario;
+
+    if (idRol) {
+      await VerifyModel.exist(Rol, idRol, `No se ha encontrado el rol con id ${idRol}`);
+      filtro.id_rol = idRol;
+    }
+
     await UsuarioRol.destroy({
-      where: {
-        id_usuario: idUsuario,
-        id_rol: idRol,
-      },
+      where: filtro,
     });
     return res.status(HttpCode.HTTP_OK).json({ message: 'roles eliminados' });
   }
