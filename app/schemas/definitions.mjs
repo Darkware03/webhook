@@ -2,7 +2,20 @@ const definitionSchema = {
   $id: 'http://example.com/schemas/defs.json#',
   definitions: {
     integer: { type: 'integer' },
+    intPositivo: {
+      type: 'integer',
+      minimun: 1,
+    },
+    intOrNull: {
+      type: ['null', 'integer'],
+    },
+    double: {
+      type: 'number',
+    },
     string: { type: 'string' },
+    stringOrNull: {
+      type: ['null', 'string'],
+    },
     date: {
       type: 'string',
       format: 'date',
@@ -41,7 +54,34 @@ const definitionSchema = {
       // eslint-disable-next-line no-useless-escape
       pattern: '^[0-9]+([.][0-9]+)?$',
       errorMessage: {
-        pattern: 'La contraseña debe tener entre 8 y 16 caracteres, al menos un dígito, al menos una minúscula, al menos una mayúscula y al menos un caracter no alfanumérico.',
+        type: 'Debe ser decimal',
+        pattern: 'EL campo debe ser un entero o decimal.',
+      },
+    },
+    arrayIntUnico: {
+      type: 'array',
+      uniqueItems: true,
+      minItems: 1,
+      items: {
+        type: 'integer',
+      },
+      errorMessage: {
+        uniqueItems: 'No puede existir paramatros identicos en el array',
+        items: 'Los parametros del array deben ser enteros',
+      },
+    },
+    arrayInt: {
+      type: 'array',
+      minItems: 1,
+      items: {
+        type: 'integer',
+      },
+    },
+    arrayString: {
+      type: 'array',
+      minItems: 1,
+      items: {
+        type: 'string',
       },
     },
   },
