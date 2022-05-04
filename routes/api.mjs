@@ -9,9 +9,10 @@ import routesRoles from './api/rol.mjs';
 import routesPerfil from './api/perfil.mjs';
 import routesRutas from './api/ruta.mjs';
 import recoveryPasswordSchema from '../app/schemas/RecoveryPasswordSchema.mjs';
+import loginSchema from '../app/schemas/LoginSchema.mjs';
 
 const router = Router();
-router.post('/v1/login', Call(ApiController.login));
+router.post('/v1/login', [validate(loginSchema)], Call(ApiController.login));
 router.post('/v1/logout', [auth, bitacora], Call(ApiController.logout));
 router.post('/v1/2fa', Call(ApiController.twoFactorAuthLoginChoose));
 router.post('/v1/2fa/check', Call(ApiController.verifyTwoFactorAuthLogin));

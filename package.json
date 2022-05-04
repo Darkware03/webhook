@@ -28,6 +28,7 @@
     "@aws-sdk/client-s3": "^3.78.0",
     "@babel/runtime": "^7.16.3",
     "ajv": "^8.9.0",
+    "ajv-dates": "^1.1.0",
     "ajv-errors": "^3.0.0",
     "ajv-formats": "^2.1.1",
     "bcryptjs": "^2.4.3",

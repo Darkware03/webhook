@@ -1,10 +1,15 @@
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
 import AjvErrors from 'ajv-errors';
+import { dates } from 'ajv-dates';
+import definitionSchema from '../schemas/definitions.mjs';
 
-const ajv = new Ajv({ allErrors: true });
+const ajv = dates(new Ajv({
+  allErrors: true,
+}));
 
 addFormats(ajv);
 AjvErrors(ajv);
+ajv.addSchema(definitionSchema);
 
 export default ajv;
