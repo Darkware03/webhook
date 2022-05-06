@@ -36,6 +36,7 @@ export default class UsuarioController {
     const {
       perfiles, roles, email, password,
     } = req.body;
+    const isSuspended = process.env.DISABLE_TWO_FACTOR_AUTH === 'false';
     const salt = bcrypt.genSaltSync();
     const passwordCrypt = bcrypt.hashSync(password, salt);
 
@@ -62,9 +63,8 @@ export default class UsuarioController {
           await VerifyModel.exist(Rol, roles[index], `No se ha encontrado el rol con id ${roles[index]}`);
         }
       }
-
       const usuario = await Usuario.create(
-        { email, password: passwordCrypt, is_suspended: true },
+        { email, password: passwordCrypt, is_suspended: isSuspended },
         { transaction: t },
       );
 
