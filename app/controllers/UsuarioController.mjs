@@ -39,6 +39,14 @@ export default class UsuarioController {
     const salt = bcrypt.genSaltSync();
     const passwordCrypt = bcrypt.hashSync(password, salt);
 
+    const emailExist = await Usuario.findOne({
+      where: {
+        email,
+      },
+    });
+
+    if (emailExist) throw new UnprocessableEntityException('Correo electronico ya existe');
+
     try {
       if (perfiles) {
         // eslint-disable-next-line no-plusplus
@@ -504,7 +512,7 @@ export default class UsuarioController {
         icono: metodo.icono,
         id: metodo.id,
         is_primary:
-          isPrimary.length > 0 ? isPrimary[0].MetodoAutenticacionUsuario.is_primary : null,
+                    isPrimary.length > 0 ? isPrimary[0].MetodoAutenticacionUsuario.is_primary : null,
         id_metodo_usuario: isPrimary.length > 0 ? isPrimary[0].MetodoAutenticacionUsuario.id : null,
       };
     });
