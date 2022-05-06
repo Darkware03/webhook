@@ -13,7 +13,7 @@ const router = Router();
 router.get('/metodos-autenticacion-usuario', [validateRole('ROLE_USER_METHOD_LIST')], Call(UsuarioController.getMetodosUsuario));
 router.get('/', [validateRole('ROLE_USER_LIST')], Call(UsuarioController.index));
 router.post('/', [validateRole('ROLE_USER_CREATE'), validate(usuarioCreateSchema)], Call(UsuarioController.store));
-router.get('/:id', [validateRole('ROLE_USER_PERFIL_LIST')], Call(UsuarioController.show));
+router.get('/:id', [validateRole('ROLE_USER_LIST')], Call(UsuarioController.show));
 router.put('/:id', [validateRole('ROLE_USER_UPDATE')], Call(UsuarioController.update));
 router.delete('/:id', [validateRole('ROLE_USER_DELETE')], Call(UsuarioController.destroy));
 router.post('/:id_usuario/perfiles', [validateRole('ROLE_USER_PERFIL_CREATE'), validate(usuarioAddUserProfileSchema)], Call(UsuarioController.addUserProfile));

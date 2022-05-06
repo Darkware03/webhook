@@ -181,8 +181,8 @@ export default class UsuarioController {
       `No se ha encontrado el usuario con id ${id}`,
       {
         include: [
-          { model: Perfil },
-          { model: Rol },
+          { model: Perfil, through: { attributes: [] } },
+          { model: Rol, through: { attributes: [] } },
         ],
       },
     );
