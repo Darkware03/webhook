@@ -132,12 +132,10 @@ export default class UsuarioController {
   }
 
   static async update(req, res) {
-    const { email, password, is_suspended: isSuspended } = req.body;
+    const {
+      email, is_suspended: isSuspended, roles, perfiles,
+    } = req.body;
     const dataToUpdate = {};
-    if (password !== null && password !== '') {
-      dataToUpdate.password = password;
-    }
-
     if (isSuspended !== null && isSuspended !== '') {
       dataToUpdate.is_suspended = isSuspended;
     }
@@ -154,7 +152,10 @@ export default class UsuarioController {
       },
       returning: ['id', 'email', 'is_suspended'],
     });
-    return res.status(HttpCode.HTTP_OK).json({ message: 'Usuario actualizado' });
+
+    await usuario.setRols(roles);
+    await usuario.setPerfils(perfiles);
+    return res.status(HttpCode.HTTP_OK).json(usuario);
   }
 
   static async destroy(req, res) {
