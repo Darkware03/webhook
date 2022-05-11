@@ -23,11 +23,22 @@ import ForbiddenException from '../../handlers/ForbiddenException.mjs';
 
 export default class UsuarioController {
   static async index(req, res) {
-    const usuarios = await Usuario.findAll({
+    const page = Number(req.query.page);
+    const perPage = Number(req.query.per_page);
+    const { rows: usuarios, count: totalRows } = await Usuario.findAndCountAll({
+      distinct: true,
+      limit: perPage,
+      offset: (page - 1) * perPage,
       attributes: { exclude: ['password', 'token_valid_after', 'two_factor_status'] },
       include: [Rol, Perfil],
+      order: ['id'],
     });
-    return res.status(HttpCode.HTTP_OK).json(usuarios);
+    return res.status(HttpCode.HTTP_OK).json({
+      page,
+      per_page: perPage,
+      total_rows: totalRows,
+      body: usuarios,
+    });
   }
 
   static async store(req, res) {
@@ -133,12 +144,9 @@ export default class UsuarioController {
 
   static async update(req, res) {
     const {
-      email, is_suspended: isSuspended, roles, perfiles,
+      email, roles, perfiles,
     } = req.body;
     const dataToUpdate = {};
-    if (isSuspended !== null && isSuspended !== '') {
-      dataToUpdate.is_suspended = isSuspended;
-    }
 
     if (email !== null && email !== '') {
       dataToUpdate.email = email;
@@ -162,9 +170,9 @@ export default class UsuarioController {
     const { id } = req.params;
     const usuario = await VerifyModel.exist(Usuario, id, `No se ha encontrado el usuario con id ${id}`);
 
-    usuario.update(
+    await usuario.update(
       {
-        is_suspended: true,
+        is_suspended: !usuario.is_suspended,
       },
     );
 
@@ -190,66 +198,6 @@ export default class UsuarioController {
 
     // const { Perfils: perfiles, Rols: roles, ...usuario } = user.dataValues;
     res.status(HttpCode.HTTP_OK).json(user);
-  }
-
-  static async addUserProfile(req, res) {
-    const { id_usuario: idUsuario } = req.params;
-
-    const { perfiles } = req.body;
-
-    const user = await VerifyModel.exist(Usuario, idUsuario, `No se ha encontrado el usuario con id ${idUsuario}`);
-    const userProfiles = await user.addPerfils(perfiles);
-
-    return res.status(HttpCode.HTTP_CREATED).json({
-      user,
-      userProfiles,
-    });
-  }
-
-  static async addUserRole(req, res) {
-    const { id_usuario: idUsuario } = req.params;
-    const { roles } = req.body;
-
-    const user = await VerifyModel.exist(Usuario, idUsuario, `No se ha encontrado el usuario con id ${idUsuario}`);
-    const userRols = await user.addRols(roles);
-
-    return res.status(HttpCode.HTTP_CREATED).json({
-      user_rols: userRols,
-    });
-  }
-
-  static async destroyUserPerfil(req, res) {
-    const { id_usuario: idUsuario, id_perfil: idPerfil } = req.params;
-
-    await VerifyModel.exist(Usuario, idUsuario, `No se ha encontrado el usuario con id ${idUsuario}`);
-    await VerifyModel.exist(Perfil, idPerfil, `No se ha encontrado el perfil con id ${idPerfil}`);
-    await UsuarioPerfil.destroy({
-      where: {
-        id_usuario: idUsuario,
-        id_perfil: idPerfil,
-      },
-    });
-    return res.status(HttpCode.HTTP_OK).json({ message: 'Perfiles eliminados' });
-  }
-
-  static async destroyUserRol(req, res) {
-    const { id_usuario: idUsuario, id_rol: idRol } = req.params;
-
-    const filtro = {};
-
-    await VerifyModel.exist(Usuario, idUsuario, `No se ha encontrado el usuario con id ${idUsuario}`);
-
-    filtro.id_usuario = idUsuario;
-
-    if (idRol) {
-      await VerifyModel.exist(Rol, idRol, `No se ha encontrado el rol con id ${idRol}`);
-      filtro.id_rol = idRol;
-    }
-
-    await UsuarioRol.destroy({
-      where: filtro,
-    });
-    return res.status(HttpCode.HTTP_OK).json({ message: 'roles eliminados' });
   }
 
   static async updatePassword(req, res) {
