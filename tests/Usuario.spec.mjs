@@ -158,21 +158,6 @@ describe('Inicializando pruebas para /api/v1/usuarios', () => {
           done(err);
         });
     });
-    it('Test de put [put] /api/v1/users, caso de exito: cambio de estado suspendido', (done) => {
-      chai.request(url)
-        .put(`/api/v1/users/${idUsuario}`)
-        .send({
-          is_suspended: false,
-        })
-        .set('Authorization', `Bearer ${token}`)
-        .then((response) => {
-          expect(response).to.have.status(200);
-          done();
-        })
-        .catch((err) => {
-          done(err);
-        });
-    });
   });
 
   describe('Test de cambio de contraseña de usuarios', () => {
@@ -219,30 +204,6 @@ describe('Inicializando pruebas para /api/v1/usuarios', () => {
         .set('Authorization', `Bearer ${token}`)
         .then((response) => {
           expect(response).to.have.status(403);
-          done();
-        })
-        .catch((err) => {
-          done(err);
-        });
-    });
-    it('Test de delete roles user [delete] /api/v1/users/:id_usuario/roles, caso de error: el parametro no es un id valido', (done) => {
-      chai.request(url)
-        .delete('/api/v1/users/2a/roles')
-        .set('Authorization', `Bearer ${token}`)
-        .then((response) => {
-          expect(response).to.have.status(422);
-          done();
-        })
-        .catch((err) => {
-          done(err);
-        });
-    });
-    it('Test de delete roles user [delete] /api/v1/users/:id_usuario/roles, caso exitoso', (done) => {
-      chai.request(url)
-        .delete('/api/v1/users/2/roles')
-        .set('Authorization', `Bearer ${token}`)
-        .then((response) => {
-          expect(response).to.have.status(200);
           done();
         })
         .catch((err) => {
