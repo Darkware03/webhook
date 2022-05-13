@@ -177,7 +177,7 @@ export default class UsuarioController {
     );
 
     return res.status(HttpCode.HTTP_OK).json({
-      message: 'Usuario Eliminado',
+      message: usuario.is_suspended ? 'Usuario deshabilitado' : 'Usuario habilitado',
     });
   }
 
