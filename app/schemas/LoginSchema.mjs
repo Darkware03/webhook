@@ -9,7 +9,7 @@ const loginSchema = {
       },
     },
     password: {
-      $ref: 'defs.json#/definitions/fechaMenorActual',
+      $ref: 'defs.json#/definitions/string',
     },
   },
   required: ['email', 'password'],

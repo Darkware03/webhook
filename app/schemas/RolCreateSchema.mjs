@@ -1,17 +1,18 @@
 const rolCreateSchema = {
+  $id: 'http://example.com/schemas/rolCreateSchema.json#',
   type: 'object',
   properties: {
     name: {
-      type: 'string',
-      errorMessage: {
-        type: 'El name debe ser de tipo caracteres',
-      },
+      $ref: 'defs.json#/definitions/string',
     },
   },
   required: ['name'],
   errorMessage: {
     required: {
       name: 'El campo name es requerido',
+    },
+    properties: {
+      name: 'El campo name debe ser de tipo alfanumérico',
     },
   },
 };

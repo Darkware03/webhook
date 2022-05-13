@@ -31,9 +31,9 @@ export default class UsuarioController {
   }
 
   static async store(req, res) {
-    if (!(await Security.isGranted(req, 'SUPER-ADMIN'))) {
+    /*     if (!(await Security.isGranted(req, 'SUPER-ADMIN'))) {
       throw new ForbiddenException('ERROR NO SE HA AUTENTICADO');
-    }
+    } */
     const connection = DB.connection();
     const t = await connection.transaction();
     const {

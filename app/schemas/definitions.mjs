@@ -67,7 +67,6 @@ const definitionSchema = {
       },
       errorMessage: {
         uniqueItems: 'No puede existir paramatros identicos en el array',
-        items: 'Los parametros del array deben ser enteros',
       },
     },
     arrayInt: {
@@ -84,10 +83,13 @@ const definitionSchema = {
         type: 'string',
       },
     },
-  },
-  errorMessage: {
-    properties: {
-      isAfter: 'La fecha debe ser mayor a la actual',
+    codigo: {
+      type: 'string',
+      maxLength: 5,
+      errorMessage: {
+        type: 'El codigo del perfil debe ser de tipo alfanumérico',
+        maxLength: 'El codigo debe ser maximo 5 caracteres',
+      },
     },
   },
 

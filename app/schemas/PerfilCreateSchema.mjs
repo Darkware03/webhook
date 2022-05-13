@@ -1,29 +1,15 @@
 const perfilCreateSchema = {
+  $id: 'http://example.com/schemas/perfilCreateSchema.json#',
   type: 'object',
   properties: {
     nombre: {
-      type: 'string',
-      errorMessage: {
-        type: 'El nombre del perfil debe ser de tipo alfanumerico',
-      },
+      $ref: 'defs.json#/definitions/string',
     },
     codigo: {
-      type: 'string',
-      maxLength: 5,
-      errorMessage: {
-        type: 'El codigo del perfil debe ser de tipo alfanumérico',
-        maxLength: 'El codigo debe ser maximo 5 caracteres',
-      },
+      $ref: 'defs.json#/definitions/codigo',
     },
     roles: {
-      type: 'array',
-      uniqueItems: true,
-      minItems: 1,
-      errorMessage: {
-        type: 'Los roles del perfil debe ser un arreglo de enteros',
-        minItems: 'Debe de asignarle por lo menos un rol',
-        uniqueItems: 'Los id propocionados deben ser unicos',
-      },
+      $ref: 'defs.json#/definitions/arrayIntUnico',
     },
   },
   required: ['nombre', 'codigo', 'roles'],
@@ -32,6 +18,10 @@ const perfilCreateSchema = {
       nombre: 'El nombre es requerido',
       codigo: 'El código es requerido',
       roles: 'El campo roles es requerido',
+    },
+    properties: {
+      nombre: 'el nombre debe ser de tipo alfanumerico',
+      roles: 'Los roles deber ser un array numerico',
     },
   },
 };

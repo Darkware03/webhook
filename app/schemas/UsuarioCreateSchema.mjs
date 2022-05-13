@@ -1,39 +1,18 @@
 const usuarioCreateSchema = {
+  $id: 'http://example.com/schemas/usuarioCreateSchema.json#',
   type: 'object',
   properties: {
     password: {
-      type: 'string',
-      errorMessage: {
-        type: 'La contraseña del usuario debe ser de tipo alfanumerico',
-      },
+      $ref: 'defs.json#/definitions/password',
     },
     email: {
-      type: 'string',
-      errorMessage: {
-        type: 'El email del usuario debe ser de tipo alfanumerico',
-      },
+      $ref: 'defs.json#/definitions/email',
     },
     perfiles: {
-      type: 'array',
-      uniqueItems: true,
-      minItems: 0,
-      items: {
-        type: 'integer',
-      },
-      errorMessage: {
-        type: 'El id del perfil debe ser de tipo entero',
-      },
+      $ref: 'defs.json#/definitions/arrayIntUnico',
     },
     roles: {
-      type: 'array',
-      uniqueItems: true,
-      minItems: 0,
-      items: {
-        type: 'integer',
-      },
-      errorMessage: {
-        type: 'El id del rol debe ser de tipo entero',
-      },
+      $ref: 'defs.json#/definitions/arrayIntUnico',
     },
   },
   anyOf: [{ required: ['roles'], errorMessage: { required: 'Debe poseer un rol o un pefil' } }, { required: ['perfiles'], errorMessage: { required: 'Debe poseer un rol o un pefil' } }],
@@ -42,6 +21,10 @@ const usuarioCreateSchema = {
     required: {
       password: 'El campo de contraseña del usuario es requerido',
       email: 'El campo de email del usuario es requerido',
+    },
+    properties: {
+      perfiles: 'El campo perfiles debe de ser un array de valores unicos y tipo numerico',
+      roles: 'El campo roles debe de ser un array de valores unicos y tipo numerico',
     },
   },
 };
