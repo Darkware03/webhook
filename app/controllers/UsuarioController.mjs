@@ -10,7 +10,7 @@ import BadRequestException from '../../handlers/BadRequestException.mjs';
 import NotFoundException from '../../handlers/NotFoundExeption.mjs';
 import UnprocessableEntityException from '../../handlers/UnprocessableEntityException.mjs';
 import Mailer from '../services/mailer.mjs';
-
+import VerifyModel from '../utils/VerifyModel.mjs';
 import {
   Usuario, UsuarioRol, UsuarioPerfil, Perfil, Rol,
 } from '../models/index.mjs';
@@ -23,53 +23,59 @@ import ForbiddenException from '../../handlers/ForbiddenException.mjs';
 
 export default class UsuarioController {
   static async index(req, res) {
-    const usuarios = await Usuario.findAll({
+    const page = Number(req.query.page) || 1;
+    const perPage = Number(req.query.per_page) || 10;
+    const { rows: usuarios, count: totalRows } = await Usuario.findAndCountAll({
+      distinct: true,
+      limit: perPage,
+      offset: (page - 1) * perPage,
       attributes: { exclude: ['password', 'token_valid_after', 'two_factor_status'] },
       include: [Rol, Perfil],
+      order: ['id'],
     });
-    return res.status(HttpCode.HTTP_OK).json(usuarios);
+    return res.status(HttpCode.HTTP_OK).json({
+      page,
+      per_page: perPage,
+      total_rows: totalRows,
+      body: usuarios,
+    });
   }
 
   static async store(req, res) {
-    /*     if (!(await Security.isGranted(req, 'SUPER-ADMIN'))) {
-      throw new ForbiddenException('ERROR NO SE HA AUTENTICADO');
-    } */
     const connection = DB.connection();
     const t = await connection.transaction();
     const {
       perfiles, roles, email, password,
     } = req.body;
+    const isSuspended = process.env.DISABLE_TWO_FACTOR_AUTH === 'false';
     const salt = bcrypt.genSaltSync();
     const passwordCrypt = bcrypt.hashSync(password, salt);
+
+    const emailExist = await Usuario.findOne({
+      where: {
+        email,
+      },
+    });
+
+    if (emailExist) throw new UnprocessableEntityException('Correo electronico ya existe');
 
     try {
       if (perfiles) {
         // eslint-disable-next-line no-plusplus
         for (let index = 0; index < perfiles.length; index++) {
           // eslint-disable-next-line no-await-in-loop
-          const perfil = await Perfil.findOne({ where: { id: perfiles[index] } });
-          if (!perfil) {
-            throw new NotFoundException(
-              `No se encontró el perfil con id ${perfiles[index]}`,
-            );
-          }
+          await VerifyModel.exist(Perfil, perfiles[index], `No se ha encontrado el perfil con id ${perfiles[index]}`);
         }
       }
       if (roles) {
         // eslint-disable-next-line no-plusplus
         for (let index = 0; index < roles.length; index++) {
           // eslint-disable-next-line no-await-in-loop
-          const rol = await Rol.findOne({ where: { id: roles[index] } });
-          if (!rol) {
-            throw new NotFoundException(
-              `No se encontró el rol con id ${roles[index]}`,
-            );
-          }
+          await VerifyModel.exist(Rol, roles[index], `No se ha encontrado el rol con id ${roles[index]}`);
         }
       }
-
       const usuario = await Usuario.create(
-        { email, password: passwordCrypt, is_suspended: true },
+        { email, password: passwordCrypt, is_suspended: isSuspended },
         { transaction: t },
       );
 
@@ -137,46 +143,36 @@ export default class UsuarioController {
   }
 
   static async update(req, res) {
-    // eslint-disable-next-line camelcase
-    const { email, password, is_suspended } = req.body;
+    const {
+      email, roles, perfiles,
+    } = req.body;
     const dataToUpdate = {};
-    if (req.body.password !== null && req.body.password !== '') {
-      dataToUpdate.password = req.body.password;
+
+    if (email !== null && email !== '') {
+      dataToUpdate.email = email;
     }
 
-    if (req.body.is_suspended !== null && req.body.is_suspended !== '') {
-      dataToUpdate.is_suspended = req.body.is_suspended;
-    }
+    const usuario = await VerifyModel.exist(Usuario, req.params.id, `No se ha encontrado el usuario con id ${req.params.id}`);
 
-    if (req.body.email !== null && req.body.email !== '') {
-      dataToUpdate.email = req.body.email;
-    }
-
-    const usuario = await Usuario.update(dataToUpdate, {
+    usuario.update(dataToUpdate, {
       where: {
         id: req.params.id,
       },
       returning: ['id', 'email', 'is_suspended'],
     });
-    return res.status(HttpCode.HTTP_OK).json(usuario[1]);
+
+    await usuario.setRols(roles);
+    await usuario.setPerfils(perfiles);
+    return res.status(HttpCode.HTTP_OK).json(usuario);
   }
 
   static async destroy(req, res) {
     const { id } = req.params;
-    if (Number.isNaN(id)) {
-      throw new UnprocessableEntityException(
-        'El parámetro no es un id válido',
-      );
-    }
+    const usuario = await VerifyModel.exist(Usuario, id, `No se ha encontrado el usuario con id ${id}`);
 
-    await Usuario.update(
+    await usuario.update(
       {
-        is_suspended: true,
-      },
-      {
-        where: {
-          id,
-        },
+        is_suspended: !usuario.is_suspended,
       },
     );
 
@@ -187,90 +183,21 @@ export default class UsuarioController {
 
   static async show(req, res) {
     const { id } = req.params;
-    if (Number.isNaN(id)) {
-      throw new UnprocessableEntityException(
-        'El parámetro no es un id válido',
-      );
-    }
 
-    const user = await Usuario.getById(id);
-
-    if (!user) {
-      throw new NotFoundException();
-    }
-    const { Perfils: perfiles, Rols: roles, ...usuario } = user.dataValues;
-    res.status(HttpCode.HTTP_OK).json({ ...usuario, perfiles, roles });
-  }
-
-  static async addUserProfile(req, res) {
-    const { id_usuario: idUsuario } = req.params;
-    if (Number.isNaN(idUsuario)) {
-      throw new UnprocessableEntityException(
-        'El parametro no es un id válido',
-      );
-    }
-
-    const { perfiles } = req.body;
-
-    const user = await Usuario.findOne({ where: { id: idUsuario } });
-    const userProfils = await user.addPerfils(perfiles);
-
-    return res.status(HttpCode.HTTP_CREATED).json({
-      user,
-      userProfils,
-    });
-  }
-
-  static async addUserRole(req, res) {
-    const { id_usuario: idUsuario } = req.params;
-    const { roles } = req.body;
-
-    if (Number.isNaN(idUsuario)) {
-      throw new UnprocessableEntityException(
-        'El parametro no es un id válido',
-      );
-    }
-
-    const user = await Usuario.findOne({ where: { id: idUsuario } });
-    const userRols = await user.addRols(roles);
-
-    return res.status(HttpCode.HTTP_CREATED).json({
-      user_rols: userRols,
-    });
-  }
-
-  static async destroyUserPerfil(req, res) {
-    const { id_usuario: idUsuario } = req.params;
-
-    if (Number.isNaN(idUsuario)) {
-      throw new UnprocessableEntityException(
-        'El parametro no es un id válido',
-      );
-    }
-
-    await UsuarioPerfil.destroy({
-      where: {
-        id_usuario: idUsuario,
+    const user = await VerifyModel.exist(
+      Usuario,
+      id,
+      `No se ha encontrado el usuario con id ${id}`,
+      {
+        include: [
+          { model: Perfil, through: { attributes: [] } },
+          { model: Rol, through: { attributes: [] } },
+        ],
       },
-    });
-    return res.status(HttpCode.HTTP_OK).json({ message: 'Perfiles eliminados' });
-  }
+    );
 
-  static async destroyUserRol(req, res) {
-    const { id_usuario: idUsuario } = req.params;
-
-    if (Number.isNaN(idUsuario)) {
-      throw new UnprocessableEntityException(
-        'El parametro no es un id válido',
-      );
-    }
-
-    await UsuarioRol.destroy({
-      where: {
-        id_usuario: idUsuario,
-      },
-    });
-    return res.status(HttpCode.HTTP_OK).json({ message: 'roles eliminados' });
+    // const { Perfils: perfiles, Rols: roles, ...usuario } = user.dataValues;
+    res.status(HttpCode.HTTP_OK).json(user);
   }
 
   static async updatePassword(req, res) {
@@ -334,7 +261,7 @@ export default class UsuarioController {
     const { email, password } = req.body;
     /** Validacion que el correo ingresado no sea igual al correo actual */
     if (email === req.usuario.email) {
-      throw new NotFoundException(
+      throw new UnprocessableEntityException(
         'El correo no puede ser igual al anterior',
       );
     }
@@ -403,27 +330,23 @@ export default class UsuarioController {
   }
 
   static async storeMethodUser(req, res) {
-    // eslint-disable-next-line camelcase
-    const { id_metodo } = req.body;
-    // eslint-disable-next-line camelcase
+    const { id_metodo: idMetodo } = req.body;
+
     const existMethod = await MetodoAutenticacionUsuario.findOne({
       where: {
         id_usuario: req.usuario.id,
-        // eslint-disable-next-line camelcase
-        id_metodo,
+        id_metodo: idMetodo,
       },
     });
     const newToken = await Security.generateTwoFactorAuthCode(req.usuario.email);
     if (!existMethod) {
       await MetodoAutenticacionUsuario.create({
-        // eslint-disable-next-line camelcase
-        id_metodo,
+        id_metodo: idMetodo,
         id_usuario: req.usuario.id,
         is_primary: false,
         temporal_key: newToken.secret_code,
       });
-      // eslint-disable-next-line camelcase
-      if (Number(id_metodo) === 2) {
+      if (Number(idMetodo) === 2) {
         return res.status(HttpCode.HTTP_OK).send({
           message: 'Favor valide el nuevo metodo de autenticacion, escanee el codigo qr',
           codigoQr: await toDataURL(newToken.qrCode),
@@ -445,8 +368,7 @@ export default class UsuarioController {
       });
     }
     await existMethod.update({ temporal_key: newToken.secret_code });
-    // eslint-disable-next-line camelcase,max-len
-    if (Number(id_metodo) === 2) {
+    if (Number(idMetodo) === 2) {
       return res.status(HttpCode.HTTP_OK).send({
         message: 'Favor valide el nuevo metodo de autenticacion, escanee el codigo qr',
         codigoQr: await toDataURL(newToken.qrCode),
@@ -458,16 +380,13 @@ export default class UsuarioController {
   }
 
   static async verifyNewMethodUser(req, res) {
-    // eslint-disable-next-line camelcase
-    const { id_metodo, codigo } = req.body;
+    const { id_metodo: idMetodo, codigo } = req.body;
     let timeToCodeValid = null;
-    // eslint-disable-next-line camelcase,no-unused-expressions
-    if (Number(id_metodo) === 1) timeToCodeValid = process.env.GOOGLE_AUTH_TIME_EMAIL;
+    if (Number(idMetodo) === 1) timeToCodeValid = process.env.GOOGLE_AUTH_TIME_EMAIL;
     const methodUser = await MetodoAutenticacionUsuario.findOne({
       where: {
         id_usuario: req.usuario.id,
-        // eslint-disable-next-line camelcase
-        id_metodo,
+        id_metodo: idMetodo,
       },
     });
     if (!methodUser) {
@@ -532,9 +451,7 @@ export default class UsuarioController {
         },
       ],
     });
-    // eslint-disable-next-line array-callback-return
     const metodosAutenticacion = metodos.map((metodo) => {
-      // eslint-disable-next-line no-mixed-operators
       const isPrimary = usuario.MetodoAutenticacions.filter(
         (metodoUsuario) => metodoUsuario.id === metodo.id,
       );
@@ -544,7 +461,7 @@ export default class UsuarioController {
         icono: metodo.icono,
         id: metodo.id,
         is_primary:
-          isPrimary.length > 0 ? isPrimary[0].MetodoAutenticacionUsuario.is_primary : null,
+                    isPrimary.length > 0 ? isPrimary[0].MetodoAutenticacionUsuario.is_primary : null,
         id_metodo_usuario: isPrimary.length > 0 ? isPrimary[0].MetodoAutenticacionUsuario.id : null,
       };
     });

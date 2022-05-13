@@ -16,6 +16,6 @@ router.get('/:id', [validateRole('ROLE_PROFILE_LIST')], Call(PerfilController.sh
 router.put('/:id', [validateRole('ROLE_PROFILE_UPDATE'), validate(perfilUpdateSchema)], Call(PerfilController.update));
 router.delete('/:id', [validateRole('ROLE_PROFILE_DELETE')], Call(PerfilController.destroy));
 router.post('/:id_perfil/roles', [validateRole('ROLE_PROFILE_ROL_CREATE'), validate(AddPerfilRolesSchema)], Call(PerfilController.addPerfilRol));
-router.delete('/:id_perfil/roles', [validateRole('ROLE_PROFILE_ROL_DELETE')], Call(PerfilController.destroyPerfilRol));
+router.delete('/:id_perfil/roles/:id_rol?', [validateRole('ROLE_PROFILE_ROLE_DELETE')], Call(PerfilController.destroyPerfilRol));
 
 export default router;

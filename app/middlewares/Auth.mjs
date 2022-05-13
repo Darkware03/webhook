@@ -22,9 +22,8 @@ const Auth = async (req, res, next) => {
       where: { id, is_suspended: false },
     });
 
+    if (!usuario) throw new NoAuthException();
     const fechaValidacionToken = new Date(moment(usuario.token_valid_after).format()).getTime();
-
-    if (usuario.is_suspended) throw new NoAuthException();
 
     if (fechaValidacionToken > fechaCreacionToken) {
       throw new NoAuthException();
