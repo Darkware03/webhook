@@ -144,7 +144,7 @@ export default class UsuarioController {
 
   static async update(req, res) {
     const {
-      email, roles, perfiles,
+      email, roles = [], perfiles = [],
     } = req.body;
     const dataToUpdate = {};
 
