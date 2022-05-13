@@ -10,7 +10,7 @@ export default class RolController {
   }
 
   static async store(req, res) {
-    const { name, idTipoRol } = req.body;
+    const { name, id_tipo_rol: idTipoRol } = req.body;
     await VerifyModel.exist(TipoRol, idTipoRol, 'El tipo de rol no se ha encontrado');
 
     const rol = await Rol.create({
@@ -27,7 +27,7 @@ export default class RolController {
   }
 
   static async update(req, res) {
-    const { name, idTipoRol } = req.body;
+    const { name, id_tipo_rol: idTipoRol } = req.body;
     const { id } = req.params;
     await VerifyModel.exist(Rol, id, 'El rol no ha sido encontrado');
 

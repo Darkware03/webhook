@@ -3,4 +3,5 @@ $include: "usuario.yaml"
 $include: "perfil.yaml"
 $include: "rol.yaml"
 $include: "ruta.yaml"
+$include: "tipoRol.yaml"
 
