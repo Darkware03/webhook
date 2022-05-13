@@ -11,10 +11,10 @@ export default class RolController {
 
   static async store(req, res) {
     const { name, id_tipo_rol: idTipoRol } = req.body;
-    await VerifyModel.exist(TipoRol, idTipoRol, 'El tipo de rol no se ha encontrado');
+    const tipoRol = await VerifyModel.exist(TipoRol, idTipoRol, 'El tipo de rol no se ha encontrado');
 
     const rol = await Rol.create({
-      name,
+      name: tipoRol.prefijo + name.trim().uppercase(),
       id_tipo_rol: idTipoRol,
     });
     return res.status(HttpCode.HTTP_CREATED).json(rol);
