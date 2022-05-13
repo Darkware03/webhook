@@ -12,6 +12,10 @@ module.exports = {
         type: psql.Sequelize.STRING(255),
         allowNull: false,
       },
+      prefijo: {
+        type: psql.Sequelize.STRING(255),
+        allowNull: false,
+      },
     });
   },
 

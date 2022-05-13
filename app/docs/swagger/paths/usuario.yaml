@@ -8,7 +8,20 @@
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/Usuario"
+            type: object
+            properties:
+              email:
+                type: string
+              password: 
+                type: string
+              roles:
+                type: array
+                items:
+                  type: integer
+              perfiles:
+                type: array
+                items:
+                  type: integer
       required: true
     responses:
       201:
