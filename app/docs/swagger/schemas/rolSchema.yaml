@@ -1,6 +1,6 @@
 type: object
 properties:
-  id:
-    type: integer
   name:
     type: string
+  id_tipo_rol:
+    type: integer
