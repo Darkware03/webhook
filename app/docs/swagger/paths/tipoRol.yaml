@@ -1,0 +1,55 @@
+/api/v1/tipo/roles:
+  get:
+    tags:
+      - tipoRol
+    operationId: getTipoROl
+    requestBody:
+      description: Objeto del tipo roles
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+      required: true
+    responses:
+      201:
+        description: Rol agregado
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+      400:
+        description: Bad Request
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+      401:
+        description: Unauthorized
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/Error"
+      403:
+        description: Not Found
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/Error"
+      500:
+        description: Internal Server Error
+        content:
+  x-codegen-request-body-name: body
+  area: development
+
