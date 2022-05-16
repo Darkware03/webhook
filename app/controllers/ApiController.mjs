@@ -274,11 +274,8 @@ export default class ApiController {
         },
       ],
     });
-
     if (!refreshTokenExist) {
-      throw new NotFoundException(
-        'Error al realizar la peticion...',
-      );
+      throw new NoAuthException();
     }
     const roles = await getRols.roles(refreshTokenExist.Usuario.id);
     const tokenValidTime = new Date(moment(refreshTokenExist.valid).format()).getTime();
