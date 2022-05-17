@@ -1,22 +1,18 @@
 const usuarioDestroyUserRolSchema = {
+  $id: 'http://example.com/schemas/usuarioDestroyUserPerfilSchema.json#',
   type: 'object',
   properties: {
     roles: {
-      type: 'array',
-      uniqueItems: true,
-      minItems: 1,
-      items: {
-        type: 'integer',
-      },
-      errorMessage: {
-        type: 'El id del perfil debe ser de tipo entero',
-      },
+      $ref: 'defs.json#/definitions/arrayIntUnico',
     },
   },
   required: ['roles'],
   errorMessage: {
     required: {
       roles: 'El id del perfil es requerido',
+    },
+    properties: {
+      roles: 'El campo roles debe de ser un array de valores unicos y tipo numerico',
     },
   },
 };

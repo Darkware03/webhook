@@ -71,9 +71,9 @@ module.exports = {
       );
 
       const [backend, admin] = await queryInterface.bulkInsert('ctl_tipo_rol', [
-        { name: 'Backend' },
-        { name: 'Admin' },
-        { name: 'Frontend' },
+        { name: 'Backend', prefijo: 'ROLE_' },
+        { name: 'Admin', prefijo: 'ROLE_ADMIN_' },
+        { name: 'Frontend', prefijo: 'ROLE_FRONT_' },
       ], {
         returning: ['id'],
         transaction: TRANSACTION,

@@ -21,6 +21,10 @@ TipoRol.init({
     type: psql.Sequelize.STRING(255),
     allowNull: false,
   },
+  prefijo: {
+    type: psql.Sequelize.STRING(255),
+    allowNull: false,
+  },
 }, {
   timestamps: false,
   sequelize: DB.connection(),

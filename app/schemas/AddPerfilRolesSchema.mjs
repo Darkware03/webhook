@@ -1,22 +1,18 @@
 const AddPerfilRolesSchema = {
+  $id: 'http://example.com/schemas/AddPerfilRolesSchema.json#',
   type: 'object',
   properties: {
     roles: {
-      type: 'array',
-      uniqueItems: true,
-      minItems: 1,
-      items: {
-        type: 'integer',
-      },
-      errorMessage: {
-        type: 'El id del rol debe ser de tipo entero',
-      },
+      $ref: 'defs.json#/definitions/arrayIntUnico',
     },
   },
   required: ['roles'],
   errorMessage: {
     required: {
       roles: 'El campo rol es obligatorio',
+    },
+    properties: {
+      roles: 'Los roles deben ser de tipo numerico',
     },
   },
 };

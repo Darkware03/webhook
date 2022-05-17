@@ -1,23 +1,15 @@
 const usuarioPasswordUpdate = {
+  $id: 'http://example.com/schemas/usuarioPasswordUpdate.json#',
   type: 'object',
   properties: {
     password_actual: {
-      type: 'string',
-      errorMessage: {
-        type: 'La contraseña actual debe de ser de tipo alfanumerico',
-      },
+      $ref: 'defs.json#/definitions/string',
     },
     password: {
-      type: 'string',
-      // eslint-disable-next-line no-useless-escape
-      pattern: '^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])[A-Za-z0-9!@_#\$%\^&\*]{8,20}$',
-      errorMessage: {
-        type: 'La nueva contraseña debe de ser de tipo alfanumerico',
-        pattern: 'La contraseña debe ser de 8 a 20 caracteres y contener, como minimo, una letra mayuscula, una minuscula y un numero',
-      },
+      $ref: 'defs.json#/definitions/password',
     },
     confirm_password: {
-      type: 'string',
+      $ref: 'defs.json#/definitions/password',
     },
   },
   required: ['password_actual', 'password', 'confirm_password'],

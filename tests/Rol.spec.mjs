@@ -41,7 +41,7 @@ describe('Inicializando pruebas para /api/v1/roles', () => {
 
   it('Test de get rol especifico [get] /api/v1/roles/:id, caso exitoso', (done) => {
     chai.request(url)
-      .get('/api/v1/roles/55')
+      .get('/api/v1/roles/1')
       .set('Authorization', `Bearer ${token}`)
       .then((response) => {
         expect(response).to.have.status(200);
@@ -92,7 +92,7 @@ describe('Inicializando pruebas para /api/v1/roles', () => {
       .put(`/api/v1/roles/${idPrueba}`)
       .send({
         name: 'ROL_PRUEBA',
-        idTipoRol: 1,
+        id_tipo_rol: 1,
       })
       .set('Authorization', `Bearer ${token}`)
       .then((response) => {

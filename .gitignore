@@ -2,6 +2,7 @@ node_modules/
 .env
 .idea
 package-lock.json
+./package-lock.json
 .eslintcache
 app/docs/index.yaml
 app/docs/index.json

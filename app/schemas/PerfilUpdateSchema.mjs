@@ -1,19 +1,22 @@
 const perfilUpdateSchema = {
+  $id: 'http://example.com/schemas/perfilUpdateSchema.json#',
   type: 'object',
   properties: {
     nombre: {
-      type: 'string',
-      errorMessage: {
-        type: 'El nombre del perfil debe ser de tipo alfanumerico',
-      },
+      $ref: 'defs.json#/definitions/string',
     },
     codigo: {
-      type: 'string',
-      maxLength: 5,
-      errorMessage: {
-        type: 'El codigo del perfil debe ser de tipo alfanumérico',
-        maxLength: 'El codigo debe ser maximo 5 caracteres',
-      },
+      $ref: 'defs.json#/definitions/codigo',
+    },
+  },
+  required: ['nombre', 'codigo'],
+  errorMessage: {
+    required: {
+      nombre: 'El campo nombre es requerido',
+      codigo: 'El campo codigo es requerido',
+    },
+    properties: {
+      nombre: 'el nombre debe ser de tipo alfanumerico',
     },
   },
 

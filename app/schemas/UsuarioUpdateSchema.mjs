@@ -1,10 +1,7 @@
-const usuarioCreateSchema = {
-  $id: 'http://example.com/schemas/usuarioCreateSchema.json#',
+const usuarioUpdateSchema = {
+  $id: 'http://example.com/schemas/usuarioUpdateSchema.json#',
   type: 'object',
   properties: {
-    password: {
-      $ref: 'defs.json#/definitions/password',
-    },
     email: {
       $ref: 'defs.json#/definitions/email',
     },
@@ -16,10 +13,9 @@ const usuarioCreateSchema = {
     },
   },
   anyOf: [{ required: ['roles'], errorMessage: { required: 'Debe poseer un rol o un pefil' } }, { required: ['perfiles'], errorMessage: { required: 'Debe poseer un rol o un pefil' } }],
-  required: ['password', 'email'],
+  required: ['email'],
   errorMessage: {
     required: {
-      password: 'El campo de contraseña del usuario es requerido',
       email: 'El campo de email del usuario es requerido',
     },
     properties: {
@@ -29,4 +25,4 @@ const usuarioCreateSchema = {
   },
 };
 
-export default usuarioCreateSchema;
+export default usuarioUpdateSchema;
