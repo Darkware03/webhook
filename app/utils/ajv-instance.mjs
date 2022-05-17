@@ -6,6 +6,7 @@ import definitionSchema from '../schemas/definitions.mjs';
 
 const ajv = dates(new Ajv({
   allErrors: true,
+  $data: true,
 }));
 
 addFormats(ajv);
