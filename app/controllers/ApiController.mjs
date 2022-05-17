@@ -15,8 +15,6 @@ import MetodoAutenticacionUsuario from '../models/MetodoAutenticacionUsuario.mjs
 import Security from '../services/security.mjs';
 import MetodoAutenticacion from '../models/MetodoAutenticacion.mjs';
 import BadRequestException from '../../handlers/BadRequestException.mjs';
-import File from '../nucleo/File.mjs';
-import Storage from '../nucleo/Storage.mjs';
 
 export default class ApiController {
   static async confirmUser(req, res) {
@@ -413,27 +411,5 @@ export default class ApiController {
     return res.status(HttpCode.HTTP_OK).json({
       message: 'contraseña actualizada',
     });
-  }
-
-  static async subirArchivo(req, res) {
-    const { archivo } = req.files;
-
-    const file = new File(archivo);
-
-    const imagenSubida = await Storage.disk('local').put({
-      file,
-      mimeTypes: [
-        'application/pdf',
-        'image/jpeg',
-      ],
-      path: 'prueba2',
-    });
-
-    if (!imagenSubida) {
-      throw new UnprocessableEntityException('No se ha podido subir la imagen');
-    }
-
-    res.setHeader('Content-Type', 'image/jpeg');
-    return res.status(HttpCode.HTTP_OK).send(imagenSubida);
   }
 }
