@@ -61,7 +61,6 @@ const definitionSchema = {
     arrayIntUnico: {
       type: 'array',
       uniqueItems: true,
-      minItems: 1,
       items: {
         type: 'integer',
       },

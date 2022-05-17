@@ -2,6 +2,7 @@ import { Rol } from '../models/index.mjs';
 import HttpCode from '../../configs/httpCode.mjs';
 import VerifyModel from '../utils/VerifyModel.mjs';
 import TipoRol from '../models/TipoRol.mjs';
+import UnprocessableEntityException from '../../handlers/UnprocessableEntityException.mjs';
 
 export default class RolController {
   static async index(req, res) {
@@ -11,12 +12,15 @@ export default class RolController {
 
   static async store(req, res) {
     const { name, id_tipo_rol: idTipoRol } = req.body;
-    const tipoRol = await VerifyModel.exist(TipoRol, idTipoRol, 'El tipo de rol no se ha encontrado');
-
+    const existeRol = await Rol.findOne({
+      where: { name: name.trim().toUpperCase() },
+    });
+    if (existeRol) throw new UnprocessableEntityException('Role ya existe');
     const rol = await Rol.create({
-      name: tipoRol.prefijo + name.trim().uppercase(),
+      name: name.trim().toUpperCase(),
       id_tipo_rol: idTipoRol,
     });
+
     return res.status(HttpCode.HTTP_CREATED).json(rol);
   }
 
@@ -45,7 +49,7 @@ export default class RolController {
   static async destroy(req, res) {
     const { id } = req.params;
     const rol = await VerifyModel.exist(Rol, id, 'El rol no ha sido encontrado');
-    rol.destroy();
+    await rol.destroy();
     return res.status(HttpCode.HTTP_OK).json({ message: 'Rol eliminado' });
   }
 }
