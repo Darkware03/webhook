@@ -21,6 +21,15 @@ class Perfil extends psql.Model {
       otherKey: 'id_rol',
     });
   }
+
+  toJSON() {
+    return {
+      id: this.id,
+      codigo: this.codigo,
+      nombre: this.nombre,
+      roles: this.Rols,
+    };
+  }
 }
 
 Perfil.init({

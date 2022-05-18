@@ -83,7 +83,7 @@ const definitionSchema = {
       },
     },
     codigo: {
-      type: 'string',
+      type: ['null', 'string'],
       maxLength: 5,
       errorMessage: {
         type: 'El codigo del perfil debe ser de tipo alfanumérico',

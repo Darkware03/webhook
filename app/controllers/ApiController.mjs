@@ -103,7 +103,7 @@ export default class ApiController {
       );
       return res.status(HttpCode.HTTP_BAD_REQUEST).json({
         message:
-          'Su cuenta se encuentra suspendida, por favor verificarla por medio del correo que se le ha enviado',
+                    'Su cuenta se encuentra suspendida, por favor verificarla por medio del correo que se le ha enviado',
       });
     }
     await usuario.update({
@@ -120,7 +120,10 @@ export default class ApiController {
 
     const roles = await getRols.roles(usuario.id);
     const userDatatoken = {
-      id: usuario.id, email: usuario.email, last_login: usuario.last_login, two_factor_status: usuario.two_factor_status,
+      id: usuario.id,
+      email: usuario.email,
+      last_login: usuario.last_login,
+      two_factor_status: usuario.two_factor_status,
     };
     const token = await Auth.createToken({
       id: usuario.id,
@@ -266,7 +269,7 @@ export default class ApiController {
       where: {
         refresh_token: req.body.refresh_token,
       },
-      attributes: ['id'],
+      attributes: ['id', 'valid'],
       include: [
         {
           model: Usuario,
@@ -278,8 +281,8 @@ export default class ApiController {
       throw new NoAuthException();
     }
     const roles = await getRols.roles(refreshTokenExist.Usuario.id);
-    const tokenValidTime = new Date(moment(refreshTokenExist.valid).format()).getTime();
-    const nowTime = new Date(moment().tz('America/El_Salvador').format()).getTime();
+    const tokenValidTime = moment(refreshTokenExist.valid).valueOf();
+    const nowTime = moment().tz('America/El_Salvador').valueOf();
     if (tokenValidTime < nowTime) {
       throw new NoAuthException(
         'El refresh token porporcionado no es valido',
