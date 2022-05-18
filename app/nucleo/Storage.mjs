@@ -3,7 +3,9 @@ import path from 'path';
 import fs from 'fs';
 import disks from '../../configs/disk.mjs';
 import File from './File.mjs';
-import { uploadFile, getFile, deleteFile } from './S3Client.mjs';
+import {
+  uploadFile, getFile, deleteFile, getFiles,
+} from './S3Client.mjs';
 import LogicalException from '../../handlers/LogicalException.mjs';
 import BadRequestException from '../../handlers/BadRequestException.mjs';
 
@@ -100,5 +102,23 @@ export default class Storage {
     }
 
     return file;
+  }
+
+  static async getFiles(disk, filePath) {
+    if (!(typeof disk === 'string')) throw new LogicalException('ERR_INVALID_PARAMS', 'El parametro disk deben ser de tipo string');
+
+    const diskToSearch = disks[disk];
+
+    console.log(diskToSearch.bucket);
+
+    let files;
+
+    if (diskToSearch.type === 'local') {
+      const dir = './storage/';
+      files = fs.readdirSync(filePath ? `${dir}/${diskToSearch.path}/${filePath}` : `${dir}/${diskToSearch.path}`);
+    } else if (diskToSearch.type === 'aws') {
+      files = await getFiles(diskToSearch.bucket);
+    }
+    return files;
   }
 }

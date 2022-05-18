@@ -412,4 +412,35 @@ export default class ApiController {
       message: 'contraseña actualizada',
     });
   }
+
+  static async subirArchivo(req, res) {
+    const { archivo } = req.files;
+
+    const file = new File(archivo);
+
+    await Storage.disk('local').put({
+      file,
+    });
+
+    // const deleteImage = await Storage.deleteFile('4c31ed8457756a42e98fec0f5d24a136c9e7108e.jpg', 's3');
+
+    // console.log(deleteImage);
+
+    const busquedaImagen = await Storage.getFile('f6114888529635efde7da9dd62a119ebe2f967d2.jpg', 's3');
+
+    // const imagen = await Storage.disk('s3').put({
+    //   file: busquedaImagen,
+    // });
+
+    const listaImagenes = await Storage.getFiles('s3');
+
+    console.log(listaImagenes);
+
+    // if (!imagen) {
+    //   throw new UnprocessableEntityException('No se ha podido subir la imagen');
+    // }
+
+    res.setHeader('Content-Type', 'image/jpeg');
+    return res.status(HttpCode.HTTP_OK).send(busquedaImagen.getBuffer());
+  }
 }

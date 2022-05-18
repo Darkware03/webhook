@@ -3,6 +3,7 @@ import {
   GetObjectCommand,
   PutObjectCommand,
   DeleteObjectCommand,
+  ListObjectsCommand,
 } from '@aws-sdk/client-s3';
 import LogicalException from '../../handlers/LogicalException.mjs';
 
@@ -76,8 +77,23 @@ const deleteFile = async (bucketName, fileName) => {
   return data;
 };
 
+const getFiles = async (bucketName) => {
+  const params = {
+    Bucket: bucketName,
+  };
+
+  console.log(params);
+
+  const data = await storage.send(new ListObjectsCommand(params)).catch((err) => {
+    console.log(err);
+  });
+
+  return data;
+};
+
 export {
   uploadFile,
   getFile,
   deleteFile,
+  getFiles,
 };
