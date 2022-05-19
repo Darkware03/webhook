@@ -32,7 +32,7 @@ const rutaCreateSchema = {
       },
     },
     orden: {
-      type: 'number',
+      type: ['number', 'null'],
       errorMessage: {
         type: 'El parámetro orden de la ruta debe ser de tipo numérico',
       },

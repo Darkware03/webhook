@@ -1,13 +1,10 @@
 /* eslint-disable no-plusplus */
 // eslint-disable-next-line no-unused-vars
-import Sequelize, { Op } from 'sequelize';
 import {
-  RutaRol,
   Rol, Ruta,
 } from '../models/index.mjs';
 import DB from '../nucleo/DB.mjs';
 import HttpCode from '../../configs/httpCode.mjs';
-import BadRequestException from '../../handlers/BadRequestException.mjs';
 import VerifyModel from '../utils/VerifyModel.mjs';
 
 export default class RutaController {
@@ -22,7 +19,16 @@ export default class RutaController {
     const t = await connection.transaction();
     const {
       // eslint-disable-next-line camelcase
-      nombre, uri, nombre_uri: nombreUri, mostrar, icono, orden, admin, publico, id_ruta_padre: idRutaPadre, roles,
+      nombre,
+      uri,
+      nombre_uri: nombreUri,
+      mostrar,
+      icono,
+      orden,
+      admin,
+      publico,
+      id_ruta_padre: idRutaPadre,
+      roles,
     } = req.body;
 
     try {
@@ -35,7 +41,15 @@ export default class RutaController {
       }
       const ruta = await Ruta.create(
         {
-          nombre, uri, nombre_uri: nombreUri, mostrar, icono, orden, admin, publico, id_ruta_padre: idRutaPadre,
+          nombre,
+          uri,
+          nombre_uri: nombreUri,
+          mostrar,
+          icono,
+          orden,
+          admin,
+          publico,
+          id_ruta_padre: idRutaPadre,
         },
         { transaction: t },
       );
@@ -70,66 +84,29 @@ export default class RutaController {
 
   static async show(req, res) {
     const { id } = req.params;
-    const ruta = await VerifyModel.exist(Ruta, id, `No se encontró una ruta con id ${id}`);
-    return res.status(HttpCode.HTTP_OK).json(ruta); // ?
-  }
-
-  static async addRutaRole(req, res) {
-    const { id_ruta: idRuta } = req.params;
-    const { roles } = req.body;
-    await VerifyModel.exist(Ruta, idRuta, 'La ruta no ha sido encontrada');
-
-    for (let index = 0; index < roles.length; index++) {
-      // eslint-disable-next-line no-await-in-loop
-      await VerifyModel.exist(Rol, roles[index], 'El rol no ha sido encontrado');
-    }
-
-    if (roles.length === 0) {
-      throw new BadRequestException('No se envío ningún rol');
-    }
-    return res.status(HttpCode.HTTP_CREATED).json({
-      message: 'Roles agregados',
+    const ruta = await VerifyModel.exist(Ruta, id, `No se encontró una ruta con id ${id}`, {
+      include: {
+        model: Rol, attributes: ['id', 'name'],
+      },
     });
+    return res.status(HttpCode.HTTP_OK).json(ruta); // ?
   }
 
   static async update(req, res) {
     const {
       // eslint-disable-next-line camelcase
-      nombre, uri, nombre_uri: nombreUri, mostrar, icono, orden, admin, publico, id_ruta_padre: idRutaPadre,
+      nombre, uri, nombre_uri: nombreUri, mostrar, icono, orden, admin, publico, id_ruta_padre: idRutaPadre, roles,
     } = req.body;
 
     const { id } = req.params;
     const ruta = await VerifyModel.exist(Ruta, id, `No se encontró una ruta con id ${id}`);
-    ruta.update({
+    await ruta.update({
       nombre, uri, nombre_uri: nombreUri, mostrar, icono, orden, admin, publico, id_ruta_padre: idRutaPadre,
     });
+    await ruta.setRols(roles);
 
     return res.status(HttpCode.HTTP_OK)
       .json({ message: 'Datos actualizados con exito' });
-  }
-
-  static async destroy(req, res) {
-    const { id } = req.params;
-    const ruta = await VerifyModel.exist(Ruta, id, `No se encontró una ruta con id ${id}`);
-    await ruta.destroy();
-
-    return res.status(HttpCode.HTTP_OK)
-      .json({
-        message: 'Ruta Eliminada',
-      });
-  }
-
-  static async destroyRutaRol(req, res) {
-    const { id_ruta: idRuta, id_rol: idRol } = req.params;
-    await VerifyModel.exist(Ruta, idRuta, 'La ruta no ha sido encontrada');
-    await VerifyModel.exist(Rol, idRol, 'El rol no ha sido encontrado');
-    await RutaRol.destroy({
-      where: {
-        id_ruta: idRuta,
-        id_rol: idRol,
-      },
-    });
-    return res.status(HttpCode.HTTP_OK).json({ message: 'roles eliminados' });
   }
 
   static async getRutas(req, res) {
