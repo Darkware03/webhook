@@ -415,11 +415,12 @@ export default class ApiController {
   }
 
   static async subirArchivo(req, res) {
+    const { imagen } = req.body;
     // const deleteImage = await Storage.deleteFile('4c31ed8457756a42e98fec0f5d24a136c9e7108e.jpg', 's3');
 
     // console.log(deleteImage);
 
-    const busquedaImagen = await Storage.getFile('8227c5e0585bd37861cf91558c1fa215b2475c38.jpg', 's3');
+    const busquedaImagen = await Storage.getFile(imagen, 's3');
 
     // const imagen = await Storage.disk('s3').put({
     //   file: busquedaImagen,
