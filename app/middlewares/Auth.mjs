@@ -14,20 +14,18 @@ const Auth = async (req, res, next) => {
     if (authorization.length < 2) throw new NoAuthException();
 
     const token = authorization[1];
-    const { id } = jwt.verify(token, process.env.SECRET_KEY);
-    const decoded = jwt.decode(token, process.env.SECRET_KEY);
-    const fechaCreacionToken = new Date(moment(decoded.iat * 1000).format()).getTime();
+    const { user, iat } = jwt.verify(token, process.env.SECRET_KEY);
+    const fechaCreacionToken = iat * 1000;
 
     const usuario = await Usuario.findOne({
-      where: { id, is_suspended: false },
+      where: { id: user.id, is_suspended: false },
     });
 
     if (!usuario) throw new NoAuthException();
-    const fechaValidacionToken = new Date(moment(usuario.token_valid_after).format()).getTime();
+    const fechaValidacionToken = moment(usuario.token_valid_after).valueOf();
 
-    if (fechaValidacionToken > fechaCreacionToken) {
-      throw new NoAuthException();
-    }
+    if (fechaValidacionToken > fechaCreacionToken) throw new NoAuthException();
+
     if (!usuario.two_factor_status && process.env.DISABLE_TWO_FACTOR_AUTH === 'false') throw new NoAuthException();
     req.usuario = usuario;
     next();
