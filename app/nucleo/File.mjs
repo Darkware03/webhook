@@ -25,8 +25,12 @@ export default class File {
     return ext;
   }
 
+  getName() {
+    return this.#name;
+  }
+
   getSize(medida) {
-    const { size } = Buffer.byteLength(this.#data);
+    const size = Buffer.byteLength(this.#data);
     let conversion = 1;
     if (medida === 'KB')conversion = 1024;
     else if (medida === 'MB') conversion = 1048576;
@@ -34,7 +38,8 @@ export default class File {
     if (size === 0) {
       throw new LogicalException('ERR_INVALID_FILE_SIZE', 'No es posible obtener el tamaño del archivo');
     }
-    return (size / (conversion)).toFixed(1);
+
+    return (size / conversion).toFixed(1);
   }
 
   async getMimeType() {

@@ -416,23 +416,27 @@ export default class ApiController {
 
   static async subirArchivo(req, res) {
     const { imagen } = req.body;
-    // const deleteImage = await Storage.deleteFile('4c31ed8457756a42e98fec0f5d24a136c9e7108e.jpg', 's3');
+    console.log('imagen', imagen);
+    const file = await Storage.getFile(imagen, 's3');
 
-    // console.log(deleteImage);
+    console.log('file', file);
 
-    const busquedaImagen = await Storage.getFile(imagen, 's3');
+    console.log('Extension: ', await file.getExtension());
+    console.log('Name: ', file.getName());
+    console.log('Size: ', file.getSize('KB'));
+    console.log('mimeType: ', await file.getMimeType());
+    // console.log('String buffer: ', file.getStringBuffer());
+    console.log('Buffer array', file.getBuffer());
+    console.log('Hash MD5: ', file.getHashMD5());
 
-    // const imagen = await Storage.disk('s3').put({
-    //   file: busquedaImagen,
-    // });
-
-    // const listaImagenes = await Storage.getFiles('s3');
-
-    // if (!imagen) {
-    //   throw new UnprocessableEntityException('No se ha podido subir la imagen');
-    // }
+    const imageToUpload = await Storage.disk('local').put({
+      file,
+      name: 'imagen2',
+      filePath: 'imagenes',
+      mimeTypes: ['application/pdf', 'image/jpeg', 'image/png'],
+    });
 
     res.setHeader('Content-Type', 'image/jpeg');
-    return res.status(HttpCode.HTTP_OK).send(busquedaImagen.getBuffer());
+    return res.status(HttpCode.HTTP_OK).send(imageToUpload.getBuffer());
   }
 }

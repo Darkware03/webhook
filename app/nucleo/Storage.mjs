@@ -49,10 +49,10 @@ export default class Storage {
       await uploadFile(Storage.diskObject.bucket, file.getBuffer(), name || moment().format('x') + file.getHashMD5());
     }
 
-    return {
+    return new File({
       name: pathToUpload,
       data: file.getBuffer(),
-    };
+    });
   }
 
   static async getFile(fileName, disk) {
@@ -96,7 +96,11 @@ export default class Storage {
 
     if (diskToSearch.type === 'local') {
       if (!fs.existsSync(`./storage/${pathToSearch}`)) throw new LogicalException('ERR_FILE_NOT_FOUND', 'El archivo no ha sido encontrado');
-      file = await fs.unlinkSync(`./storage/${pathToSearch}`);
+      try {
+        file = await fs.unlinkSync(`./storage/${pathToSearch}`);
+      } catch (err) {
+        throw new LogicalException('ERR_FILE_NOT_DELETED', 'El archivo no ha sido eliminado');
+      }
     } else if (diskToSearch.type === 'aws') {
       file = await deleteFile(diskToSearch.bucket, fileName);
     }
