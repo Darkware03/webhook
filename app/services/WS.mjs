@@ -26,9 +26,9 @@ class WS {
         const { token } = socket.handshake.auth;
 
         if (!token) socket.disconnect();
-        const { id } = jwt.verify(token, process.env.SECRET_KEY);
+        const { user } = jwt.verify(token, process.env.SECRET_KEY);
 
-        const usuario = await Usuario.findOne({ id });
+        const usuario = await Usuario.findOne({ id: user?.id });
         if (usuario) {
           next();
         } else {
