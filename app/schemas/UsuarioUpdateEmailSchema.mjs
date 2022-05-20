@@ -6,7 +6,7 @@ const usuarioUpdateEmailSchema = {
       $ref: 'defs.json#/definitions/email',
     },
     password: {
-      $ref: 'defs.json#/definitions/password',
+      $ref: 'defs.json#/definitions/string',
     },
   },
   required: ['email', 'password'],

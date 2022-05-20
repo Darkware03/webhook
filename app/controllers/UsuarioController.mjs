@@ -274,8 +274,8 @@ export default class UsuarioController {
     }
 
     /** Validacion que el correo no se encuentre en uso en la BD */
-    const usuario = await Usuario.findOne({ where: { email } });
-    if (usuario) {
+    const emailExist = await Usuario.findOne({ where: { email } });
+    if (emailExist) {
       throw new NotFoundException(
         'El correo ya se encuentra en uso',
       );
@@ -305,24 +305,22 @@ export default class UsuarioController {
                 </mj-body>
               </mjml>`;
     await Mailer.sendMail(email, null, 'Cambio de email', null, message);
-    await Usuario.update(
-      {
-        email,
-        token_valid_after: moment().subtract(5, 's').tz('America/El_Salvador').format(),
+    const usuario = await Usuario.findOne({
+      where: {
+        id: req.usuario.id,
       },
-      {
-        where: {
-          id: req.usuario.id,
-        },
-      },
-    );
+      attributes: ['id', 'email', 'last_login', 'two_factor_status'],
+    });
+    await usuario.update({
+      email,
+      token_valid_after: moment().tz('America/El_Salvador').format(),
+    }, { returning: true });
+
     const refreshToken = await Auth.refresh_token(req.usuario);
     const roles = await getRols.roles(req.usuario.id);
     const token = await Auth.createToken({
-      id: req.usuario.id,
       roles,
-      email: req.usuario.email,
-      user: req.usuario,
+      user: usuario,
     });
     return res
       .status(HttpCode.HTTP_OK)

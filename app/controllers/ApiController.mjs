@@ -126,9 +126,7 @@ export default class ApiController {
       two_factor_status: usuario.two_factor_status,
     };
     const token = await Auth.createToken({
-      id: usuario.id,
       roles: process.env.DISABLE_TWO_FACTOR_AUTH === 'true' ? roles : null,
-      email: usuario.email,
       user: process.env.DISABLE_TWO_FACTOR_AUTH === 'true' ? (userDatatoken) : null,
     });
     if (process.env.DISABLE_TWO_FACTOR_AUTH === 'true') {
@@ -293,14 +291,12 @@ export default class ApiController {
 
     const userDatatoken = {
       id: usuario.id,
-      username: usuario.username,
+      email: usuario.email,
       last_login: usuario.last_login,
       two_factor_status: usuario.two_factor_status,
     };
 
     const token = await Auth.createToken({
-      id: refreshTokenExist.Usuario.id,
-      email: refreshTokenExist.Usuario.email,
       roles,
       user: userDatatoken,
     });
