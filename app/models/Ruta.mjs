@@ -17,7 +17,7 @@ class Ruta extends psql.Model {
       foreignKey: 'id_ruta_padre',
       as: 'rutas',
     });
-    this.belongsTo(Ruta, {
+    this.hasOne(Ruta, {
       foreignKey: 'id_ruta_padre',
     });
   }

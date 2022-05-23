@@ -123,14 +123,7 @@ export default class RutaController {
         {
           model: Ruta,
           as: 'rutas',
-          include: {
-            model: Ruta,
-            as: 'rutas',
-            include: {
-              model: Ruta,
-              as: 'rutas',
-            },
-          },
+          hierarchy: true,
         },
       ],
       order: ['id'],
