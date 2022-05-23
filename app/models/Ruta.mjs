@@ -27,6 +27,7 @@ class Ruta extends psql.Model {
       id: this.id,
       nombre: this.nombre,
       uri: this.uri,
+      id_ruta_padre: this.id_ruta_padre,
       rutas: this.rutas,
     };
   }

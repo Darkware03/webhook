@@ -120,14 +120,23 @@ export default class RutaController {
           where: { id: idRol },
           attributes: [],
         },
-        {
-          model: Ruta,
-          as: 'rutas',
-          hierarchy: true,
-        },
       ],
       order: ['id'],
     });
-    return res.status(HttpCode.HTTP_OK).json(menu);
+
+    const rutas = RutaController.sortRoutes(menu);
+
+    return res.status(HttpCode.HTTP_OK).json(rutas);
+  }
+
+  static sortRoutes(menu) {
+    menu.forEach((ruta) => {
+      // eslint-disable-next-line no-param-reassign
+      ruta.rutas = (menu.filter((rutaHija) => rutaHija.id_ruta_padre === ruta.id));
+    });
+
+    const rutas = menu.filter((ruta) => ruta.id_ruta_padre === null);
+
+    return rutas;
   }
 }
