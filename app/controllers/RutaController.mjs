@@ -6,6 +6,7 @@ import {
 import DB from '../nucleo/DB.mjs';
 import HttpCode from '../../configs/httpCode.mjs';
 import VerifyModel from '../utils/VerifyModel.mjs';
+import getRols from '../services/getRols.mjs';
 
 export default class RutaController {
   static async index(req, res) {
@@ -110,7 +111,30 @@ export default class RutaController {
   }
 
   static async getRutas(req, res) {
-    const menu = await Ruta.getMenu(req.usuario.id);
+    const idRol = await getRols.roles(req.usuario.id, 'id');
+    const menu = await Ruta.findAll({
+      attributes: ['id', 'nombre', 'uri', 'nombre_uri', 'mostrar', 'orden', 'id_ruta_padre'],
+      include: [
+        {
+          model: Rol,
+          where: { id: idRol },
+          attributes: [],
+        },
+        {
+          model: Ruta,
+          as: 'rutas',
+          include: {
+            model: Ruta,
+            as: 'rutas',
+            include: {
+              model: Ruta,
+              as: 'rutas',
+            },
+          },
+        },
+      ],
+      order: ['id'],
+    });
     return res.status(HttpCode.HTTP_OK).json(menu);
   }
 }

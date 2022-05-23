@@ -13,6 +13,22 @@ class Ruta extends psql.Model {
       onDelete: 'CASCADE',
       hooks: true,
     });
+    this.hasMany(Ruta, {
+      foreignKey: 'id_ruta_padre',
+      as: 'rutas',
+    });
+    this.belongsTo(Ruta, {
+      foreignKey: 'id_ruta_padre',
+    });
+  }
+
+  toJSON() {
+    return {
+      id: this.id,
+      nombre: this.nombre,
+      uri: this.uri,
+      rutas: this.rutas,
+    };
   }
 
   static async getById(id) {
