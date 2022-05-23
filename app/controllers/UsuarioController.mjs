@@ -247,9 +247,7 @@ export default class UsuarioController {
     const refreshToken = await Auth.refresh_token(req.usuario);
     const roles = await getRols.roles(req.usuario.id);
     const token = await Auth.createToken({
-      id: req.usuario.id,
       roles,
-      email: req.usuario.email,
       user: req.usuario,
     });
     return res

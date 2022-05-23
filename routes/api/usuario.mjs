@@ -15,8 +15,8 @@ router.post('/', [validateRole('ROLE_USER_CREATE'), validate(usuarioCreateSchema
 router.get('/:id', [validateRole('ROLE_USER_LIST')], Call(UsuarioController.show));
 router.put('/:id', [validateRole('ROLE_USER_UPDATE'), validate(usuarioUpdateSchema)], Call(UsuarioController.update));
 router.delete('/:id', [validateRole('ROLE_USER_DELETE')], Call(UsuarioController.destroy));
-router.put('/update/password', [validateRole('ROLE_USER_PASSWORD_UPDATE'), validate(usuarioPasswordUpdate)], Call(UsuarioController.updatePassword));
-router.put('/update/email', [validateRole('ROLE_USER_EMAIL_UPDATE'), validate(usuarioUpdateEmailSchema)], Call(UsuarioController.updateEmail));
+router.put('/update/password', [validate(usuarioPasswordUpdate)], Call(UsuarioController.updatePassword));
+router.put('/update/email', [validate(usuarioUpdateEmailSchema)], Call(UsuarioController.updateEmail));
 router.post('/2fa/add', Call(UsuarioController.storeMethodUser));
 router.post('/2fa/add/verify', Call(UsuarioController.verifyNewMethodUser));
 router.post('/2fa/method/update', Call(UsuarioController.updatePrimaryMethod));

@@ -1,4 +1,5 @@
 const rutaCreateSchema = {
+  $id: 'http://example.com/schemas/rutaCreate.json#',
   type: 'object',
   properties: {
     nombre: {
@@ -44,7 +45,7 @@ const rutaCreateSchema = {
       },
     },
     id_ruta_padre: {
-      type: 'number',
+      $ref: 'defs.json#/definitions/intOrNull',
       errorMessage: {
         type: 'El id de la ruta padre debe ser de tipo numérico',
       },
