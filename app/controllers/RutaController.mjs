@@ -132,7 +132,7 @@ export default class RutaController {
   static sortRoutes(menu) {
     menu.forEach((ruta) => {
       // eslint-disable-next-line no-param-reassign
-      ruta.rutas = (menu.filter((rutaHija) => rutaHija.id_ruta_padre === ruta.id));
+      ruta.childrens = (menu.filter((rutaHija) => rutaHija.id_ruta_padre === ruta.id));
     });
 
     const rutas = menu.filter((ruta) => ruta.id_ruta_padre === null);
