@@ -24,6 +24,7 @@ export default class RutaController {
 
     const { count: totalRows, rows: rutas } = await Ruta.findAndCountAll({
       include: [Rol],
+      distinct: true,
       where: filtro,
       limit: perPage,
       offset: perPage * (page - 1),
