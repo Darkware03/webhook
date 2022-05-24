@@ -2,8 +2,9 @@ import {
   S3Client,
   GetObjectCommand,
   PutObjectCommand,
+  DeleteObjectCommand,
+  ListObjectsCommand,
 } from '@aws-sdk/client-s3';
-import path from 'path';
 import LogicalException from '../../handlers/LogicalException.mjs';
 
 const region = process.env.AWS_REGION;
@@ -26,14 +27,10 @@ const streamToString = (stream) => new Promise((resolve, reject) => {
   });
 });
 
-const uploadFile = async (bucketName, archivo) => {
-  const buffer = Buffer.from(archivo.data, 'base64');
-
-  const ext = path.extname(archivo.name);
-
+const uploadFile = async (bucketName, buffer, name) => {
   const params = {
     Bucket: bucketName,
-    Key: `${archivo.md5}${ext}`,
+    Key: name,
     Body: buffer,
   };
 
@@ -46,10 +43,10 @@ const uploadFile = async (bucketName, archivo) => {
   return data;
 };
 
-const getFile = async (bucketName, archivo) => {
+const getFile = async (bucketName, fileName) => {
   const params = {
     Bucket: bucketName,
-    Key: archivo,
+    Key: fileName,
   };
 
   const data = await storage.send(new GetObjectCommand(params))
@@ -64,7 +61,39 @@ const getFile = async (bucketName, archivo) => {
   return bodyContents;
 };
 
+const deleteFile = async (bucketName, fileName) => {
+  const params = {
+    Bucket: bucketName,
+    Key: fileName,
+  };
+
+  const data = await storage.send(new DeleteObjectCommand(params)).catch(() => {
+    throw new LogicalException(
+      'FILE_NOT_FOUND',
+      'No se ha encontrado el objeto a borrar.',
+    );
+  });
+
+  return data;
+};
+
+const getFiles = async (bucketName) => {
+  const params = {
+    Bucket: bucketName,
+  };
+
+  console.log(params);
+
+  const data = await storage.send(new ListObjectsCommand(params)).catch((err) => {
+    console.log(err);
+  });
+
+  return data;
+};
+
 export {
   uploadFile,
   getFile,
+  deleteFile,
+  getFiles,
 };
