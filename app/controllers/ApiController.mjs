@@ -15,6 +15,7 @@ import MetodoAutenticacionUsuario from '../models/MetodoAutenticacionUsuario.mjs
 import Security from '../services/security.mjs';
 import MetodoAutenticacion from '../models/MetodoAutenticacion.mjs';
 import BadRequestException from '../../handlers/BadRequestException.mjs';
+import Storage from '../nucleo/Storage.mjs';
 
 export default class ApiController {
   static async confirmUser(req, res) {
@@ -159,10 +160,10 @@ export default class ApiController {
     authorization = authorization.split(' ');
     if (!authorization.length < 2) {
       const receivedToken = authorization[1];
-      const { id, email } = jwt.verify(receivedToken, process.env.SECRET_KEY);
+      const { user } = jwt.verify(receivedToken, process.env.SECRET_KEY);
       if (!idMetodo || idMetodo == null || idMetodo === '') {
         const getPrimaryMethod = await MetodoAutenticacionUsuario.findOne({
-          where: { id_usuario: id, is_primary: true },
+          where: { id_usuario: user.id, is_primary: true },
         });
         if (!getPrimaryMethod) {
           throw new NotFoundException(
@@ -175,7 +176,7 @@ export default class ApiController {
         const newToken = speakeasy.generateSecret({ length: 52 }).base32;
         await MetodoAutenticacionUsuario.update(
           { secret_key: newToken },
-          { where: { id_metodo: idMetodo, id_usuario: id } },
+          { where: { id_metodo: idMetodo, id_usuario: user.id } },
         );
         const verificationCode = await speakeasy.totp({
           secret: newToken,
@@ -183,7 +184,7 @@ export default class ApiController {
           time: process.env.GOOGLE_AUTH_TIME_EMAIL,
         });
         await Mailer.sendMail(
-          email,
+          user.email,
           verificationCode,
           'Codigo de verificacion de usuario',
           'El codigo de verificacion es:',
@@ -210,9 +211,9 @@ export default class ApiController {
     authorization = authorization.split(' ');
     if (!authorization.length < 2) {
       const receivedToken = authorization[1];
-      const { id } = jwt.verify(receivedToken, process.env.SECRET_KEY);
-      if (!idMetodo) dbQueryParams = { id_usuario: id, is_primary: true };
-      else dbQueryParams = { id_usuario: id, id_metodo: idMetodo };
+      const { user } = jwt.verify(receivedToken, process.env.SECRET_KEY);
+      if (!idMetodo) dbQueryParams = { id_usuario: user.id, is_primary: true };
+      else dbQueryParams = { id_usuario: user.id, id_metodo: idMetodo };
       const metodoAutenticacion = await MetodoAutenticacionUsuario.findOne({
         where: dbQueryParams,
       });
@@ -222,8 +223,7 @@ export default class ApiController {
           'El usuario no posee metodos de autenticacion',
         );
       }
-      const usuario = await Usuario.findOne({
-        where: { id },
+      const usuario = await Usuario.findByPk(user.id, {
         attributes: ['id', 'email', 'last_login', 'two_factor_status'],
       });
       let timeToCodeValid = null;
@@ -246,12 +246,10 @@ export default class ApiController {
         token_valid_after: moment().subtract(5, 's').tz('America/El_Salvador').format(),
       });
 
-      const roles = getRols.roles(id);
+      const roles = getRols.roles(user.id);
       const refreshToken = await Auth.refresh_token(usuario);
       const token = await Auth.createToken({
-        id,
         roles,
-        email: usuario.email,
         user: usuario,
       });
       return res.status(HttpCode.HTTP_OK).send({
@@ -393,7 +391,7 @@ export default class ApiController {
     if (password !== confirmPassword) {
       throw new NotFoundException('Error! Las contraseñas  no coinciden');
     }
-    const { id } = jwt.verify(token, process.env.SECRET_KEY);
+    const { user } = jwt.verify(token, process.env.SECRET_KEY);
 
     await Usuario.update(
       {
@@ -402,7 +400,7 @@ export default class ApiController {
       },
       {
         where: {
-          id,
+          id: user.id,
         },
       },
     );
@@ -410,5 +408,31 @@ export default class ApiController {
     return res.status(HttpCode.HTTP_OK).json({
       message: 'contraseña actualizada',
     });
+  }
+
+  static async subirArchivo(req, res) {
+    const { imagen } = req.body;
+    console.log('imagen', imagen);
+    const file = await Storage.getFile(imagen, 's3');
+
+    console.log('file', file);
+
+    console.log('Extension: ', await file.getExtension());
+    console.log('Name: ', file.getName());
+    console.log('Size: ', file.getSize('KB'));
+    console.log('mimeType: ', await file.getMimeType());
+    // console.log('String buffer: ', file.getStringBuffer());
+    console.log('Buffer array', file.getBuffer());
+    console.log('Hash MD5: ', file.getHashMD5());
+
+    const imageToUpload = await Storage.disk('local').put({
+      file,
+      name: 'imagen2',
+      filePath: 'imagenes',
+      mimeTypes: ['application/pdf', 'image/jpeg', 'image/png'],
+    });
+
+    res.setHeader('Content-Type', 'image/jpeg');
+    return res.status(HttpCode.HTTP_OK).send(imageToUpload.getBuffer());
   }
 }

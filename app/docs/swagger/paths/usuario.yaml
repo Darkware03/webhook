@@ -85,12 +85,26 @@
             schema:
               type: object
               properties:
-                id:
+                body:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      email:
+                        type: string
+                      last_login:
+                        type: string
+                page:
                   type: integer
-                email:
-                  type: string
-                last_login:
-                  type: string
+                  example: 1
+                per_page:
+                  type: integer
+                  example: 10
+                total_rows:
+                  type: integer
+                  example: 100
       401:
         description: Unauthorized
         content:

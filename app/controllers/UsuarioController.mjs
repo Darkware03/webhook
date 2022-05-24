@@ -25,6 +25,13 @@ export default class UsuarioController {
   static async index(req, res) {
     const page = Number(req.query.page) || 1;
     const perPage = Number(req.query.per_page) || 10;
+    const filters = {};
+    const { email } = req.query;
+    if (email) {
+      filters.email = {
+        [Op.iLike]: `%${req.query.email || ''}%`,
+      };
+    }
     const { rows: usuarios, count: totalRows } = await Usuario.findAndCountAll({
       distinct: true,
       limit: perPage,
@@ -32,6 +39,7 @@ export default class UsuarioController {
       attributes: { exclude: ['password', 'token_valid_after', 'two_factor_status'] },
       include: [Rol, Perfil],
       order: ['id'],
+      where: filters,
     });
     return res.status(HttpCode.HTTP_OK).json({
       page,
@@ -247,9 +255,7 @@ export default class UsuarioController {
     const refreshToken = await Auth.refresh_token(req.usuario);
     const roles = await getRols.roles(req.usuario.id);
     const token = await Auth.createToken({
-      id: req.usuario.id,
       roles,
-      email: req.usuario.email,
       user: req.usuario,
     });
     return res
