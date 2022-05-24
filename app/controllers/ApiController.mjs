@@ -15,6 +15,7 @@ import MetodoAutenticacionUsuario from '../models/MetodoAutenticacionUsuario.mjs
 import Security from '../services/security.mjs';
 import MetodoAutenticacion from '../models/MetodoAutenticacion.mjs';
 import BadRequestException from '../../handlers/BadRequestException.mjs';
+import Storage from '../nucleo/Storage.mjs';
 
 export default class ApiController {
   static async confirmUser(req, res) {
@@ -407,5 +408,31 @@ export default class ApiController {
     return res.status(HttpCode.HTTP_OK).json({
       message: 'contraseña actualizada',
     });
+  }
+
+  static async subirArchivo(req, res) {
+    const { imagen } = req.body;
+    console.log('imagen', imagen);
+    const file = await Storage.getFile(imagen, 's3');
+
+    console.log('file', file);
+
+    console.log('Extension: ', await file.getExtension());
+    console.log('Name: ', file.getName());
+    console.log('Size: ', file.getSize('KB'));
+    console.log('mimeType: ', await file.getMimeType());
+    // console.log('String buffer: ', file.getStringBuffer());
+    console.log('Buffer array', file.getBuffer());
+    console.log('Hash MD5: ', file.getHashMD5());
+
+    const imageToUpload = await Storage.disk('local').put({
+      file,
+      name: 'imagen2',
+      filePath: 'imagenes',
+      mimeTypes: ['application/pdf', 'image/jpeg', 'image/png'],
+    });
+
+    res.setHeader('Content-Type', 'image/jpeg');
+    return res.status(HttpCode.HTTP_OK).send(imageToUpload.getBuffer());
   }
 }
