@@ -120,6 +120,13 @@ export default class RutaController {
   }
 
   static async getRutas(req, res) {
+    const frontAdmin = (process.env.FRONT_ADMIN_HOST).split('||');
+    const filtro = {
+      admin: false,
+    };
+
+    if (frontAdmin.includes(req.headers.origin)) filtro.admin = true;
+
     const roles = await getRols.roles(req.usuario.id, 'id');
     const menu = await Ruta.findAll({
       attributes: ['id', 'nombre', 'uri', 'nombre_uri', 'icono', 'mostrar', 'orden', 'id_ruta_padre'],
@@ -130,6 +137,7 @@ export default class RutaController {
           attributes: [],
         },
       ],
+      where: filtro,
       order: ['orden'],
     });
 

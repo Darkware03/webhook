@@ -4,7 +4,6 @@ import ErrorModel from '../app/nucleo/mongo/error.mjs';
 
 export default class Handler {
   static logError(req, err) {
-    console.log(err);
     if (req.usuario) {
       const Error = new ErrorModel({
         id_bitacora: req.bitacora ? req.bitacora.id : null,
