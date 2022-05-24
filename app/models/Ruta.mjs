@@ -39,6 +39,20 @@ class Ruta extends psql.Model {
       ],
     });
   }
+
+  toJSON() {
+    return {
+      id: this.id,
+      nombre: this.nombre,
+      uri: this.uri,
+      nombre_uri: this.nombre_uri,
+      icono: this.icono,
+      mostrar: this.mostrar,
+      orden: this.orden,
+      id_ruta_padre: this.id_ruta_padre,
+      childrens: this.rutas,
+    };
+  }
 }
 
 Ruta.init({

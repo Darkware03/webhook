@@ -120,13 +120,13 @@ export default class RutaController {
   }
 
   static async getRutas(req, res) {
-    const idRol = await getRols.roles(req.usuario.id, 'id');
+    const roles = await getRols.roles(req.usuario.id, 'id');
     const menu = await Ruta.findAll({
       attributes: ['id', 'nombre', 'uri', 'nombre_uri', 'icono', 'mostrar', 'orden', 'id_ruta_padre'],
       include: [
         {
           model: Rol,
-          where: { id: idRol },
+          where: { id: roles },
           attributes: [],
         },
       ],
@@ -141,7 +141,7 @@ export default class RutaController {
   static sortRoutes(menu) {
     menu.forEach((ruta) => {
       // eslint-disable-next-line no-param-reassign
-      ruta.childrens = (menu.filter((rutaHija) => rutaHija.id_ruta_padre === ruta.id));
+      ruta.rutas = (menu.filter((rutaHija) => rutaHija.id_ruta_padre === ruta.id));
     });
 
     const rutas = menu.filter((ruta) => ruta.id_ruta_padre === null);
