@@ -22,16 +22,6 @@ class Ruta extends psql.Model {
     });
   }
 
-  toJSON() {
-    return {
-      id: this.id,
-      nombre: this.nombre,
-      uri: this.uri,
-      id_ruta_padre: this.id_ruta_padre,
-      rutas: this.rutas,
-    };
-  }
-
   static async getById(id) {
     return this.findOne({
       where: {

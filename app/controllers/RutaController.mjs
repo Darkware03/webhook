@@ -96,7 +96,16 @@ export default class RutaController {
   static async update(req, res) {
     const {
       // eslint-disable-next-line camelcase
-      nombre, uri, nombre_uri: nombreUri, mostrar, icono, orden, admin, publico, id_ruta_padre: idRutaPadre, roles,
+      nombre,
+      uri,
+      nombre_uri: nombreUri,
+      mostrar,
+      icono,
+      orden,
+      admin,
+      publico,
+      id_ruta_padre: idRutaPadre,
+      roles,
     } = req.body;
 
     const { id } = req.params;
@@ -113,7 +122,7 @@ export default class RutaController {
   static async getRutas(req, res) {
     const idRol = await getRols.roles(req.usuario.id, 'id');
     const menu = await Ruta.findAll({
-      attributes: ['id', 'nombre', 'uri', 'nombre_uri', 'mostrar', 'orden', 'id_ruta_padre'],
+      attributes: ['id', 'nombre', 'uri', 'nombre_uri', 'icono', 'mostrar', 'orden', 'id_ruta_padre'],
       include: [
         {
           model: Rol,
