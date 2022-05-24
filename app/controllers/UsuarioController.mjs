@@ -26,12 +26,16 @@ export default class UsuarioController {
     const page = Number(req.query.page) || 1;
     const perPage = Number(req.query.per_page) || 10;
     const filters = {};
-    const { email } = req.query;
+    const { email, habilitado } = req.query;
     if (email) {
       filters.email = {
         [Op.iLike]: `%${req.query.email || ''}%`,
       };
     }
+    if (habilitado) {
+      filters.is_suspended = !(habilitado === 'true');
+    }
+
     const { rows: usuarios, count: totalRows } = await Usuario.findAndCountAll({
       distinct: true,
       limit: perPage,

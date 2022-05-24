@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import { Rol } from '../models/index.mjs';
 import HttpCode from '../../configs/httpCode.mjs';
 import VerifyModel from '../utils/VerifyModel.mjs';
@@ -6,8 +7,28 @@ import UnprocessableEntityException from '../../handlers/UnprocessableEntityExce
 
 export default class RolController {
   static async index(req, res) {
-    const roles = await Rol.findAll({ include: [TipoRol] });
-    return res.status(HttpCode.HTTP_OK).json(roles);
+    const {
+      page = 1,
+      per_page: perPage = 10,
+      nombre,
+    } = req.query;
+
+    const filtro = {};
+    if (nombre) filtro.name = { [Op.iLike]: `%${nombre}%` };
+
+    const { count: totalRows, rows: roles } = await Rol.findAndCountAll({
+      include: [TipoRol],
+      where: filtro,
+      distinct: true,
+      limit: perPage,
+      offset: perPage * (page - 1),
+    });
+    return res.status(HttpCode.HTTP_OK).json({
+      page,
+      per_page: Number(perPage),
+      total_rows: totalRows,
+      body: roles,
+    });
   }
 
   static async store(req, res) {
