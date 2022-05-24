@@ -1,5 +1,6 @@
 /* eslint-disable no-plusplus */
 // eslint-disable-next-line no-unused-vars
+import { Op } from 'sequelize';
 import {
   Rol, Ruta,
 } from '../models/index.mjs';
@@ -10,9 +11,30 @@ import getRols from '../services/getRols.mjs';
 
 export default class RutaController {
   static async index(req, res) {
-    const rutas = await Ruta.findAll({ include: [Rol] });
+    const {
+      page = 1,
+      per_page: perPage = 10,
+      nombre,
+      uri,
+    } = req.query;
+
+    const filtro = {};
+    if (nombre) filtro.nombre = { [Op.iLike]: `%${nombre}%` };
+    if (uri) filtro.uri = { [Op.iLike]: `%${uri}%` };
+
+    const { count: totalRows, rows: rutas } = await Ruta.findAndCountAll({
+      include: [Rol],
+      where: filtro,
+      limit: perPage,
+      offset: perPage * (page - 1),
+    });
     return res.status(HttpCode.HTTP_OK)
-      .json(rutas);
+      .json({
+        page,
+        per_page: perPage,
+        total_rows: totalRows,
+        body: rutas,
+      });
   }
 
   static async store(req, res) {
