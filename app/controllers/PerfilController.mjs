@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import { Perfil, Rol } from '../models/index.mjs';
 import HttpCode from '../../configs/httpCode.mjs';
 import DB from '../nucleo/DB.mjs';
@@ -5,8 +6,29 @@ import VerifyModel from '../utils/VerifyModel.mjs';
 
 export default class PerfilController {
   static async index(req, res) {
-    const perfiles = await Perfil.findAll({ include: [Rol] });
-    return res.status(HttpCode.HTTP_OK).json(perfiles);
+    const {
+      page = 1,
+      per_page: perPage = 10,
+      nombre,
+      codigo,
+    } = req.query;
+
+    const filtro = {};
+    if (nombre) filtro.nombre = { [Op.iLike]: `%${nombre}%` };
+    if (codigo) filtro.codigo = { [Op.iLike]: `%${codigo}%` };
+    const { count: totalRows, rows: perfiles } = await Perfil.findAndCountAll({
+      include: [{ model: Rol, required: true }],
+      where: filtro,
+      distinct: true,
+      limit: perPage,
+      offset: perPage * (page - 1),
+    });
+    return res.status(HttpCode.HTTP_OK).json({
+      page,
+      per_page: Number(perPage),
+      total_rows: totalRows,
+      body: perfiles,
+    });
   }
 
   static async store(req, res) {

@@ -31,7 +31,7 @@ export default class RutaController {
     return res.status(HttpCode.HTTP_OK)
       .json({
         page,
-        per_page: perPage,
+        per_page: Number(perPage),
         total_rows: totalRows,
         body: rutas,
       });
