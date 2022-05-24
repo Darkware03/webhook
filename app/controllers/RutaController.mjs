@@ -121,7 +121,7 @@ export default class RutaController {
           attributes: [],
         },
       ],
-      order: ['id'],
+      order: ['orden'],
     });
 
     const rutas = RutaController.sortRoutes(menu);
