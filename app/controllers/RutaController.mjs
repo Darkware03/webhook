@@ -25,9 +25,9 @@ export default class RutaController {
       offset: perPage * (page - 1),
     });
     return res.status(HttpCode.HTTP_OK).json({
-      page,
+      page: Number(page),
       per_page: Number(perPage),
-      total_rows: totalRows,
+      total_rows: Number(totalRows),
       body: rutas,
     });
   }
