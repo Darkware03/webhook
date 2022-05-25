@@ -89,9 +89,6 @@ module.exports = {
           { name: 'ROLE_PROFILE_LIST', id_tipo_rol: backend.id },
           { name: 'ROLE_PROFILE_CREATE', id_tipo_rol: backend.id },
           { name: 'ROLE_PROFILE_UPDATE', id_tipo_rol: backend.id },
-          { name: 'ROLE_PROFILE_DELETE', id_tipo_rol: backend.id },
-          { name: 'ROLE_PROFILE_ROLE_CREATE', id_tipo_rol: backend.id },
-          { name: 'ROLE_PROFILE_ROLE_DELETE', id_tipo_rol: backend.id },
           // Roles de rol :(
           { name: 'ROLE_ROLE_LIST', id_tipo_rol: backend.id },
           { name: 'ROLE_ROLE_CREATE', id_tipo_rol: backend.id },
@@ -101,22 +98,12 @@ module.exports = {
           { name: 'ROLE_PATH_LIST', id_tipo_rol: backend.id },
           { name: 'ROLE_PATH_CREATE', id_tipo_rol: backend.id },
           { name: 'ROLE_PATH_UPDATE', id_tipo_rol: backend.id },
-          { name: 'ROLE_PATH_DELETE', id_tipo_rol: backend.id },
-          { name: 'ROLE_PATH_ROLE_CREATE', id_tipo_rol: backend.id },
-          { name: 'ROLE_PATH_ROLE_DELETE', id_tipo_rol: backend.id },
           // Roles de Usuario
           { name: 'ROLE_USER_LIST', id_tipo_rol: backend.id },
           { name: 'ROLE_USER_CREATE', id_tipo_rol: backend.id },
           { name: 'ROLE_USER_UPDATE', id_tipo_rol: backend.id },
           { name: 'ROLE_USER_DELETE', id_tipo_rol: backend.id },
           { name: 'ROLE_USER_AUTH_METHOD_LIST', id_tipo_rol: backend.id },
-          { name: 'ROLE_USER_PROFILE_LIST', id_tipo_rol: backend.id },
-          { name: 'ROLE_USER_PROFILE_CREATE', id_tipo_rol: backend.id },
-          { name: 'ROLE_USER_PROFILE_DELETE', id_tipo_rol: backend.id },
-          { name: 'ROLE_USER_ROLE_LIST', id_tipo_rol: backend.id },
-          { name: 'ROLE_USER_ROLE_CREATE', id_tipo_rol: backend.id },
-          { name: 'ROLE_USER_ROLE_DELETE', id_tipo_rol: backend.id },
-          { name: 'ROLE_USER_EMAIL_UPDATE', id_tipo_rol: backend.id },
 
           /**
                      * ROLES PARA EL ADMIN

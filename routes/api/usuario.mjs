@@ -9,7 +9,7 @@ import validateRole from '../../app/middlewares/validateRole.mjs';
 import usuarioUpdateSchema from '../../app/schemas/UsuarioUpdateSchema.mjs';
 
 const router = Router();
-router.get('/metodos-autenticacion-usuario', [validateRole('ROLE_USER_METHOD_LIST')], Call(UsuarioController.getMetodosUsuario));
+router.get('/metodos-autenticacion-usuario', [validateRole('ROLE_USER_AUTH_METHOD_LIST')], Call(UsuarioController.getMetodosUsuario));
 router.get('/', [validateRole('ROLE_USER_LIST')], Call(UsuarioController.index));
 router.post('/', [validateRole('ROLE_USER_CREATE'), validate(usuarioCreateSchema)], Call(UsuarioController.store));
 router.get('/:id', [validateRole('ROLE_USER_LIST')], Call(UsuarioController.show));
