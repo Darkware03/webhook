@@ -61,6 +61,29 @@
         content:
   x-codegen-request-body-name: body
   get:
+    parameters:
+    - in: query
+      name: nombre
+      required: false
+      type: string
+      minimum: 1
+      description: Parametro para filtrar resultados segun nombre
+    - in: query
+      name: uri
+      required: false
+      type: string
+      minimum: 1
+      description: Parametro para filtrar resultados segun uri
+    - in: query
+      name: page
+      required: false
+      type: integer
+      description: Numero de pagina
+    - in: query
+      name: per_page
+      required: false
+      type: integer
+      description: Cantidad de elementos por pagina
     tags:
       - ruta
     operationId: rutas

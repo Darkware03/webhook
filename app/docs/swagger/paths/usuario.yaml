@@ -72,6 +72,29 @@
         content:
   x-codegen-request-body-name: body
   get:
+    parameters:
+    - in: query
+      name: email
+      required: false
+      type: string
+      minimum: 1
+      description: Parametro para filtrar resultados segun email
+    - in: query
+      name: habilitado
+      required: false
+      type: boolean
+      minimum: 1
+      description: Parametro para filtrar resultados segun estado
+    - in: query
+      name: page
+      required: false
+      type: integer
+      description: Numero de pagina
+    - in: query
+      name: per_page
+      required: false
+      type: integer
+      description: Cantidad de elementos por pagina
     tags:
       - usuario
     operationId: users
