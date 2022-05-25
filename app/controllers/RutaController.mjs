@@ -160,11 +160,17 @@ export default class RutaController {
           attributes: [],
         },
       ],
-      where: filtro,
+      where: {
+        id_ruta_padre: null,
+      },
       order: ['orden'],
     });
 
-    const rutas = RutaController.sortRoutes(menu);
+    const rutas = await RutaController.sort(menu);
+
+    // console.log(prueba);
+
+    // const rutas = RutaController.sortRoutes(menu);
 
     return res.status(HttpCode.HTTP_OK).json(rutas);
   }
@@ -178,5 +184,34 @@ export default class RutaController {
     const rutas = menu.filter((ruta) => ruta.id_ruta_padre === null);
 
     return rutas;
+  }
+
+  static async sort(menu) {
+    const rutas = [];
+
+    // eslint-disable-next-line no-restricted-syntax
+    for await (const ruta of menu) {
+      // const item = { ...ruta.toJSON() };
+
+      const childrens = await RutaController.getChildren(ruta.id);
+
+      if (childrens?.length) { RutaController.sort(childrens); }
+    }
+    return rutas;
+  }
+
+  static async getChildren(id) {
+    await Ruta.findAll({
+      include: [
+        {
+          model: Rol,
+          attributes: [],
+        },
+      ],
+      where: {
+        id_ruta_padre: id,
+      },
+      order: ['orden'],
+    });
   }
 }
