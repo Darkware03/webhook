@@ -46,9 +46,9 @@ export default class UsuarioController {
       where: filters,
     });
     return res.status(HttpCode.HTTP_OK).json({
-      page,
-      per_page: perPage,
-      total_rows: totalRows,
+      page: Number(page),
+      per_page: Number(perPage),
+      total_rows: Number(totalRows),
       body: usuarios,
     });
   }
