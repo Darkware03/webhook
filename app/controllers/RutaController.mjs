@@ -1,9 +1,7 @@
 /* eslint-disable no-plusplus */
 // eslint-disable-next-line no-unused-vars
 import { Op } from 'sequelize';
-import {
-  Rol, Ruta,
-} from '../models/index.mjs';
+import { Rol, Ruta } from '../models/index.mjs';
 import DB from '../nucleo/DB.mjs';
 import HttpCode from '../../configs/httpCode.mjs';
 import VerifyModel from '../utils/VerifyModel.mjs';
@@ -12,10 +10,7 @@ import getRols from '../services/getRols.mjs';
 export default class RutaController {
   static async index(req, res) {
     const {
-      page = 1,
-      per_page: perPage = 10,
-      nombre,
-      uri,
+      page = 1, per_page: perPage = 10, nombre, uri,
     } = req.query;
 
     const filtro = {};
@@ -29,13 +24,12 @@ export default class RutaController {
       limit: perPage,
       offset: perPage * (page - 1),
     });
-    return res.status(HttpCode.HTTP_OK)
-      .json({
-        page,
-        per_page: Number(perPage),
-        total_rows: totalRows,
-        body: rutas,
-      });
+    return res.status(HttpCode.HTTP_OK).json({
+      page,
+      per_page: Number(perPage),
+      total_rows: totalRows,
+      body: rutas,
+    });
   }
 
   static async store(req, res) {
@@ -60,7 +54,11 @@ export default class RutaController {
         // eslint-disable-next-line no-plusplus
         for (let index = 0; index < roles.length; index++) {
           // eslint-disable-next-line no-await-in-loop
-          await VerifyModel.exist(Rol, roles[index], `No se encontró el rol con id ${roles[index]}`);
+          await VerifyModel.exist(
+            Rol,
+            roles[index],
+            `No se encontró el rol con id ${roles[index]}`,
+          );
         }
       }
       const ruta = await Ruta.create(
@@ -110,7 +108,8 @@ export default class RutaController {
     const { id } = req.params;
     const ruta = await VerifyModel.exist(Ruta, id, `No se encontró una ruta con id ${id}`, {
       include: {
-        model: Rol, attributes: ['id', 'name'],
+        model: Rol,
+        attributes: ['id', 'name'],
       },
     });
     return res.status(HttpCode.HTTP_OK).json(ruta); // ?
@@ -134,25 +133,45 @@ export default class RutaController {
     const { id } = req.params;
     const ruta = await VerifyModel.exist(Ruta, id, `No se encontró una ruta con id ${id}`);
     await ruta.update({
-      nombre, uri, nombre_uri: nombreUri, mostrar, icono, orden, admin, publico, id_ruta_padre: idRutaPadre,
+      nombre,
+      uri,
+      nombre_uri: nombreUri,
+      mostrar,
+      icono,
+      orden,
+      admin,
+      publico,
+      id_ruta_padre: idRutaPadre,
     });
     await ruta.setRols(roles);
 
-    return res.status(HttpCode.HTTP_OK)
-      .json({ message: 'Datos actualizados con exito' });
+    return res.status(HttpCode.HTTP_OK).json({ message: 'Datos actualizados con exito' });
   }
 
   static async getRutas(req, res) {
-    const frontAdmin = (process.env.FRONT_ADMIN_HOST).split('||');
-    const filtro = {
-      admin: false,
-    };
+    const frontAdmin = process.env.FRONT_ADMIN_HOST.split('||');
 
-    if (frontAdmin.includes(req.headers.origin)) filtro.admin = true;
+    const rutas = await RutaController.#getMenu(
+      req.usuario.id,
+      frontAdmin.includes(req.headers.origin),
+    );
 
-    const roles = await getRols.roles(req.usuario.id, 'id');
+    return res.status(HttpCode.HTTP_OK).json(rutas);
+  }
+
+  static async #getMenu(idUser, isAdmin) {
+    const roles = await getRols.roles(idUser, 'id');
     const menu = await Ruta.findAll({
-      attributes: ['id', 'nombre', 'uri', 'nombre_uri', 'icono', 'mostrar', 'orden', 'id_ruta_padre'],
+      attributes: [
+        'id',
+        'nombre',
+        'uri',
+        'nombre_uri',
+        'icono',
+        'mostrar',
+        'orden',
+        'id_ruta_padre',
+      ],
       include: [
         {
           model: Rol,
@@ -162,46 +181,27 @@ export default class RutaController {
       ],
       where: {
         id_ruta_padre: null,
+        admin: isAdmin,
       },
       order: ['orden'],
     });
 
-    const rutas = await RutaController.sort(menu);
+    const children = await RutaController.#getChildren(menu);
 
-    // console.log(prueba);
-
-    // const rutas = RutaController.sortRoutes(menu);
-
-    return res.status(HttpCode.HTTP_OK).json(rutas);
+    return children;
   }
 
-  static sortRoutes(menu) {
-    menu.forEach((ruta) => {
-      // eslint-disable-next-line no-param-reassign
-      ruta.rutas = (menu.filter((rutaHija) => rutaHija.id_ruta_padre === ruta.id));
-    });
-
-    const rutas = menu.filter((ruta) => ruta.id_ruta_padre === null);
-
-    return rutas;
-  }
-
-  static async sort(menu) {
-    const rutas = [];
-
+  static async #getChildren(parents) {
     // eslint-disable-next-line no-restricted-syntax
-    for await (const ruta of menu) {
-      // const item = { ...ruta.toJSON() };
-
-      const childrens = await RutaController.getChildren(ruta.id);
-
-      if (childrens?.length) { RutaController.sort(childrens); }
+    for await (const ruta of parents) {
+      ruta.rutas = await RutaController.#getChild(ruta.id);
+      if (ruta.rutas) await RutaController.#getChildren(ruta.rutas);
     }
-    return rutas;
+    return parents;
   }
 
-  static async getChildren(id) {
-    await Ruta.findAll({
+  static async #getChild(id) {
+    const child = await Ruta.findAll({
       include: [
         {
           model: Rol,
@@ -213,5 +213,7 @@ export default class RutaController {
       },
       order: ['orden'],
     });
+
+    return child;
   }
 }
