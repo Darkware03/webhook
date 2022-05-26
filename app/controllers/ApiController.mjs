@@ -37,6 +37,10 @@ export default class ApiController {
   }
 
   static async login(req, res) {
+    const frontAdmin = process.env.FRONT_ADMIN_HOST.split('||');
+    if (frontAdmin.includes(req.headers.origin)) {
+      if (!await Security.roleIsGranted(req, 'ROLE_USER_ADMIN')) throw new NoAuthException();
+    }
     const { email, password } = req.body;
     const usuario = await Usuario.findOne({
       where: {

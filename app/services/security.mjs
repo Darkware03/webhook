@@ -19,10 +19,22 @@ export default class Security {
 
       const allRols = await getRols.roles(user.id);
 
-      const havePermision = await allRols.find((rol) => rol === receivedRol);
-      if (havePermision) return true;
-      return false;
+      const havePermision = !!(await allRols.find((rol) => rol === receivedRol));
+
+      return havePermision;
     }
+  }
+
+  static async roleIsGranted(req, role) {
+    const { email } = req.body;
+    const user = await Usuario.findOne({
+      where: { email },
+    });
+
+    const userRoles = await getRols.roles(user.id);
+
+    const granted = await userRoles.includes(role);
+    return granted;
   }
 
   static async generateTwoFactorAuthCode(email) {

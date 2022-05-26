@@ -142,6 +142,7 @@ module.exports = {
           { name: 'ROLE_ADMIN_USER_LIST', id_tipo_rol: admin.id },
           { name: 'ROLE_ADMIN_USER_CREATE', id_tipo_rol: admin.id },
           { name: 'ROLE_ADMIN_USER_UPDATE', id_tipo_rol: admin.id },
+          { name: 'ROLE_USER_ADMIN', id_tipo_rol: admin.id },
         ],
         {
           returning: ['id'],
