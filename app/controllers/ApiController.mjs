@@ -29,18 +29,12 @@ export default class ApiController {
         );
         res.status(HttpCode.HTTP_OK).send({ message: 'El usuario ha sido verificado con exito' });
       } else {
-        throw BadRequestException(
-          'El id de usuario es requerido',
-        );
+        throw BadRequestException('El id de usuario es requerido');
       }
     }
   }
 
   static async login(req, res) {
-    const frontAdmin = process.env.FRONT_ADMIN_HOST.split('||');
-    if (frontAdmin.includes(req.headers.origin)) {
-      if (!await Security.roleIsGranted(req, 'ROLE_USER_ADMIN')) throw new NoAuthException();
-    }
     const { email, password } = req.body;
     const usuario = await Usuario.findOne({
       where: {
@@ -56,23 +50,24 @@ export default class ApiController {
       ],
     });
 
-    if (!usuario) {
-      throw new NoAuthException(
-        'Credenciales no validas',
-      );
+    if (!usuario) throw new NoAuthException('Credenciales no validas');
+
+    const frontAdmin = process.env.FRONT_ADMIN_HOST.split('||');
+    if (frontAdmin.includes(req.headers.origin)) {
+      if (!(await Security.isGranted(usuario.id, 'ROLE_USER_ADMIN'))) throw new NoAuthException();
     }
+
     const validPassword = bcrypt.compareSync(password, usuario.password);
-    if (!validPassword) {
-      throw new NoAuthException(
-        'Credenciales no validas',
-      );
-    }
+    if (!validPassword) throw new NoAuthException('Credenciales no validas');
+
     if (usuario.is_suspended && usuario.last_login !== null && usuario.last_login !== '') {
-      throw new NoAuthException(
-        'El usuario se encuentra suspendido',
-      );
+      throw new NoAuthException('El usuario se encuentra suspendido');
     }
-    if ((usuario.last_login === '' && process.env.DISABLE_TWO_FACTOR_AUTH === 'false') || (usuario.last_login === null && process.env.DISABLE_TWO_FACTOR_AUTH === 'false')) {
+
+    if (
+      (usuario.last_login === '' && process.env.DISABLE_TWO_FACTOR_AUTH === 'false')
+      || (usuario.last_login === null && process.env.DISABLE_TWO_FACTOR_AUTH === 'false')
+    ) {
       const idUsuario = usuario.id;
       const token = await Auth.createToken({ idUsuario });
       const htmlForEmail = `
@@ -108,7 +103,7 @@ export default class ApiController {
       );
       return res.status(HttpCode.HTTP_BAD_REQUEST).json({
         message:
-                    'Su cuenta se encuentra suspendida, por favor verificarla por medio del correo que se le ha enviado',
+          'Su cuenta se encuentra suspendida, por favor verificarla por medio del correo que se le ha enviado',
       });
     }
     await usuario.update({
@@ -132,7 +127,7 @@ export default class ApiController {
     };
     const token = await Auth.createToken({
       roles: process.env.DISABLE_TWO_FACTOR_AUTH === 'true' ? roles : null,
-      user: process.env.DISABLE_TWO_FACTOR_AUTH === 'true' ? (userDatatoken) : null,
+      user: process.env.DISABLE_TWO_FACTOR_AUTH === 'true' ? userDatatoken : null,
     });
     if (process.env.DISABLE_TWO_FACTOR_AUTH === 'true') {
       const refreshToken = await Auth.refresh_token(usuario);
@@ -170,9 +165,7 @@ export default class ApiController {
           where: { id_usuario: user.id, is_primary: true },
         });
         if (!getPrimaryMethod) {
-          throw new NotFoundException(
-            'Error al realizar la peticion...',
-          );
+          throw new NotFoundException('Error al realizar la peticion...');
         }
         idMetodo = getPrimaryMethod.id_metodo;
       }
@@ -198,13 +191,9 @@ export default class ApiController {
           .send({ message: 'Se ha enviado el codigo de verificacion a su correo electronico' });
       }
       next();
-      throw new NotFoundException(
-        'Error al realizar la peticion...',
-      );
+      throw new NotFoundException('Error al realizar la peticion...');
     }
-    throw new NoAuthException(
-      'La informacion no es valida',
-    );
+    throw new NoAuthException('La informacion no es valida');
   }
 
   // eslint-disable-next-line consistent-return
@@ -223,9 +212,7 @@ export default class ApiController {
       });
       // validar si existe metodo de autenticacion
       if (!metodoAutenticacion) {
-        throw new NoAuthException(
-          'El usuario no posee metodos de autenticacion',
-        );
+        throw new NoAuthException('El usuario no posee metodos de autenticacion');
       }
       const usuario = await Usuario.findByPk(user.id, {
         attributes: ['id', 'email', 'last_login', 'two_factor_status'],
@@ -240,9 +227,7 @@ export default class ApiController {
         timeToCodeValid,
       );
       if (!isCodeValid) {
-        throw new NoAuthException(
-          'El codigo proporcionado no es valido',
-        );
+        throw new NoAuthException('El codigo proporcionado no es valido');
       }
       await usuario.update({
         two_factor_status: true,
@@ -284,9 +269,7 @@ export default class ApiController {
     const tokenValidTime = moment(refreshTokenExist.valid).valueOf();
     const nowTime = moment().tz('America/El_Salvador').valueOf();
     if (tokenValidTime < nowTime) {
-      throw new NoAuthException(
-        'El refresh token porporcionado no es valido',
-      );
+      throw new NoAuthException('El refresh token porporcionado no es valido');
     }
 
     const { Usuario: usuario } = refreshTokenExist;
@@ -329,9 +312,7 @@ export default class ApiController {
       },
     });
     if (usuario === null) {
-      throw new UnprocessableEntityException(
-        'El parametro no es un correo valido',
-      );
+      throw new UnprocessableEntityException('El parametro no es un correo valido');
     }
 
     const token = await Auth.createToken({

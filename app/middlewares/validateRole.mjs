@@ -3,7 +3,7 @@ import Handler from '../../handlers/Handler.mjs';
 import ForbiddenException from '../../handlers/ForbiddenException.mjs';
 
 const validateRole = (ROLE) => async (req, res, next) => {
-  const valid = await Security.isGranted(req, ROLE);
+  const valid = await Security.isGranted(req.usuario.id, ROLE);
   if (valid) next();
   else Handler.handlerError(new ForbiddenException(), req, res, next);
 };

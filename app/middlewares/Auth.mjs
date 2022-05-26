@@ -8,10 +8,6 @@ import Security from '../services/security.mjs';
 // eslint-disable-next-line consistent-return
 const Auth = async (req, res, next) => {
   try {
-    const frontAdmin = process.env.FRONT_ADMIN_HOST.split('||');
-    if (frontAdmin.includes(req.headers.origin)) {
-      if (!await Security.isGranted(req, 'ROLE_USER_ADMIN')) throw new NoAuthException();
-    }
     let { authorization } = req.headers;
     if (!authorization) throw new NoAuthException();
 
@@ -27,12 +23,19 @@ const Auth = async (req, res, next) => {
     });
 
     if (!usuario) throw new NoAuthException();
+
+    const frontAdmin = process.env.FRONT_ADMIN_HOST.split('||');
+    if (frontAdmin.includes(req.headers.origin)) {
+      if (!(await Security.isGranted(usuario.id, 'ROLE_USER_ADMIN'))) throw new NoAuthException();
+    }
+
     const fechaValidacionToken = moment(usuario.token_valid_after).valueOf();
 
     if (fechaValidacionToken > fechaCreacionToken) throw new NoAuthException();
 
     if (!usuario.two_factor_status && process.env.DISABLE_TWO_FACTOR_AUTH === 'false') throw new NoAuthException();
     req.usuario = usuario;
+
     next();
   } catch (err) {
     if (err.name === 'TokenExpiredError') {
