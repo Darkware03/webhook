@@ -15,7 +15,6 @@ export default class RolController {
     } = req.query;
     const filtro = {};
     const options = {};
-    let respuesta = {};
 
     if (paginacion === 'true') {
       await VerifyModel.isValid(perPage, 'cantidad por pagina debe ser de tipo entero');
@@ -34,17 +33,14 @@ export default class RolController {
     });
 
     if (paginacion === 'true') {
-      respuesta = {
+      res.set({
         total_rows: Number(totalRows),
         page: Number(page),
         per_page: Number(perPage),
-        body: roles,
-      };
-    } else {
-      respuesta = roles;
+      });
     }
 
-    return res.status(HttpCode.HTTP_OK).json(respuesta);
+    return res.status(HttpCode.HTTP_OK).json(roles);
   }
 
   static async store(req, res) {

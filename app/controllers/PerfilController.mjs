@@ -16,7 +16,6 @@ export default class PerfilController {
 
     const filtro = {};
     const options = {};
-    let respuesta = {};
 
     if (paginacion === 'true') {
       await VerifyModel.isValid(perPage, 'cantidad por pagina debe ser de tipo entero');
@@ -36,17 +35,14 @@ export default class PerfilController {
     });
 
     if (paginacion === 'true') {
-      respuesta = {
+      res.set({
         total_rows: Number(totalRows),
         page: Number(page),
         per_page: Number(perPage),
-        body: perfiles,
-      };
-    } else {
-      respuesta = perfiles;
+      });
     }
 
-    return res.status(HttpCode.HTTP_OK).json(respuesta);
+    return res.status(HttpCode.HTTP_OK).json(perfiles);
   }
 
   static async store(req, res) {

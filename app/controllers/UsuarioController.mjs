@@ -23,13 +23,29 @@ import ForbiddenException from '../../handlers/ForbiddenException.mjs';
 
 export default class UsuarioController {
   static async index(req, res) {
-    const page = Number(req.query.page) || 1;
-    const perPage = Number(req.query.per_page) || 10;
+    const {
+      page = 1,
+      per_page: perPage = 10,
+      paginacion = 'true',
+      email,
+      habilitado,
+    } = req.query;
+
     const filters = {};
-    const { email, habilitado } = req.query;
+    const options = {};
+
+    if (paginacion === 'true') {
+      await VerifyModel.isValid(perPage, 'cantidad por pagina debe ser de tipo entero');
+      await VerifyModel.isValid(page, 'pagina debe ser de tipo entero');
+
+      options.offset = perPage * (page - 1);
+      options.limit = Number(perPage);
+      options.distinct = true;
+    }
+
     if (email) {
       filters.email = {
-        [Op.iLike]: `%${req.query.email || ''}%`,
+        [Op.iLike]: `%${email || ''}%`,
       };
     }
     if (habilitado) {
@@ -37,20 +53,22 @@ export default class UsuarioController {
     }
 
     const { rows: usuarios, count: totalRows } = await Usuario.findAndCountAll({
-      distinct: true,
-      limit: perPage,
-      offset: (page - 1) * perPage,
+      ...options,
       attributes: { exclude: ['password', 'token_valid_after', 'two_factor_status'] },
       include: [Rol, Perfil],
       order: ['id'],
       where: filters,
     });
-    return res.status(HttpCode.HTTP_OK).json({
-      page: Number(page),
-      per_page: Number(perPage),
-      total_rows: Number(totalRows),
-      body: usuarios,
-    });
+
+    if (paginacion === 'true') {
+      res.set({
+        total_rows: Number(totalRows),
+        page: Number(page),
+        per_page: Number(perPage),
+      });
+    }
+
+    return res.status(HttpCode.HTTP_OK).json(usuarios);
   }
 
   static async store(req, res) {

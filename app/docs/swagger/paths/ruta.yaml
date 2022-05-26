@@ -75,6 +75,12 @@
       minimum: 1
       description: Parametro para filtrar resultados segun uri
     - in: query
+      name: paginacion
+      schema:
+        type: string
+        description: "'true' si desea habilitar paginacion"
+        default: true
+    - in: query
       name: page
       required: false
       type: integer
@@ -111,10 +117,6 @@
                   type: string
                 orden:
                   type: integer
-                admin:
-                  type: boolean
-                publico:
-                  type: boolean
                 id_ruta_padre:
                   type: integer
       401:

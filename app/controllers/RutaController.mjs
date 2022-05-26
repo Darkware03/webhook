@@ -10,26 +10,38 @@ import getRols from '../services/getRols.mjs';
 export default class RutaController {
   static async index(req, res) {
     const {
-      page = 1, per_page: perPage = 10, nombre, uri,
+      page = 1, per_page: perPage = 10, paginacion = 'true', nombre, uri,
     } = req.query;
 
     const filtro = {};
+    const options = {};
+
+    if (paginacion === 'true') {
+      await VerifyModel.isValid(perPage, 'cantidad por pagina debe ser de tipo entero');
+      await VerifyModel.isValid(page, 'pagina debe ser de tipo entero');
+
+      options.offset = perPage * (page - 1);
+      options.limit = Number(perPage);
+      options.distinct = true;
+    }
     if (nombre) filtro.nombre = { [Op.iLike]: `%${nombre}%` };
     if (uri) filtro.uri = { [Op.iLike]: `%${uri}%` };
 
     const { count: totalRows, rows: rutas } = await Ruta.findAndCountAll({
       include: [Rol],
-      distinct: true,
       where: filtro,
-      limit: perPage,
-      offset: perPage * (page - 1),
+      ...options,
     });
-    return res.status(HttpCode.HTTP_OK).json({
-      page: Number(page),
-      per_page: Number(perPage),
-      total_rows: Number(totalRows),
-      body: rutas,
-    });
+
+    if (paginacion === 'true') {
+      res.set({
+        total_rows: Number(totalRows),
+        page: Number(page),
+        per_page: Number(perPage),
+      });
+    }
+
+    return res.status(HttpCode.HTTP_OK).json(rutas);
   }
 
   static async store(req, res) {
