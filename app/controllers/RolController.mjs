@@ -10,25 +10,41 @@ export default class RolController {
     const {
       page = 1,
       per_page: perPage = 10,
+      paginacion = 'true',
       nombre,
     } = req.query;
-
     const filtro = {};
+    const options = {};
+    let respuesta = {};
+
+    if (paginacion === 'true') {
+      await VerifyModel.isValid(perPage, 'cantidad por pagina debe ser de tipo entero');
+      await VerifyModel.isValid(page, 'pagina debe ser de tipo entero');
+
+      options.offset = perPage * (page - 1);
+      options.limit = Number(perPage);
+      options.distinct = true;
+    }
     if (nombre) filtro.name = { [Op.iLike]: `%${nombre}%` };
 
     const { count: totalRows, rows: roles } = await Rol.findAndCountAll({
       include: [TipoRol],
       where: filtro,
-      distinct: true,
-      limit: perPage,
-      offset: perPage * (page - 1),
+      ...options,
     });
-    return res.status(HttpCode.HTTP_OK).json({
-      page: Number(page),
-      per_page: Number(perPage),
-      total_rows: Number(totalRows),
-      body: roles,
-    });
+
+    if (paginacion === 'true') {
+      respuesta = {
+        total_rows: Number(totalRows),
+        page: Number(page),
+        per_page: Number(perPage),
+        body: roles,
+      };
+    } else {
+      respuesta = roles;
+    }
+
+    return res.status(HttpCode.HTTP_OK).json(respuesta);
   }
 
   static async store(req, res) {
