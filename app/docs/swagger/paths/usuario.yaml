@@ -86,6 +86,12 @@
       minimum: 1
       description: Parametro para filtrar resultados segun estado
     - in: query
+      name: paginacion
+      schema:
+        type: string
+        description: "'true' si desea habilitar paginacion"
+        default: true
+    - in: query
       name: page
       required: false
       type: integer
@@ -106,28 +112,40 @@
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                body:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      id:
-                        type: integer
-                      email:
-                        type: string
-                      last_login:
-                        type: string
-                page:
-                  type: integer
-                  example: 1
-                per_page:
-                  type: integer
-                  example: 10
-                total_rows:
-                  type: integer
-                  example: 100
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  email:
+                    type: string
+                  last_login:
+                    type: string
+                  is_suspended:
+                    type: boolean
+                  perfiles:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        codigo:
+                          type: string
+                        nombre:
+                          type: string
+                  roles:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                        id_tipo_rol:
+                          type: integer
       401:
         description: Unauthorized
         content:
