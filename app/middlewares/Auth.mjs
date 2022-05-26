@@ -3,10 +3,15 @@ import moment from 'moment';
 import NoAuthException from '../../handlers/NoAuthException.mjs';
 import { Usuario } from '../models/index.mjs';
 import HttpCode from '../../configs/httpCode.mjs';
+import Security from '../services/security.mjs';
 
 // eslint-disable-next-line consistent-return
 const Auth = async (req, res, next) => {
   try {
+    const frontAdmin = process.env.FRONT_ADMIN_HOST.split('||');
+    if (frontAdmin.includes(req.headers.origin)) {
+      if (!await Security.isGranted(req, 'ROLE_USER_ADMIN')) throw new NoAuthException();
+    }
     let { authorization } = req.headers;
     if (!authorization) throw new NoAuthException();
 
