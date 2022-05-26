@@ -61,6 +61,12 @@
       minimum: 1
       description: Parametro para filtrar resultados segun codigo
     - in: query
+      name: paginacion
+      schema:
+        type: string
+        description: "'true' si desea habilitar paginacion"
+        default: true
+    - in: query
       name: page
       required: false
       type: integer
@@ -83,12 +89,23 @@
             schema:
               type: object
               properties:
-                id:
+                total_rows:
+                    type: integer
+                page:
                   type: integer
-                nombre:
-                  type: string
-                codigo:
-                  type: string
+                per_page:
+                  type: integer
+                body:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      nombre:
+                        type: string
+                      id_tipo_rol:
+                        type: integer
       401:
         description: Unauthorized
         content:

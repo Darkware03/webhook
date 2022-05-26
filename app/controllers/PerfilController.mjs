@@ -9,26 +9,44 @@ export default class PerfilController {
     const {
       page = 1,
       per_page: perPage = 10,
+      paginacion = 'true',
       nombre,
       codigo,
     } = req.query;
 
     const filtro = {};
+    const options = {};
+    let respuesta = {};
+
+    if (paginacion === 'true') {
+      await VerifyModel.isValid(perPage, 'cantidad por pagina debe ser de tipo entero');
+      await VerifyModel.isValid(page, 'pagina debe ser de tipo entero');
+
+      options.offset = perPage * (page - 1);
+      options.limit = Number(perPage);
+      options.distinct = true;
+    }
+
     if (nombre) filtro.nombre = { [Op.iLike]: `%${nombre}%` };
     if (codigo) filtro.codigo = { [Op.iLike]: `%${codigo}%` };
     const { count: totalRows, rows: perfiles } = await Perfil.findAndCountAll({
       include: [{ model: Rol, required: true }],
       where: filtro,
-      distinct: true,
-      limit: perPage,
-      offset: perPage * (page - 1),
+      ...options,
     });
-    return res.status(HttpCode.HTTP_OK).json({
-      page: Number(page),
-      per_page: Number(perPage),
-      total_rows: Number(totalRows),
-      body: perfiles,
-    });
+
+    if (paginacion === 'true') {
+      respuesta = {
+        total_rows: Number(totalRows),
+        page: Number(page),
+        per_page: Number(perPage),
+        body: perfiles,
+      };
+    } else {
+      respuesta = perfiles;
+    }
+
+    return res.status(HttpCode.HTTP_OK).json(respuesta);
   }
 
   static async store(req, res) {
