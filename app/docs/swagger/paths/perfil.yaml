@@ -87,25 +87,16 @@
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                total_rows:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
                     type: integer
-                page:
-                  type: integer
-                per_page:
-                  type: integer
-                body:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      id:
-                        type: integer
-                      nombre:
-                        type: string
-                      id_tipo_rol:
-                        type: integer
+                  nombre:
+                    type: string
+                  id_tipo_rol:
+                    type: integer
       401:
         description: Unauthorized
         content:
