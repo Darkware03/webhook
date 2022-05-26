@@ -12,33 +12,72 @@ const transporter = nodemailer.createTransport({
   },
 });
 export default class Mailer {
-  static async sendMail(email = null, message = null, subject = null, header = '', customHtml = null) {
-    let html = `
-<mjml>
-  <mj-body>
-    <mj-section>
-      <mj-column>
-        <mj-image src="https://next.salud.gob.sv/index.php/s/AHEMQ38JR93fnXQ/download" width="350px"></mj-image>
-            <mj-button width="80%" padding="5px 10px" font-size="20px" background-color="#175efb" border-radius="99px">
-               <mj-text  align="center" font-weight="bold"  color="#ffffff" >
-                 ${header}
-              </mj-text>
-           </mj-button>
-        <mj-spacer css-class="primary"></mj-spacer>
-        <mj-divider border-width="3px" border-color="#175efb" />
-        <mj-text  align="center" font-weight="bold" font-size="17px">${message}</mj-text>
-      </mj-column>
-    </mj-section>
-  </mj-body>
-</mjml>`;
-    if (customHtml !== null) html = customHtml;
+  static async sendMail(params) {
+    const {
+      email, header, subject, message, body = [], sections = [],
+    } = params;
+    const { html } = mjml2html({
+      tagName: 'mjml',
+      attributes: {},
+      children: [
+        {
+          tagName: 'mj-body',
+          attributes: {},
+          children: [
+            {
+              tagName: 'mj-section',
+              attributes: {},
+              children: [
+                {
+                  tagName: 'mj-column',
+                  attributes: {},
+                  children: [
+                    {
+                      tagName: 'mj-image',
+                      attributes: {
+                        src: 'https://next.salud.gob.sv/index.php/s/AHEMQ38JR93fnXQ/download',
+                        width: '350px',
+                      },
+                    },
+                    ...header,
+                    {
+                      tagName: 'mj-spacer',
+                      attributes: {
+                        'css-class': 'primary',
+                      },
+                    },
+                    {
+                      tagName: 'mj-divider',
+                      attributes: {
+                        'border-width': '3px',
+                        'border-color': '#175efb',
+                      },
+                    },
+                    {
+                      tagName: 'mj-text',
+                      attributes: {
+                        align: 'center',
+                        'font-weight': 'bold',
+                        'font-size': '12px',
+                      },
+                      content: message,
+                    },
+                    ...body,
+                  ],
+                },
+              ],
+            },
+            ...sections,
+          ],
+        },
+      ],
+    });
 
-    const formattedHtml = mjml2html(html, {});
     const mailConfig = {
       from: `${process.env.SISTEM_NAME} <${process.env.MAIL_USER}>`,
       to: email,
       subject,
-      html: formattedHtml.html,
+      html,
     };
     await transporter.sendMail(mailConfig, (error) => {
       if (error) {

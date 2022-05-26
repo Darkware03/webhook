@@ -70,42 +70,50 @@ export default class ApiController {
     ) {
       const idUsuario = usuario.id;
       const token = await Auth.createToken({ idUsuario });
-      const htmlForEmail = `
-<mjml>
-  <mj-body>
-    <mj-section>
-      <mj-column>
-        <mj-image src="https://next.salud.gob.sv/index.php/s/AHEMQ38JR93fnXQ/download" width="350px"></mj-image>
-            <mj-button width="80%" padding="5px 10px" font-size="20px" background-color="#175efb" border-radius="99px">
-               <mj-text  align="center" font-weight="bold"  color="#ffffff" >
-                 Hola ${usuario.email}
-              </mj-text>
-           </mj-button>
-        <mj-spacer css-class="primary"></mj-spacer>
-        <mj-divider border-width="3px" border-color="#175efb" />
-        <mj-text  align="center" font-weight="bold" font-size="12px">
-         Para verificar tu cuenta debes de hacer click en el siguiente enlace:
-        </mj-text>
-        <mj-button background-color="#175efb" href="${process.env.FRONT_URL}/verificar/${token}">
-          VERIFICAR MI CUENTA
-        </mj-button>
-      </mj-column>
-    </mj-section>
-  </mj-body>
-</mjml>`;
+
+      const header = [
+        {
+          tagName: 'mj-button',
+          attributes: {
+            width: '80%',
+            padding: '5px 10px',
+            'font-size': '20px',
+            'background-color': '#175efb',
+            'border-radius': '99px',
+          },
+          content: `Hola ${usuario.email}`,
+        },
+      ];
+
+      const body = [
+        {
+          tagName: 'mj-button',
+          attributes: {
+            width: '80%',
+            padding: '5px 10px',
+            'font-size': '20px',
+            'background-color': '#175efb',
+            href: `${process.env.FRONT_URL}/verificar/${token}`,
+          },
+          content: 'VERIFICAR MI CUENTA',
+        },
+      ];
 
       await Mailer.sendMail(
-        usuario.email,
-        null,
-        'Verificacion de correo electronico',
-        null,
-        htmlForEmail,
+        {
+          email: usuario.email,
+          header,
+          subject: 'Verificacion de correo electronico',
+          message: 'Para verificar tu cuenta debes de hacer click en el siguiente enlace:',
+          body,
+        },
       );
       return res.status(HttpCode.HTTP_BAD_REQUEST).json({
         message:
           'Su cuenta se encuentra suspendida, por favor verificarla por medio del correo que se le ha enviado',
       });
     }
+
     await usuario.update({
       last_login: moment().tz('America/El_Salvador').format(),
       two_factor_status: false,
@@ -180,11 +188,28 @@ export default class ApiController {
           encoding: 'base32',
           time: process.env.GOOGLE_AUTH_TIME_EMAIL,
         });
+
+        const header = [
+          {
+            tagName: 'mj-button',
+            attributes: {
+              width: '80%',
+              padding: '5px 10px',
+              'font-size': '20px',
+              'background-color': '#175efb',
+              'border-radius': '99px',
+            },
+            content: 'El codigo de verificacion es:',
+          },
+        ];
+
         await Mailer.sendMail(
-          user.email,
-          verificationCode,
-          'Codigo de verificacion de usuario',
-          'El codigo de verificacion es:',
+          {
+            email: user.email,
+            header,
+            subject: 'Codigo de verificacion de usuario',
+            message: verificationCode,
+          },
         );
         return res
           .status(HttpCode.HTTP_OK)
@@ -328,37 +353,89 @@ export default class ApiController {
     );
 
     const uri = `http://${process.env.URL}/api/recovery_password/${token}`;
-    const message = `
-    <mjml>
-  <mj-body>
-    <mj-section>
-      <mj-column>
-        <mj-image src="https://next.salud.gob.sv/index.php/s/AHEMQ38JR93fnXQ/download" width="350px"></mj-image>
-           
-        
-              <mj-text  align="center" font-weight="bold" font-size="30px" color="#175efb">Recuperación de Contraseña</mj-text>
-        <mj-spacer css-class="primary"></mj-spacer>
-        <mj-divider border-width="3px" border-color="#175efb" />
-        <mj-text align="center" font-size="18px"><h3>¿Una nueva contraseña?</h3>
-            <p>Haz clic al siguiente boton y crea una nueva.</p>
-        </mj-text>
-      </mj-column>
-    </mj-section>
-    <mj-section>
-      
-      <mj-column>
-        
-        <mj-button href=" ${uri}" width="80%" padding="5px 10px" font-size="20px" background-color="#175efb" border-radius="99px">
-          Cambiar contraseña
-         </mj-button>
-        <mj-text align="justify">
-          <p>Si no solicitaste el cambio de contraseña, ignora este correo. Tu contraseña continuará siendo la misma.</p>
-         </mj-text>
-      </mj-column>
-    </mj-section>
-  </mj-body>
-</mjml>`;
-    if (!Mailer.sendMail(usuario.email, null, 'Restablecer Contraseña', null, message)) {
+
+    const header = [
+      {
+        tagName: 'mj-text',
+        attributes: {
+          align: 'center',
+          'font-size': '30px',
+          'font-weight': 'bold',
+          color: '#175efb',
+        },
+        content: 'Recuperación de Contraseña',
+      },
+      {
+        tagName: 'mj-spacer',
+        attributes: {
+          'css-class': 'primary',
+        },
+      },
+      {
+        tagName: 'mj-divider',
+        attributes: {
+          'border-width': '3px',
+          'border-color': '#175efb',
+        },
+      },
+      {
+        tagName: 'mj-text',
+        attributes: {
+          align: 'center',
+          'font-size': '18px',
+        },
+        children: [
+          {
+            tagName: 'h3',
+            content: '¿Una nueva contraseña?',
+            children: [
+              {
+                tagName: 'p',
+                content: 'Haz clic al siguiente boton y crea una nueva.',
+              },
+            ],
+          },
+        ],
+      },
+    ];
+
+    const sections = [
+      {
+        tagName: 'mj-column',
+        attributes: {},
+        children:
+      [
+        {
+          tagName: 'mj-button',
+          attributes: {
+            href: uri,
+            width: '80%',
+            padding: '5px 10px',
+            'font-size': '20px',
+            'background-color': '#175efb',
+            'border-radius': '99px',
+          },
+          content: 'Cambiar contraseña',
+        },
+        {
+          tagName: 'mj-text',
+          attributes: {
+            align: 'justify',
+          },
+          children: [
+            {
+              tagName: 'p',
+              content: 'Si no solicitaste el cambio de contraseña, ignora este correo. Tu contraseña continuará siendo la misma.',
+            },
+          ],
+        },
+      ],
+      },
+    ];
+
+    if (!Mailer.sendMail({
+      email: usuario.email, header, subject: 'Restablecer Contraseña', sections,
+    })) {
       throw new NotFoundException(
         'Error! Hubo un problema al enviar el correo, intente nuevamente.',
       );
