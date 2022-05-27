@@ -21,13 +21,13 @@ export default class Security {
     };
   }
 
-  static async verifyTwoFactorAuthCode(code, secretKey, time = null) {
+  static async verifyTwoFactorAuthCode(code, secretKey, time = null, step = 10) {
     return speakeasy.totp.verify({
       secret: secretKey,
       encoding: 'base32',
       token: code,
-      window: 1,
-      time,
+      window: Number(time),
+      step,
     });
   }
 }

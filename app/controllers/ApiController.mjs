@@ -15,7 +15,7 @@ import MetodoAutenticacionUsuario from '../models/MetodoAutenticacionUsuario.mjs
 import Security from '../services/security.mjs';
 import MetodoAutenticacion from '../models/MetodoAutenticacion.mjs';
 import BadRequestException from '../../handlers/BadRequestException.mjs';
-import Storage from '../nucleo/Storage.mjs';
+import Handler from '../../handlers/Handler.mjs';
 
 export default class ApiController {
   static async confirmUser(req, res) {
@@ -135,7 +135,7 @@ export default class ApiController {
     };
     const token = await Auth.createToken({
       roles: process.env.DISABLE_TWO_FACTOR_AUTH === 'true' ? roles : null,
-      user: process.env.DISABLE_TWO_FACTOR_AUTH === 'true' ? userDatatoken : null,
+      user: process.env.DISABLE_TWO_FACTOR_AUTH !== 'true' ? userDatatoken : null,
     });
     if (process.env.DISABLE_TWO_FACTOR_AUTH === 'true') {
       const refreshToken = await Auth.refresh_token(usuario);
@@ -162,31 +162,32 @@ export default class ApiController {
   }
 
   static async twoFactorAuthLoginChoose(req, res, next) {
-    let { id_metodo: idMetodo } = req.body;
-    let { authorization } = req.headers;
-    authorization = authorization.split(' ');
-    if (!authorization.length < 2) {
-      const receivedToken = authorization[1];
-      const { user } = jwt.verify(receivedToken, process.env.SECRET_KEY);
-      if (!idMetodo || idMetodo == null || idMetodo === '') {
-        const getPrimaryMethod = await MetodoAutenticacionUsuario.findOne({
-          where: { id_usuario: user.id, is_primary: true },
-        });
-        if (!getPrimaryMethod) {
-          throw new NotFoundException('Error al realizar la peticion...');
-        }
-        idMetodo = getPrimaryMethod.id_metodo;
-      }
+    const { id_metodo: idMetodo } = req.body;
+    const { authorization } = req.headers;
+    const token = authorization && authorization.replace('Bearer ', '');
+
+    if (!token) throw new NoAuthException('No autenticado');
+
+    try {
+      const { user } = jwt.verify(token, process.env.SECRET_KEY);
+      const authMethod = await MetodoAutenticacionUsuario.findOne({
+        where: {
+          id_usuario: user.id,
+          id_metodo: idMetodo,
+        },
+      });
+
       if (idMetodo === 1) {
         const newToken = speakeasy.generateSecret({ length: 52 }).base32;
-        await MetodoAutenticacionUsuario.update(
-          { secret_key: newToken },
-          { where: { id_metodo: idMetodo, id_usuario: user.id } },
-        );
-        const verificationCode = await speakeasy.totp({
+        await authMethod.update({
+          secret_key: newToken,
+        });
+
+        const verificationCode = speakeasy.totp({
           secret: newToken,
           encoding: 'base32',
-          time: process.env.GOOGLE_AUTH_TIME_EMAIL,
+          window: Number(process.env.TIME_BASED_TOKEN_2FA),
+          step: 10,
         });
 
         const header = [
@@ -211,67 +212,63 @@ export default class ApiController {
             message: verificationCode,
           },
         );
-        return res
-          .status(HttpCode.HTTP_OK)
-          .send({ message: 'Se ha enviado el codigo de verificacion a su correo electronico' });
       }
-      next();
-      throw new NotFoundException('Error al realizar la peticion...');
+
+      return res
+        .status(HttpCode.HTTP_OK)
+        .send({ message: 'Se ha enviado el codigo de verificacion a su correo electronico' });
+    } catch (e) {
+      return Handler.handlerError(e, req, res, next);
     }
-    throw new NoAuthException('La informacion no es valida');
   }
 
-  // eslint-disable-next-line consistent-return
   static async verifyTwoFactorAuthLogin(req, res) {
-    let dbQueryParams;
-    let { authorization } = req.headers;
+    const { authorization } = req.headers;
     const { id_metodo: idMetodo, codigo } = req.body;
-    authorization = authorization.split(' ');
-    if (!authorization.length < 2) {
-      const receivedToken = authorization[1];
-      const { user } = jwt.verify(receivedToken, process.env.SECRET_KEY);
-      if (!idMetodo) dbQueryParams = { id_usuario: user.id, is_primary: true };
-      else dbQueryParams = { id_usuario: user.id, id_metodo: idMetodo };
-      const metodoAutenticacion = await MetodoAutenticacionUsuario.findOne({
-        where: dbQueryParams,
-      });
-      // validar si existe metodo de autenticacion
-      if (!metodoAutenticacion) {
-        throw new NoAuthException('El usuario no posee metodos de autenticacion');
-      }
-      const usuario = await Usuario.findByPk(user.id, {
-        attributes: ['id', 'email', 'last_login', 'two_factor_status'],
-      });
-      let timeToCodeValid = null;
-      if (Number(metodoAutenticacion.id_metodo) === 1) {
-        timeToCodeValid = process.env.GOOGLE_AUTH_TIME_EMAIL;
-      }
-      const isCodeValid = await Security.verifyTwoFactorAuthCode(
-        codigo,
-        metodoAutenticacion.secret_key,
-        timeToCodeValid,
-      );
-      if (!isCodeValid) {
-        throw new NoAuthException('El codigo proporcionado no es valido');
-      }
-      await usuario.update({
-        two_factor_status: true,
-        last_login: moment().tz('America/El_Salvador').format(),
-        token_valid_after: moment().subtract(5, 's').tz('America/El_Salvador').format(),
-      });
+    const token = authorization && authorization.replace('Bearer ', '');
 
-      const roles = getRols.roles(user.id);
-      const refreshToken = await Auth.refresh_token(usuario);
-      const token = await Auth.createToken({
-        roles,
-        user: usuario,
-      });
-      return res.status(HttpCode.HTTP_OK).send({
-        token,
-        refreshToken,
-        '2fa': usuario.two_factor_status,
-      });
-    }
+    if (!token) throw new NoAuthException('No autenticado');
+    const { user } = jwt.verify(token, process.env.SECRET_KEY);
+
+    const authMethod = await MetodoAutenticacionUsuario.findOne({
+      where: {
+        id_usuario: user.id,
+        id_metodo: idMetodo,
+      },
+    });
+
+    if (!authMethod) throw new NoAuthException('El usuario no posee métodos de autenticación');
+
+    const usuario = await Usuario.findByPk(user.id, {
+      attributes: ['id', 'email', 'last_login', 'two_factor_status'],
+    });
+
+    const validTime = authMethod.id_metodo === 1 ? process.env.TIME_BASED_TOKEN_2FA : null;
+
+    const isValid = await Security.verifyTwoFactorAuthCode(codigo, authMethod.secret_key, validTime);
+    if (!isValid) throw new NoAuthException('El codigo proporcionado no es valido');
+
+    await usuario.update({
+      two_factor_status: true,
+      last_login: moment().tz('America/El_Salvador').format(),
+      token_valid_after: moment().subtract(5, 's').tz('America/El_Salvador').format(),
+    });
+
+    await authMethod.update({
+      secret_key: null,
+    });
+
+    const roles = await getRols.roles(user.id);
+    const refreshToken = await Auth.refresh_token(usuario);
+    const newToken = await Auth.createToken({
+      roles,
+      user: usuario,
+    });
+    return res.status(HttpCode.HTTP_OK).send({
+      token: newToken,
+      refreshToken,
+      '2fa': usuario.two_factor_status,
+    });
   }
 
   static async RefreshToken(req, res) {
@@ -470,31 +467,5 @@ export default class ApiController {
     return res.status(HttpCode.HTTP_OK).json({
       message: 'contraseña actualizada',
     });
-  }
-
-  static async subirArchivo(req, res) {
-    const { imagen } = req.body;
-    console.log('imagen', imagen);
-    const file = await Storage.getFile(imagen, 's3');
-
-    console.log('file', file);
-
-    console.log('Extension: ', await file.getExtension());
-    console.log('Name: ', file.getName());
-    console.log('Size: ', file.getSize('KB'));
-    console.log('mimeType: ', await file.getMimeType());
-    // console.log('String buffer: ', file.getStringBuffer());
-    console.log('Buffer array', file.getBuffer());
-    console.log('Hash MD5: ', file.getHashMD5());
-
-    const imageToUpload = await Storage.disk('local').put({
-      file,
-      name: 'imagen2',
-      filePath: 'imagenes',
-      mimeTypes: ['application/pdf', 'image/jpeg', 'image/png'],
-    });
-
-    res.setHeader('Content-Type', 'image/jpeg');
-    return res.status(HttpCode.HTTP_OK).send(imageToUpload.getBuffer());
   }
 }

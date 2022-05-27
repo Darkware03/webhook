@@ -27,5 +27,5 @@ router.use('/v1/tipo/roles', [auth, bitacora], routesTipoRoles);
 router.use('/v1/rutas', [auth, bitacora], routesRutas);
 router.put('/v1/recovery_password/change_password', [validate(recoveryPasswordSchema)], Call(ApiController.recoveryPassword));
 router.use('/v1/recovery_password/send_email/:email', Call(ApiController.recoveryPasswordSendEmail));
-router.post('/v1/subirArchivo', Call(ApiController.subirArchivo));
+
 export default router;

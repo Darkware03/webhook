@@ -1,6 +1,8 @@
 import BaseError from './BaseError.mjs';
 import HttpCode from '../configs/httpCode.mjs';
 import ErrorModel from '../app/nucleo/mongo/error.mjs';
+import BadRequestException from './BadRequestException.mjs';
+import NoAuthException from './NoAuthException.mjs';
 
 export default class Handler {
   static logError(req, err) {
@@ -37,6 +39,16 @@ export default class Handler {
     if (err.name === 'SequelizeForeignKeyConstraintError') {
       return res.status(HttpCode.HTTP_INTERNAL_SERVER_ERROR).json(debug ? err : { message: 'No se puede eliminar uno o más registros debido a que tienen acciones asociadas al sistema' });
     }
+
+    if (err.name === 'JsonWebTokenError') {
+      let message;
+      if (err.message === 'jwt malformed') message = 'El token no es valido';
+      if (err.message === 'invalid signature') message = 'La firma no es valida';
+
+      throw new BadRequestException(message);
+    }
+    if (err.name === 'TokenExpiredError') throw new NoAuthException('No autenticado');
+
     return res.status(err.statusCode || HttpCode.HTTP_INTERNAL_SERVER_ERROR).json(debug ? err : {
       message: err.message,
     });
