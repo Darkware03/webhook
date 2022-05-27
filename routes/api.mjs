@@ -11,11 +11,12 @@ import routesPerfil from './api/perfil.mjs';
 import routesRutas from './api/ruta.mjs';
 import recoveryPasswordSchema from '../app/schemas/RecoveryPasswordSchema.mjs';
 import loginSchema from '../app/schemas/LoginSchema.mjs';
+import twoFactorAuthSchema from '../app/schemas/TwoFactorAuthSchema.mjs';
 
 const router = Router();
 router.post('/v1/login', [validate(loginSchema)], Call(ApiController.login));
 router.post('/v1/logout', [auth, bitacora], Call(ApiController.logout));
-router.post('/v1/2fa', Call(ApiController.twoFactorAuthLoginChoose));
+router.post('/v1/2fa', [validate(twoFactorAuthSchema)], Call(ApiController.twoFactorAuthLoginChoose));
 router.post('/v1/2fa/check', Call(ApiController.verifyTwoFactorAuthLogin));
 router.get('/v1/verificar-usuario/:token', Call(ApiController.confirmUser));
 router.post('/v1/refresh', Call(ApiController.RefreshToken));
@@ -26,5 +27,5 @@ router.use('/v1/tipo/roles', [auth, bitacora], routesTipoRoles);
 router.use('/v1/rutas', [auth, bitacora], routesRutas);
 router.put('/v1/recovery_password/change_password', [validate(recoveryPasswordSchema)], Call(ApiController.recoveryPassword));
 router.use('/v1/recovery_password/send_email/:email', Call(ApiController.recoveryPasswordSendEmail));
-router.post('/v1/subirArchivo', Call(ApiController.subirArchivo));
+
 export default router;

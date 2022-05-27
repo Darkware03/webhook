@@ -2,8 +2,8 @@ import jwt from 'jsonwebtoken';
 import moment from 'moment';
 import NoAuthException from '../../handlers/NoAuthException.mjs';
 import { Usuario } from '../models/index.mjs';
-import HttpCode from '../../configs/httpCode.mjs';
 import Security from '../services/security.mjs';
+import Handler from '../../handlers/Handler.mjs';
 
 // eslint-disable-next-line consistent-return
 const Auth = async (req, res, next) => {
@@ -38,15 +38,7 @@ const Auth = async (req, res, next) => {
 
     next();
   } catch (err) {
-    if (err.name === 'TokenExpiredError') {
-      return res.status(HttpCode.HTTP_UNAUTHORIZED).json({
-        message: 'No authenticado',
-      });
-    }
-
-    return res.status(err.statusCode || HttpCode.HTTP_INTERNAL_SERVER_ERROR).json({
-      message: err.message,
-    });
+    Handler.handlerError(err, req, res, next);
   }
 };
 
