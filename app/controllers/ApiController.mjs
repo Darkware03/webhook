@@ -2,7 +2,6 @@ import bcrypt from 'bcryptjs';
 import moment from 'moment-timezone';
 import jwt from 'jsonwebtoken';
 import speakeasy from 'speakeasy';
-import { Op } from 'sequelize';
 import { Usuario, RefreshToken } from '../models/index.mjs';
 import HttpCode from '../../configs/httpCode.mjs';
 import NoAuthException from '../../handlers/NoAuthException.mjs';
@@ -45,7 +44,7 @@ export default class ApiController {
         {
           model: MetodoAutenticacion,
           attributes: ['id', 'nombre', 'icono'],
-          through: { attributes: ['is_primary'], where: { secret_key: { [Op.ne]: null } } },
+          through: { attributes: ['is_primary'] },
         },
       ],
     });
