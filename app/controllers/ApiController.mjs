@@ -65,8 +65,7 @@ export default class ApiController {
     }
 
     if (
-      (usuario.last_login === '' && process.env.DISABLE_TWO_FACTOR_AUTH === 'false')
-      || (usuario.last_login === null && process.env.DISABLE_TWO_FACTOR_AUTH === 'false')
+      (usuario.last_login === '' || usuario.last_login === null) && process.env.TWO_FACTOR_AUTH === 'true'
     ) {
       const idUsuario = usuario.id;
       const token = await Auth.createToken({ idUsuario });
@@ -134,10 +133,10 @@ export default class ApiController {
       two_factor_status: usuario.two_factor_status,
     };
     const token = await Auth.createToken({
-      roles: process.env.DISABLE_TWO_FACTOR_AUTH === 'true' ? roles : null,
-      user: process.env.DISABLE_TWO_FACTOR_AUTH !== 'true' ? userDatatoken : null,
+      roles: process.env.TWO_FACTOR_AUTH === 'false' ? roles : null,
+      user: userDatatoken,
     });
-    if (process.env.DISABLE_TWO_FACTOR_AUTH === 'true') {
+    if (process.env.TWO_FACTOR_AUTH === 'false') {
       const refreshToken = await Auth.refresh_token(usuario);
       return res.status(HttpCode.HTTP_OK).json({
         token,
