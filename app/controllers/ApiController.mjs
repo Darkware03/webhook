@@ -132,8 +132,10 @@ export default class ApiController {
       two_factor_status: usuario.two_factor_status,
     };
     const token = await Auth.createToken({
+      id: usuario.id,
       roles: process.env.TWO_FACTOR_AUTH === 'false' ? roles : null,
-      user: userDatatoken,
+      email: usuario.email,
+      user: process.env.TWO_FACTOR_AUTH === 'false' ? userDatatoken : null,
     });
     if (process.env.TWO_FACTOR_AUTH === 'false') {
       const refreshToken = await Auth.refresh_token(usuario);
@@ -167,10 +169,10 @@ export default class ApiController {
     if (!token) throw new NoAuthException('No autenticado');
 
     try {
-      const { user } = jwt.verify(token, process.env.SECRET_KEY);
+      const { id, email } = jwt.verify(token, process.env.SECRET_KEY);
       const authMethod = await MetodoAutenticacionUsuario.findOne({
         where: {
-          id_usuario: user.id,
+          id_usuario: id,
           id_metodo: idMetodo,
         },
       });
@@ -204,7 +206,7 @@ export default class ApiController {
 
         await Mailer.sendMail(
           {
-            email: user.email,
+            email,
             header,
             subject: 'Codigo de verificacion de usuario',
             message: verificationCode,
@@ -226,18 +228,18 @@ export default class ApiController {
     const token = authorization && authorization.replace('Bearer ', '');
 
     if (!token) throw new NoAuthException('No autenticado');
-    const { user } = jwt.verify(token, process.env.SECRET_KEY);
+    const { id } = jwt.verify(token, process.env.SECRET_KEY);
 
     const authMethod = await MetodoAutenticacionUsuario.findOne({
       where: {
-        id_usuario: user.id,
+        id_usuario: id,
         id_metodo: idMetodo,
       },
     });
 
     if (!authMethod) throw new NoAuthException('El usuario no posee métodos de autenticación');
 
-    const usuario = await Usuario.findByPk(user.id, {
+    const usuario = await Usuario.findByPk(id, {
       attributes: ['id', 'email', 'last_login', 'two_factor_status'],
     });
 
@@ -256,7 +258,7 @@ export default class ApiController {
       secret_key: null,
     });
 
-    const roles = await getRols.roles(user.id);
+    const roles = await getRols.roles(id);
     const refreshToken = await Auth.refresh_token(usuario);
     const newToken = await Auth.createToken({
       roles,
