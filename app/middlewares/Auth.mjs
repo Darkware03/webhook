@@ -15,11 +15,11 @@ const Auth = async (req, res, next) => {
     if (authorization.length < 2) throw new NoAuthException();
 
     const token = authorization[1];
-    const { user, iat } = jwt.verify(token, process.env.SECRET_KEY);
+    const { id, iat } = jwt.verify(token, process.env.SECRET_KEY);
     const fechaCreacionToken = iat * 1000;
 
     const usuario = await Usuario.findOne({
-      where: { id: user.id, is_suspended: false },
+      where: { id, is_suspended: false },
     });
 
     if (!usuario) throw new NoAuthException();
@@ -38,6 +38,7 @@ const Auth = async (req, res, next) => {
 
     next();
   } catch (err) {
+    console.log(err);
     Handler.handlerError(err, req, res, next);
   }
 };

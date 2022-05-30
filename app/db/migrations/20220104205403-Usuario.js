@@ -33,6 +33,10 @@ module.exports = {
         type: psql.Sequelize.DATE,
         defaultValue: new Date(),
       },
+      verified: {
+        type: psql.Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
     });
   },
 

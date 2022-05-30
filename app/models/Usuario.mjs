@@ -24,6 +24,7 @@ const UsuarioSchema = {
   is_suspended: { type: psql.Sequelize.BOOLEAN },
   token_valid_after: { type: psql.Sequelize.STRING },
   two_factor_status: { type: psql.Sequelize.BOOLEAN },
+  verified: { type: psql.Sequelize.BOOLEAN },
 };
 
 class Usuario extends psql.Model {

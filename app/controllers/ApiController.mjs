@@ -23,7 +23,11 @@ export default class ApiController {
       const { idUsuario } = jwt.verify(token, process.env.SECRET_KEY);
       if (idUsuario) {
         await Usuario.update(
-          { is_suspended: false, last_login: moment().tz('America/El_Salvador').format() },
+          {
+            is_suspended: false,
+            last_login: moment().tz('America/El_Salvador').format(),
+            verified: true,
+          },
           { where: { id: idUsuario } },
         );
         res.status(HttpCode.HTTP_OK).send({ message: 'El usuario ha sido verificado con exito' });
@@ -39,7 +43,7 @@ export default class ApiController {
       where: {
         email,
       },
-      attributes: ['id', 'email', 'password', 'is_suspended', 'last_login'],
+      attributes: ['id', 'email', 'password', 'is_suspended', 'last_login', 'verified'],
       include: [
         {
           model: MetodoAutenticacion,
@@ -59,13 +63,7 @@ export default class ApiController {
     const validPassword = bcrypt.compareSync(password, usuario.password);
     if (!validPassword) throw new NoAuthException('Credenciales no validas');
 
-    if (usuario.is_suspended && usuario.last_login !== null && usuario.last_login !== '') {
-      throw new NoAuthException('El usuario se encuentra suspendido');
-    }
-
-    if (
-      (usuario.last_login === '' || usuario.last_login === null) && process.env.TWO_FACTOR_AUTH === 'true'
-    ) {
+    if (!usuario.verified && process.env.TWO_FACTOR_AUTH === 'true') {
       const idUsuario = usuario.id;
       const token = await Auth.createToken({ idUsuario });
 
@@ -112,6 +110,10 @@ export default class ApiController {
       });
     }
 
+    if (usuario.is_suspended) {
+      throw new NoAuthException('El usuario se encuentra suspendido');
+    }
+
     await usuario.update({
       last_login: moment().tz('America/El_Salvador').format(),
       two_factor_status: false,
@@ -125,29 +127,88 @@ export default class ApiController {
     }));
 
     const roles = await getRols.roles(usuario.id);
-    const userDatatoken = {
+    const userInfo = {
       id: usuario.id,
       email: usuario.email,
       last_login: usuario.last_login,
       two_factor_status: usuario.two_factor_status,
     };
-    const token = await Auth.createToken({
+    const tokenInfo = {
       id: usuario.id,
       roles: process.env.TWO_FACTOR_AUTH === 'false' ? roles : null,
       email: usuario.email,
-      user: process.env.TWO_FACTOR_AUTH === 'false' ? userDatatoken : null,
-    });
+      user: userInfo,
+    };
+
     if (process.env.TWO_FACTOR_AUTH === 'false') {
+      const token = await Auth.createToken(tokenInfo);
       const refreshToken = await Auth.refresh_token(usuario);
       return res.status(HttpCode.HTTP_OK).json({
         token,
         refreshToken,
       });
     }
+
+    if (usuario.MetodoAutenticacions[0].id === 1) await ApiController.sendEmailCode(usuario);
+
     return res.status(HttpCode.HTTP_OK).json({
-      token,
+      id: usuario.id,
+      email: usuario.email,
       metodos_autenticacion: metodosAutenticacion,
     });
+  }
+
+  static async sendCode(req, res) {
+    const { email } = req.body;
+
+    const usuario = await Usuario.findOne({
+      where: {
+        email,
+      },
+    });
+
+    await ApiController.sendEmailCode(usuario);
+
+    return res.status(HttpCode.HTTP_OK).json({
+      message: 'Se ha enviado el codigo a su correo electrónico',
+    });
+  }
+
+  static async sendEmailCode(user) {
+    const { secret_key: secretKey } = await MetodoAutenticacionUsuario.findOne({
+      where: {
+        id_usuario: user.id,
+      },
+      attributes: ['secret_key'],
+    });
+    const code = speakeasy.totp({
+      secret: secretKey,
+      encoding: 'base32',
+      window: Number(process.env.TIME_BASED_TOKEN_2FA),
+      step: 10,
+    });
+
+    const header = [
+      {
+        tagName: 'mj-button',
+        attributes: {
+          width: '80%',
+          padding: '5px 10px',
+          'font-size': '20px',
+          'background-color': '#175efb',
+          'border-radius': '99px',
+        },
+        content: 'El codigo de verificacion es:',
+      },
+    ];
+    await Mailer.sendMail(
+      {
+        email: user.email,
+        header,
+        subject: 'Codigo de verificacion de usuario',
+        message: code,
+      },
+    );
   }
 
   static async logout(req, res) {
@@ -222,52 +283,48 @@ export default class ApiController {
     }
   }
 
-  static async verifyTwoFactorAuthLogin(req, res) {
-    const { authorization } = req.headers;
-    const { id_metodo: idMetodo, codigo } = req.body;
-    const token = authorization && authorization.replace('Bearer ', '');
+  static async verifyTwoFactorAuthCode(req, res) {
+    const { id, codigo } = req.body;
 
-    if (!token) throw new NoAuthException('No autenticado');
-    const { id } = jwt.verify(token, process.env.SECRET_KEY);
+    const user = await Usuario.findByPk(id);
 
     const authMethod = await MetodoAutenticacionUsuario.findOne({
       where: {
-        id_usuario: id,
-        id_metodo: idMetodo,
+        id_usuario: user.id,
       },
     });
 
-    if (!authMethod) throw new NoAuthException('El usuario no posee métodos de autenticación');
+    const params = {
+      code: codigo,
+      secretKey: authMethod.secret_key,
+    };
 
-    const usuario = await Usuario.findByPk(id, {
-      attributes: ['id', 'email', 'last_login', 'two_factor_status'],
-    });
+    if (authMethod.id_metodo === 1) {
+      params.time = process.env.TIME_BASED_TOKEN_2FA;
+      params.step = 10;
+    }
 
-    const validTime = authMethod.id_metodo === 1 ? process.env.TIME_BASED_TOKEN_2FA : null;
-
-    const isValid = await Security.verifyTwoFactorAuthCode(codigo, authMethod.secret_key, validTime);
+    const isValid = await Security.verifyTwoFactorAuthCode(params);
     if (!isValid) throw new NoAuthException('El codigo proporcionado no es valido');
 
-    await usuario.update({
+    await user.update({
       two_factor_status: true,
       last_login: moment().tz('America/El_Salvador').format(),
       token_valid_after: moment().subtract(5, 's').tz('America/El_Salvador').format(),
     });
 
-    await authMethod.update({
-      secret_key: null,
-    });
-
-    const roles = await getRols.roles(id);
-    const refreshToken = await Auth.refresh_token(usuario);
+    const roles = await getRols.roles(user.id);
+    const refreshToken = await Auth.refresh_token(user);
     const newToken = await Auth.createToken({
+      id: user.id,
       roles,
-      user: usuario,
+      user,
+      email: user.email,
     });
     return res.status(HttpCode.HTTP_OK).send({
       token: newToken,
       refreshToken,
-      '2fa': usuario.two_factor_status,
+      '2fa': user.two_factor_status,
     });
   }
 
