@@ -90,7 +90,14 @@
     x-codegen-request-body-name: body
 
   area: api
-/2fa/check:
+/api/v1/2fa/verify/{id_user}:
+  parameters:
+  - in: path
+    name: id_user
+    required: true
+    type: integer
+    minimum: 1
+    description:
   post:
     tags:
       - auth
@@ -114,15 +121,173 @@
                     type: string
                   2fa:
                     type: boolean
-                  user:
-                    type: object
-                    properties:
-                      email:
-                        type: string
-                      password:
-                        type: string
-                      last_login:
-                        type: string
+      400:
+        description: Bad Request
+        content: {}
+      401:
+        description: Acceso no Autorizado
+        content: {}
+      404:
+        description: Not Found
+      405:
+        description: Not Allowed
+        content: {}
+      500:
+        description: Internal Server Error
+        content: {}
+
+    x-codegen-request-body-name: body
+
+  area: api
+/api/v1/2fa/code:
+  post:
+    tags:
+      - auth
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+      required: true
+    responses:
+      200:
+        description:
+        content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+      400:
+        description: Bad Request
+        content: {}
+      401:
+        description: Acceso no Autorizado
+        content: {}
+      404:
+        description: Not Found
+      405:
+        description: Not Allowed
+        content: {}
+      500:
+        description: Internal Server Error
+        content: {}
+
+    x-codegen-request-body-name: body
+
+  area: api
+
+/api/v1/users/2fa/method:
+  post:
+    tags:
+      - auth
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id_method:
+                type: integer
+      required: true
+    responses:
+      200:
+        description:
+        content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+      400:
+        description: Bad Request
+        content: {}
+      401:
+        description: Acceso no Autorizado
+        content: {}
+      404:
+        description: Not Found
+      405:
+        description: Not Allowed
+        content: {}
+      500:
+        description: Internal Server Error
+        content: {}
+
+    x-codegen-request-body-name: body
+
+  area: api
+
+/api/v1/users/2fa/method/verify:
+  post:
+    tags:
+      - auth
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id_method:
+                type: integer
+              code:
+                type: string
+      required: true
+    responses:
+      200:
+        description:
+        content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+      400:
+        description: Bad Request
+        content: {}
+      401:
+        description: Acceso no Autorizado
+        content: {}
+      404:
+        description: Not Found
+      405:
+        description: Not Allowed
+        content: {}
+      500:
+        description: Internal Server Error
+        content: {}
+
+    x-codegen-request-body-name: body
+
+  area: api
+
+/api/v1/users/2fa/method/{id_method}:
+  parameters:
+  - in: path
+    name: id_method
+    required: true
+    type: integer
+    minimum: 1
+    description:
+  put:
+    tags:
+      - auth
+    responses:
+      200:
+        description:
+        content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
       400:
         description: Bad Request
         content: {}

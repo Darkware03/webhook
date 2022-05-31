@@ -28,8 +28,12 @@ module.exports = {
       is_primary: {
         type: psql.Sequelize.BOOLEAN,
       },
-      temporal_key: {
-        type: psql.Sequelize.STRING,
+      id_state: {
+        type: psql.Sequelize.INTEGER,
+        references: {
+          model: 'ctl_auth_method_state',
+          key: 'id',
+        },
       },
     });
   },

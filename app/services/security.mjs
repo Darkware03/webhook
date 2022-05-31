@@ -34,8 +34,10 @@ export default class Security {
       token: code,
     };
 
-    if (time) toVerify.window = Number(time);
-    if (step) toVerify.step = step;
+    if (time) {
+      toVerify.window = Number(time);
+      toVerify.step = step || 10;
+    }
     return speakeasy.totp.verify(toVerify);
   }
 }

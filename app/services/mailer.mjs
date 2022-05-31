@@ -79,11 +79,8 @@ export default class Mailer {
       subject,
       html,
     };
-    await transporter.sendMail(mailConfig, (error) => {
-      if (error) {
-        return false;
-      }
-      return true;
-    });
+
+    const send = await transporter.sendMail(mailConfig);
+    return send;
   }
 }

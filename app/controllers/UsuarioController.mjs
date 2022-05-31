@@ -105,7 +105,12 @@ export default class UsuarioController {
         }
       }
       const usuario = await Usuario.create(
-        { email, password: passwordCrypt, is_suspended: isSuspended },
+        {
+          email,
+          password: passwordCrypt,
+          is_suspended: isSuspended,
+          two_factor_status: process.env.TWO_FACTOR_AUTH === 'true',
+        },
         { transaction: t },
       );
 
@@ -119,47 +124,56 @@ export default class UsuarioController {
           id_metodo: 1,
           is_primary: true,
           secret_key: newToken.secret_code,
-          temporal_key: null,
+          two_factor_status: process.env.TWO_FACTOR_AUTH === 'true',
+          id_state: 1,
         },
         { transaction: t },
       );
+
       await t.commit();
 
       const us = await Usuario.getById(idUsuario);
       const { Perfils, Rols } = us.dataValues;
       const token = await Auth.createToken({ idUsuario });
       // eslint-disable-next-line max-len
-      const htmlForEmail = `
-<mjml>
-  <mj-body>
-    <mj-section>
-      <mj-column>
-        <mj-image src="https://next.salud.gob.sv/index.php/s/AHEMQ38JR93fnXQ/download" width="350px"></mj-image>
-            <mj-button width="80%" padding="5px 10px" font-size="20px" background-color="#175efb" border-radius="99px">
-               <mj-text  align="center" font-weight="bold"  color="#ffffff" >
-                 Hola ${usuario.email}
-              </mj-text>
-           </mj-button>
-        <mj-spacer css-class="primary"></mj-spacer>
-        <mj-divider border-width="3px" border-color="#175efb" />
-        <mj-text  align="center" font-weight="bold" font-size="12px">
-         Para verificar tu cuenta debes de hacer click en el siguiente enlace:
-        </mj-text>
-        <mj-button background-color="#175efb" href="${process.env.FRONT_URL}/verificar/${token}">
-          VERIFICAR MI CUENTA
-        </mj-button>
-      </mj-column>
-    </mj-section>
-  </mj-body>
-</mjml>`;
-      // eslint-disable-next-line max-len
+      const header = [
+        {
+          tagName: 'mj-button',
+          attributes: {
+            width: '80%',
+            padding: '5px 10px',
+            'font-size': '20px',
+            'background-color': '#175efb',
+            'border-radius': '99px',
+          },
+          content: `Hola ${usuario.email}`,
+        },
+      ];
+
+      const body = [
+        {
+          tagName: 'mj-button',
+          attributes: {
+            width: '80%',
+            padding: '5px 10px',
+            'font-size': '20px',
+            'background-color': '#175efb',
+            href: `${process.env.FRONT_URL}/verificar/${token}`,
+          },
+          content: 'VERIFICAR MI CUENTA',
+        },
+      ];
+
       await Mailer.sendMail(
-        usuario.email,
-        null,
-        'Verificacion de correo electronico',
-        null,
-        htmlForEmail,
+        {
+          email: usuario.email,
+          header,
+          subject: 'Verificacion de correo electronico',
+          message: 'Para verificar tu cuenta debes de hacer click en el siguiente enlace:',
+          body,
+        },
       );
+
       return res.status(HttpCode.HTTP_CREATED).json({
         id: usuario.id,
         email: usuario.email,
@@ -356,59 +370,67 @@ export default class UsuarioController {
   }
 
   static async storeMethodUser(req, res) {
-    const { id_metodo: idMetodo } = req.body;
+    const { id_method: idMetodo } = req.body;
 
-    const existMethod = await MetodoAutenticacionUsuario.findOne({
+    const token = await Security.generateTwoFactorAuthCode(req.usuario.email);
+
+    const [authMethod, created] = await MetodoAutenticacionUsuario.findOrCreate({
       where: {
         id_usuario: req.usuario.id,
         id_metodo: idMetodo,
       },
-    });
-    const newToken = await Security.generateTwoFactorAuthCode(req.usuario.email);
-    if (!existMethod) {
-      await MetodoAutenticacionUsuario.create({
-        id_metodo: idMetodo,
-        id_usuario: req.usuario.id,
+      defaults: {
         is_primary: false,
-        temporal_key: newToken.secret_code,
-      });
-      if (Number(idMetodo) === 2) {
-        return res.status(HttpCode.HTTP_OK).send({
-          message: 'Favor valide el nuevo metodo de autenticacion, escanee el codigo qr',
-          codigoQr: await toDataURL(newToken.qrCode),
-        });
-      }
-      const verificationCode = speakeasy.totp({
-        secret: newToken.secret_code,
-        encoding: 'base32',
-        time: process.env.GOOGLE_AUTH_TIME_EMAIL,
-      });
-      await Mailer.sendMail(
-        req.usuario.email,
-        verificationCode,
-        'Codigo de verificacion',
-        'Su codigo de verificacion es:',
-      );
-      return res.status(HttpCode.HTTP_OK).send({
-        message: 'Favor valide el nuevo metodo de autenticacion, revise su correo electronico',
-      });
-    }
-    await existMethod.update({ temporal_key: newToken.secret_code });
+        secret_key: token.secret_code,
+        id_state: 2,
+      },
+    });
+
+    if (!created) await authMethod.update({ id_state: 2 });
+
     if (Number(idMetodo) === 2) {
       return res.status(HttpCode.HTTP_OK).send({
         message: 'Favor valide el nuevo metodo de autenticacion, escanee el codigo qr',
-        codigoQr: await toDataURL(newToken.qrCode),
+        codigoQr: await toDataURL(token.qrCode),
       });
     }
+
+    const code = speakeasy.totp({
+      secret: authMethod.secret_key,
+      encoding: 'base32',
+      window: Number(process.env.TIME_BASED_TOKEN_2FA),
+      step: 10,
+    });
+
+    const header = [
+      {
+        tagName: 'mj-button',
+        attributes: {
+          width: '80%',
+          padding: '5px 10px',
+          'font-size': '20px',
+          'background-color': '#175efb',
+          'border-radius': '99px',
+        },
+        content: 'El codigo de verificacion es:',
+      },
+    ];
+
+    await Mailer.sendMail(
+      {
+        email: req.usuario.email,
+        header,
+        subject: 'Codigo de verificación de usuario',
+        message: code,
+      },
+    );
     return res.status(HttpCode.HTTP_OK).send({
-      message: 'Favor valide el nuevo metodo de autenticacion, revise su correo electronico',
+      message: 'Favor valide el nuevo metodo de autenticación, revise su correo electrónico',
     });
   }
 
-  static async verifyNewMethodUser(req, res) {
-    const { id_metodo: idMetodo, codigo } = req.body;
-    let timeToCodeValid = null;
-    if (Number(idMetodo) === 1) timeToCodeValid = process.env.GOOGLE_AUTH_TIME_EMAIL;
+  static async authMethodVerification(req, res) {
+    const { id_method: idMetodo, code } = req.body;
     const methodUser = await MetodoAutenticacionUsuario.findOne({
       where: {
         id_usuario: req.usuario.id,
@@ -420,42 +442,83 @@ export default class UsuarioController {
         'El usuario no tiene este metodo de autenticacion asociado',
       );
     }
-    const isValidCode = await Security.verifyTwoFactorAuthCode(
-      codigo,
-      methodUser.temporal_key,
-      timeToCodeValid,
-    );
-    if (isValidCode) {
-      await methodUser.update({ secret_key: methodUser.temporal_key, temporal_key: null });
-      await Mailer.sendMail(
-        req.usuario.email,
-        'Se ha cambiado el metodo de autenticacion',
-        'Metodo de autenticacion cambiado',
-        'ALERTA!',
+    const verifyCodeParams = {
+      code,
+      secretKey: methodUser.secret_key,
+    };
+
+    if (Number(idMetodo) === 1) verifyCodeParams.time = process.env.TIME_BASED_TOKEN_2FA;
+    const isValidCode = await Security.verifyTwoFactorAuthCode(verifyCodeParams);
+
+    if (!isValidCode) {
+      throw new UnprocessableEntityException(
+        'El codigo proporcionado no es valido',
       );
-      return res
-        .status(HttpCode.HTTP_OK)
-        .send({ message: 'Se ha modificado el metodo de autenticacion con exito!' });
     }
-    throw new UnprocessableEntityException(
-      'El codigo proporcionado no es valido',
+
+    await methodUser.update({ secret_key: methodUser.temporal_key, id_state: 1 });
+    const header = [
+      {
+        tagName: 'mj-text',
+        attributes: {
+          width: '80%',
+          padding: '5px 10px',
+          'font-size': '20px',
+          'background-color': '#175efb',
+          'border-radius': '99px',
+        },
+        content: 'Se ha cambiado el metodo de autenticación',
+      },
+    ];
+    await Mailer.sendMail(
+      {
+        email: req.usuario.email,
+        subject: 'Metodo de autenticacion cambiado.',
+        header,
+      },
     );
+    return res
+      .status(HttpCode.HTTP_OK)
+      .send({ message: 'Se ha modificado el metodo de autenticación con exito!' });
   }
 
   static async updatePrimaryMethod(req, res) {
-    await MetodoAutenticacionUsuario.update(
-      { is_primary: true },
-      { where: { id: req.body.id_metodo_usuario } },
-    );
+    const { id_method: idMethod } = req.params;
+    const authMethod = await MetodoAutenticacionUsuario.findByPk(idMethod);
+    if (authMethod.id_state === 2) throw new UnprocessableEntityException('No es posible seleccionar este método de autenticación debido a que no esta verificado');
     await MetodoAutenticacionUsuario.update(
       { is_primary: false },
-      { where: { id_usuario: req.usuario.id, [Op.not]: [{ id: req.body.id_metodo_usuario }] } },
+      {
+        where: {
+          id: {
+            [Op.not]: idMethod,
+          },
+          id_usuario: req.usuario.id,
+        },
+      },
     );
+    await authMethod.update(
+      { is_primary: true },
+    );
+    const header = [
+      {
+        tagName: 'mj-text',
+        attributes: {
+          width: '80%',
+          padding: '5px 10px',
+          'font-size': '20px',
+          'background-color': '#175efb',
+          'border-radius': '99px',
+        },
+        content: 'Se ha cambiado el método de autenticación primario',
+      },
+    ];
     await Mailer.sendMail(
-      req.usuario.email,
-      'Se ha cambio el metodo de autenticacion primario',
-      'Alerta de actualizacion de cuenta',
-      'Alerta',
+      {
+        email: req.usuario.email,
+        subject: 'Alerta de actualización de cuenta.',
+        header,
+      },
     );
     return res.status(HttpCode.HTTP_OK).send({ message: 'Solicitud procesada con exito!' });
   }

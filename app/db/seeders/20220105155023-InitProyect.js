@@ -55,6 +55,21 @@ module.exports = {
       );
 
       await queryInterface.bulkInsert(
+        'ctl_auth_method_state',
+        [
+          {
+            state: 'Verificado',
+          },
+          {
+            state: 'No verificado',
+          },
+        ],
+        {
+          transaction: TRANSACTION,
+        },
+      );
+
+      await queryInterface.bulkInsert(
         'mnt_metodo_autenticacion_usuario',
         [
           {
@@ -62,7 +77,7 @@ module.exports = {
             id_metodo: METODOAUTENTICACION[0].id,
             secret_key: Speakeasy.generateSecret().base32,
             is_primary: true,
-            temporal_key: null,
+            id_state: 1,
           },
         ],
         {

@@ -43,12 +43,12 @@ export default class ApiController {
       where: {
         email,
       },
-      attributes: ['id', 'email', 'password', 'is_suspended', 'last_login', 'verified'],
+      attributes: ['id', 'email', 'password', 'is_suspended', 'last_login', 'verified', 'two_factor_status'],
       include: [
         {
           model: MetodoAutenticacion,
           attributes: ['id', 'nombre', 'icono'],
-          through: { attributes: ['is_primary'] },
+          through: { attributes: ['is_primary', 'id'] },
         },
       ],
     });
@@ -63,7 +63,7 @@ export default class ApiController {
     const validPassword = bcrypt.compareSync(password, usuario.password);
     if (!validPassword) throw new NoAuthException('Credenciales no validas');
 
-    if (!usuario.verified && process.env.TWO_FACTOR_AUTH === 'true') {
+    if (!usuario.verified) {
       const idUsuario = usuario.id;
       const token = await Auth.createToken({ idUsuario });
 
@@ -116,7 +116,6 @@ export default class ApiController {
 
     await usuario.update({
       last_login: moment().tz('America/El_Salvador').format(),
-      two_factor_status: false,
     });
     const metodosAutenticacion = usuario.MetodoAutenticacions.map((row) => ({
       nombre: row.nombre,
@@ -124,7 +123,10 @@ export default class ApiController {
       icono: row.icono,
       id: row.id,
       is_primary: row.MetodoAutenticacionUsuario.is_primary,
+      id_metodo_usuario: row.MetodoAutenticacionUsuario.id,
     }));
+
+    const primaryMethod = metodosAutenticacion.find((item) => item.is_primary);
 
     const roles = await getRols.roles(usuario.id);
     const userInfo = {
@@ -135,12 +137,11 @@ export default class ApiController {
     };
     const tokenInfo = {
       id: usuario.id,
-      roles: process.env.TWO_FACTOR_AUTH === 'false' ? roles : null,
+      roles: !usuario.two_factor_status ? roles : null,
       email: usuario.email,
       user: userInfo,
     };
-
-    if (process.env.TWO_FACTOR_AUTH === 'false') {
+    if (!usuario.two_factor_status) {
       const token = await Auth.createToken(tokenInfo);
       const refreshToken = await Auth.refresh_token(usuario);
       return res.status(HttpCode.HTTP_OK).json({
@@ -148,8 +149,9 @@ export default class ApiController {
         refreshToken,
       });
     }
-
-    if (usuario.MetodoAutenticacions[0].id === 1) await ApiController.sendEmailCode(usuario);
+    if (primaryMethod?.id === 1) {
+      await ApiController.sendEmailCode(usuario, primaryMethod.id);
+    }
 
     return res.status(HttpCode.HTTP_OK).json({
       id: usuario.id,
@@ -167,17 +169,18 @@ export default class ApiController {
       },
     });
 
-    await ApiController.sendEmailCode(usuario);
+    await ApiController.sendEmailCode(usuario, 1);
 
     return res.status(HttpCode.HTTP_OK).json({
       message: 'Se ha enviado el codigo a su correo electrónico',
     });
   }
 
-  static async sendEmailCode(user) {
+  static async sendEmailCode(user, idMethod) {
     const { secret_key: secretKey } = await MetodoAutenticacionUsuario.findOne({
       where: {
         id_usuario: user.id,
+        id_metodo: idMethod,
       },
       attributes: ['secret_key'],
     });
@@ -284,18 +287,21 @@ export default class ApiController {
   }
 
   static async verifyTwoFactorAuthCode(req, res) {
-    const { id, codigo } = req.body;
+    const { code, id_method: idMethod } = req.body;
+    const { id_user: idUser } = req.params;
 
-    const user = await Usuario.findByPk(id);
+    const user = await Usuario.findByPk(idUser);
 
     const authMethod = await MetodoAutenticacionUsuario.findOne({
       where: {
         id_usuario: user.id,
+        id_metodo: idMethod,
       },
     });
+    if (authMethod.id_state === 2) throw new NoAuthException('El metodo de autenticación no ha sido verificado');
 
     const params = {
-      code: codigo,
+      code,
       secretKey: authMethod.secret_key,
     };
 
