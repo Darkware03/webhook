@@ -113,8 +113,6 @@ export default class Storage {
 
     const diskToSearch = disks[disk];
 
-    console.log(diskToSearch.bucket);
-
     let files;
 
     if (diskToSearch.type === 'local') {

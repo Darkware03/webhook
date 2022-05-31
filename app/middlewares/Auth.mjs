@@ -38,7 +38,6 @@ const Auth = async (req, res, next) => {
 
     next();
   } catch (err) {
-    console.log(err);
     Handler.handlerError(err, req, res, next);
   }
 };

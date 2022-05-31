@@ -82,8 +82,6 @@ const getFiles = async (bucketName) => {
     Bucket: bucketName,
   };
 
-  console.log(params);
-
   const data = await storage.send(new ListObjectsCommand(params)).catch((err) => {
     console.log(err);
   });
