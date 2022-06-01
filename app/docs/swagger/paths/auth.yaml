@@ -131,14 +131,7 @@
 
   area: api
 
-/api/v1/2fa/verify/{id_user}:
-  parameters:
-  - in: path
-    name: id_user
-    required: true
-    type: integer
-    minimum: 1
-    description:
+/api/v1/2fa/verify:
   post:
     tags:
       - auth

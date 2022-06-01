@@ -65,7 +65,7 @@ export default class ApiController {
 
     if (!usuario.verified) {
       const idUsuario = usuario.id;
-      const token = await Auth.createToken({ idUsuario });
+      const token = await Auth.createToken({ idUsuario }, process.env.SECRET_KEY);
 
       const header = [
         {
@@ -135,29 +135,29 @@ export default class ApiController {
       last_login: usuario.last_login,
       two_factor_status: usuario.two_factor_status,
     };
+
+    const response = {};
     const tokenInfo = {
       id: usuario.id,
-      roles: !usuario.two_factor_status ? roles : null,
       email: usuario.email,
-      user: userInfo,
     };
+
     if (!usuario.two_factor_status) {
-      const token = await Auth.createToken(tokenInfo);
-      const refreshToken = await Auth.refresh_token(usuario);
-      return res.status(HttpCode.HTTP_OK).json({
-        token,
-        refreshToken,
-      });
+      tokenInfo.roles = roles;
+      tokenInfo.user = userInfo;
+
+      response.refreshToken = await Auth.refresh_token(usuario);
+    } else {
+      response.metodos_autenticacion = metodosAutenticacion;
     }
-    if (primaryMethod?.id === 1) {
+
+    response.token = await Auth.createToken(tokenInfo, usuario.two_factor_status ? process.env.TWO_FACTOR_SECRET_KEY : process.env.SECRET_KEY);
+
+    if (primaryMethod?.id === 1 && usuario.two_factor_status) {
       await ApiController.sendEmailCode(usuario, primaryMethod.id);
     }
 
-    return res.status(HttpCode.HTTP_OK).json({
-      id: usuario.id,
-      email: usuario.email,
-      metodos_autenticacion: metodosAutenticacion,
-    });
+    return res.status(HttpCode.HTTP_OK).json(response);
   }
 
   static async sendCode(req, res) {
@@ -288,7 +288,7 @@ export default class ApiController {
 
   static async verifyTwoFactorAuthCode(req, res) {
     const { code, id_method: idMethod } = req.body;
-    const { id_user: idUser } = req.params;
+    const idUser = req.usuario.id;
 
     const user = await Usuario.findByPk(idUser);
 
@@ -326,7 +326,7 @@ export default class ApiController {
       roles,
       user,
       email: user.email,
-    });
+    }, process.env.SECRET_KEY);
     return res.status(HttpCode.HTTP_OK).send({
       token: newToken,
       refreshToken,
@@ -369,7 +369,7 @@ export default class ApiController {
     const token = await Auth.createToken({
       roles,
       user: userDatatoken,
-    });
+    }, process.env.SECRET_KEY);
 
     const newRefreshToken = await Auth.refresh_token(refreshTokenExist.Usuario);
     await refreshTokenExist.update({
@@ -403,7 +403,7 @@ export default class ApiController {
     const token = await Auth.createToken({
       id: usuario.id,
       email: usuario.email,
-    });
+    }, process.env.SECRET_KEY);
 
     await Auth.refresh_token(usuario);
 
@@ -541,7 +541,7 @@ export default class ApiController {
     });
 
     const idUsuario = usuario.id;
-    const token = await Auth.createToken({ idUsuario });
+    const token = await Auth.createToken({ idUsuario }, process.env.SECRET_KEY);
 
     const header = [
       {

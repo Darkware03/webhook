@@ -144,10 +144,8 @@ export default class UsuarioController {
         { transaction: t },
       );
 
-      // const us = await Usuario.getById(idUsuario);
-      // const { Perfils, Rols } = us.dataValues;
-      const token = await Auth.createToken({ idUsuario });
-      // eslint-disable-next-line max-len
+      const token = await Auth.createToken({ idUsuario }, process.env.SECRET_KEY);
+
       const header = [
         {
           tagName: 'mj-button',
@@ -307,7 +305,7 @@ export default class UsuarioController {
     const token = await Auth.createToken({
       roles,
       user: req.usuario,
-    });
+    }, process.env.SECRET_KEY);
     return res
       .status(HttpCode.HTTP_OK)
       .json({ message: 'Contraseña actualizada con exito', token, refreshToken });
@@ -377,7 +375,7 @@ export default class UsuarioController {
     const token = await Auth.createToken({
       roles,
       user: usuario,
-    });
+    }, process.env.SECRET_KEY);
     return res
       .status(HttpCode.HTTP_OK)
       .json({ message: 'Correo electronico actualizado con exito', token, refreshToken });

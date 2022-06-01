@@ -4,9 +4,9 @@ import moment from 'moment-timezone';
 import { RefreshToken } from '../models/index.mjs';
 
 export default class Auth {
-  static async createToken(PAYLOAD) {
+  static async createToken(PAYLOAD, secretKey) {
     return new Promise((resolve, reject) => {
-      jwt.sign(PAYLOAD, process.env.SECRET_KEY, {
+      jwt.sign(PAYLOAD, secretKey, {
         expiresIn: process.env.JWT_EXPIRATION_TIME,
       }, (err, token) => {
         if (err) reject(err);
