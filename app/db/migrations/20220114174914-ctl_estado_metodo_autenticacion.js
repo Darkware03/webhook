@@ -8,7 +8,7 @@ module.exports = {
         primaryKey: true,
         autoIncrement: true,
       },
-      state: {
+      status: {
         type: psql.Sequelize.STRING,
       },
       is_primary: {

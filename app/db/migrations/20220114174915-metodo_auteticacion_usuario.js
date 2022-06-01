@@ -28,7 +28,7 @@ module.exports = {
       is_primary: {
         type: psql.Sequelize.BOOLEAN,
       },
-      id_state: {
+      id_auth_method_status: {
         type: psql.Sequelize.INTEGER,
         references: {
           model: 'ctl_auth_method_state',

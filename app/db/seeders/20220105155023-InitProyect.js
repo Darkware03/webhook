@@ -59,10 +59,10 @@ module.exports = {
         'ctl_auth_method_state',
         [
           {
-            state: 'Verificado',
+            status: 'Verificado',
           },
           {
-            state: 'No verificado',
+            status: 'No verificado',
           },
         ],
         {
@@ -78,7 +78,7 @@ module.exports = {
             id_metodo: METODOAUTENTICACION[0].id,
             secret_key: Speakeasy.generateSecret().base32,
             is_primary: true,
-            id_state: 1,
+            id_auth_method_status: 1,
           },
         ],
         {

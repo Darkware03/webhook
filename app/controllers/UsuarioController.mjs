@@ -125,7 +125,7 @@ export default class UsuarioController {
           is_primary: true,
           secret_key: newToken.secret_code,
           two_factor_status: process.env.TWO_FACTOR_AUTH === 'true',
-          id_state: 1,
+          id_auth_method_status: 1,
         },
         { transaction: t },
       );
@@ -382,11 +382,11 @@ export default class UsuarioController {
       defaults: {
         is_primary: false,
         secret_key: token.secret_code,
-        id_state: 2,
+        id_auth_method_status: 2,
       },
     });
 
-    if (!created) await authMethod.update({ id_state: 2 });
+    if (!created) await authMethod.update({ id_auth_method_status: 2 });
 
     if (Number(idMetodo) === 2) {
       return res.status(HttpCode.HTTP_OK).send({
@@ -456,7 +456,7 @@ export default class UsuarioController {
       );
     }
 
-    await methodUser.update({ secret_key: methodUser.temporal_key, id_state: 1 });
+    await methodUser.update({ secret_key: methodUser.temporal_key, id_auth_method_status: 1 });
     const header = [
       {
         tagName: 'mj-text',
@@ -485,7 +485,7 @@ export default class UsuarioController {
   static async updatePrimaryMethod(req, res) {
     const { id_method: idMethod } = req.params;
     const authMethod = await MetodoAutenticacionUsuario.findByPk(idMethod);
-    if (authMethod.id_state === 2) throw new UnprocessableEntityException('No es posible seleccionar este método de autenticación debido a que no esta verificado');
+    if (authMethod.id_auth_method_status === 2) throw new UnprocessableEntityException('No es posible seleccionar este método de autenticación debido a que no esta verificado');
     await MetodoAutenticacionUsuario.update(
       { is_primary: false },
       {

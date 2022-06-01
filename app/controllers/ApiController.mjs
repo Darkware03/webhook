@@ -298,7 +298,7 @@ export default class ApiController {
         id_metodo: idMethod,
       },
     });
-    if (authMethod.id_state === 2) throw new NoAuthException('El metodo de autenticación no ha sido verificado');
+    if (authMethod.id_auth_method_status === 2) throw new NoAuthException('El metodo de autenticación no ha sido verificado');
 
     const params = {
       code,
