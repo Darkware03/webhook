@@ -138,14 +138,11 @@ export default class ApiController {
 
     const response = {};
     const tokenInfo = {
-      id: usuario.id,
-      email: usuario.email,
+      user: userInfo,
     };
 
     if (!usuario.two_factor_status) {
       tokenInfo.roles = roles;
-      tokenInfo.user = userInfo;
-
       response.refreshToken = await Auth.refresh_token(usuario);
     } else {
       response.metodos_autenticacion = metodosAutenticacion;

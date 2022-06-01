@@ -12,11 +12,11 @@ const Auth2FA = async (req, res, next) => {
 
     const token = authorization.replace('Bearer ', '');
 
-    const { id, iat } = jwt.verify(token, process.env.TWO_FACTOR_SECRET_KEY);
+    const { user, iat } = jwt.verify(token, process.env.TWO_FACTOR_SECRET_KEY);
     const fechaCreacionToken = iat * 1000;
 
     const usuario = await Usuario.findOne({
-      where: { id, is_suspended: false },
+      where: { id: user.id, is_suspended: false },
     });
 
     if (!usuario) throw new NoAuthException();
