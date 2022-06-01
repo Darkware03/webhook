@@ -1,7 +1,6 @@
 import BaseError from './BaseError.mjs';
 import HttpCode from '../configs/httpCode.mjs';
 import ErrorModel from '../app/nucleo/mongo/error.mjs';
-import BadRequestException from './BadRequestException.mjs';
 import NoAuthException from './NoAuthException.mjs';
 
 export default class Handler {
@@ -41,16 +40,15 @@ export default class Handler {
     }
 
     if (err.name === 'JsonWebTokenError') {
-      let message;
-      if (err.message === 'jwt malformed') message = 'El token no es valido';
-      if (err.message === 'invalid signature') message = 'La firma no es valida';
-
-      throw new BadRequestException(message);
+      throw new NoAuthException('No autenticado');
     }
     if (err.name === 'TokenExpiredError') throw new NoAuthException('No autenticado');
 
+    let message = 'Ha ocurrido un error interno, intentelo más tarde.';
+    if (err.statusCode) message = err.description;
+
     return res.status(err.statusCode || HttpCode.HTTP_INTERNAL_SERVER_ERROR).json({
-      message: 'Ha ocurrido un error interno, intentelo más tarde.',
+      message,
     });
   }
 
