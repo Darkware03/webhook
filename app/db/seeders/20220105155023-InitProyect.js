@@ -46,6 +46,7 @@ module.exports = {
             email: process.env.EMAIL_INICIAL,
             password: passwordCrypt,
             is_suspended: false,
+            two_factor_status: process.env.TWO_FACTOR_AUTH === 'true',
           },
         ],
         {
