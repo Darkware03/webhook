@@ -90,6 +90,47 @@
     x-codegen-request-body-name: body
 
   area: api
+
+/api/v1/verification/user/{token}:
+  parameters:
+  - in: path
+    name: token
+    required: true
+    type: string
+    description:
+  get:
+    tags:
+      - auth
+    responses:
+      200:
+        description:
+        content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  
+      400:
+        description: Bad Request
+        content: {}
+      401:
+        description: Acceso no Autorizado
+        content: {}
+      404:
+        description: Not Found
+      405:
+        description: Not Allowed
+        content: {}
+      500:
+        description: Internal Server Error
+        content: {}
+
+    x-codegen-request-body-name: body
+
+  area: api
+
 /api/v1/2fa/verify/{id_user}:
   parameters:
   - in: path
@@ -139,6 +180,53 @@
     x-codegen-request-body-name: body
 
   area: api
+
+/api/v1/2fa/verification/token:
+  post:
+    tags:
+      - auth
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+                  email:
+                    type: string
+      required: true
+    responses:
+      200:
+        description:
+        content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  refresh_token:
+                    type: string
+                  2fa:
+                    type: boolean
+      400:
+        description: Bad Request
+        content: {}
+      401:
+        description: Acceso no Autorizado
+        content: {}
+      404:
+        description: Not Found
+      405:
+        description: Not Allowed
+        content: {}
+      500:
+        description: Internal Server Error
+        content: {}
+
+    x-codegen-request-body-name: body
+
+  area: api
+
 /api/v1/2fa/code:
   post:
     tags:
@@ -220,7 +308,47 @@
         content: {}
 
     x-codegen-request-body-name: body
+  get:
+    tags:
+      - auth
+    responses:
+      200:
+        description:
+        content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    nombre:
+                      type: string
+                    descripcion:
+                      type: string
+                    icono:
+                      type: string
+                    id:
+                      type: integer
+                    is_primary:
+                      type: boolean
+                    id_metodo_usuario:
+                      type: integer
+      400:
+        description: Bad Request
+        content: {}
+      401:
+        description: Acceso no Autorizado
+        content: {}
+      404:
+        description: Not Found
+      405:
+        description: Not Allowed
+        content: {}
+      500:
+        description: Internal Server Error
+        content: {}
 
+    x-codegen-request-body-name: body
   area: api
 
 /api/v1/users/2fa/method/verify:
@@ -306,3 +434,5 @@
     x-codegen-request-body-name: body
 
   area: api
+
+  

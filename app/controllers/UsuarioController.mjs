@@ -81,6 +81,8 @@ export default class UsuarioController {
     const salt = bcrypt.genSaltSync();
     const passwordCrypt = bcrypt.hashSync(password, salt);
 
+    let userRoles;
+    let userProfiles;
     const emailExist = await Usuario.findOne({
       where: {
         email,
@@ -96,6 +98,13 @@ export default class UsuarioController {
           // eslint-disable-next-line no-await-in-loop
           await VerifyModel.exist(Perfil, perfiles[index], `No se ha encontrado el perfil con id ${perfiles[index]}`);
         }
+        userProfiles = await Perfil.findAll(
+          {
+            where: {
+              id: perfiles,
+            },
+          },
+        );
       }
       if (roles) {
         // eslint-disable-next-line no-plusplus
@@ -103,6 +112,11 @@ export default class UsuarioController {
           // eslint-disable-next-line no-await-in-loop
           await VerifyModel.exist(Rol, roles[index], `No se ha encontrado el rol con id ${roles[index]}`);
         }
+        userRoles = await Rol.findAll({
+          where: {
+            id: roles,
+          },
+        });
       }
       const usuario = await Usuario.create(
         {
@@ -130,10 +144,8 @@ export default class UsuarioController {
         { transaction: t },
       );
 
-      await t.commit();
-
-      const us = await Usuario.getById(idUsuario);
-      const { Perfils, Rols } = us.dataValues;
+      // const us = await Usuario.getById(idUsuario);
+      // const { Perfils, Rols } = us.dataValues;
       const token = await Auth.createToken({ idUsuario });
       // eslint-disable-next-line max-len
       const header = [
@@ -174,11 +186,13 @@ export default class UsuarioController {
         },
       );
 
+      await t.commit();
+
       return res.status(HttpCode.HTTP_CREATED).json({
         id: usuario.id,
         email: usuario.email,
-        perfiles: Perfils,
-        roles: Rols,
+        perfiles: userProfiles,
+        roles: userRoles,
       });
     } catch (e) {
       await t.rollback();
@@ -484,14 +498,20 @@ export default class UsuarioController {
 
   static async updatePrimaryMethod(req, res) {
     const { id_method: idMethod } = req.params;
-    const authMethod = await MetodoAutenticacionUsuario.findByPk(idMethod);
+    const idUser = req.usuario.id;
+    const authMethod = await MetodoAutenticacionUsuario.findOne({
+      where: {
+        id_usuario: idUser,
+        id_metodo: idMethod,
+      },
+    });
     if (authMethod.id_auth_method_status === 2) throw new UnprocessableEntityException('No es posible seleccionar este método de autenticación debido a que no esta verificado');
     await MetodoAutenticacionUsuario.update(
       { is_primary: false },
       {
         where: {
           id: {
-            [Op.not]: idMethod,
+            [Op.not]: authMethod.id,
           },
           id_usuario: req.usuario.id,
         },

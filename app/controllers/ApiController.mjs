@@ -531,4 +531,59 @@ export default class ApiController {
       message: 'contraseña actualizada',
     });
   }
+
+  static async sendVerificationToken(req, res) {
+    const { email } = req.body;
+    const usuario = await Usuario.findOne({
+      where: {
+        email,
+      },
+    });
+
+    const idUsuario = usuario.id;
+    const token = await Auth.createToken({ idUsuario });
+
+    const header = [
+      {
+        tagName: 'mj-button',
+        attributes: {
+          width: '80%',
+          padding: '5px 10px',
+          'font-size': '20px',
+          'background-color': '#175efb',
+          'border-radius': '99px',
+        },
+        content: `Hola ${usuario.email}`,
+      },
+    ];
+
+    const body = [
+      {
+        tagName: 'mj-button',
+        attributes: {
+          width: '80%',
+          padding: '5px 10px',
+          'font-size': '20px',
+          'background-color': '#175efb',
+          href: `${process.env.FRONT_URL}/verificar/${token}`,
+        },
+        content: 'VERIFICAR MI CUENTA',
+      },
+    ];
+
+    await Mailer.sendMail(
+      {
+        email: usuario.email,
+        header,
+        subject: 'Verificación de correo electrónico',
+        message: 'Para verificar tu cuenta debes de hacer click en el siguiente enlace:',
+        body,
+      },
+    );
+
+    return res.status(HttpCode.HTTP_BAD_REQUEST).json({
+      message:
+        'Se ha reenviado el correo con el token de verificación',
+    });
+  }
 }

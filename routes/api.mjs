@@ -19,6 +19,7 @@ router.post('/v1/logout', [auth, bitacora], Call(ApiController.logout));
 router.post('/v1/2fa', [validate(twoFactorAuthSchema)], Call(ApiController.twoFactorAuthLoginChoose));
 router.post('/v1/2fa/verify/:id_user', Call(ApiController.verifyTwoFactorAuthCode));
 router.post('/v1/2fa/code', Call(ApiController.sendCode));
+router.post('/v1/2fa/verification/token', Call(ApiController.sendVerificationToken));
 router.get('/v1/verification/user/:token', Call(ApiController.confirmUser));
 router.post('/v1/refresh', Call(ApiController.RefreshToken));
 router.use('/v1/users', [auth, bitacora], routesUsers);
