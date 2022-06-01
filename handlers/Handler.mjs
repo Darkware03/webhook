@@ -1,7 +1,6 @@
 import BaseError from './BaseError.mjs';
 import HttpCode from '../configs/httpCode.mjs';
 import ErrorModel from '../app/nucleo/mongo/error.mjs';
-import NoAuthException from './NoAuthException.mjs';
 
 export default class Handler {
   static logError(req, err) {
@@ -26,6 +25,7 @@ export default class Handler {
   // eslint-disable-next-line consistent-return,no-unused-vars
   static handlerError(err, req, res, next) {
     const debug = process.env.APP_DEBUG === 'true';
+    let message = 'Ha ocurrido un error interno, intentelo más tarde.';
     if (debug) return res.status(err.statusCode || HttpCode.HTTP_INTERNAL_SERVER_ERROR).json({ err, stack: err.stack });
     if (err.name && err.name === 'JsonSchemaValidation') return res.status(HttpCode.HTTP_BAD_REQUEST).json(debug ? err : err.validations.body);
 
@@ -39,12 +39,12 @@ export default class Handler {
       return res.status(HttpCode.HTTP_INTERNAL_SERVER_ERROR).json(debug ? err : { message: 'No se puede eliminar uno o más registros debido a que tienen acciones asociadas al sistema' });
     }
 
-    if (err.name === 'JsonWebTokenError') {
-      throw new NoAuthException('No autenticado');
+    if (err.name === 'TokenExpiredError' || err.name === 'JsonWebTokenError') {
+      return res.status(HttpCode.HTTP_UNAUTHORIZED).json({
+        message: 'No autenticado',
+      });
     }
-    if (err.name === 'TokenExpiredError') throw new NoAuthException('No autenticado');
 
-    let message = 'Ha ocurrido un error interno, intentelo más tarde.';
     if (err.statusCode) message = err.description;
 
     return res.status(err.statusCode || HttpCode.HTTP_INTERNAL_SERVER_ERROR).json({
