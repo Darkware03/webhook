@@ -134,19 +134,19 @@ export default class ApiController {
       email: usuario.email,
       last_login: usuario.last_login,
       two_factor_status: usuario.two_factor_status,
+      auth_methods: metodosAutenticacion,
     };
 
     const response = {};
     const tokenInfo = {
       user: userInfo,
-      metodos_autenticacion: metodosAutenticacion,
     };
 
     if (!usuario.two_factor_status) {
       tokenInfo.roles = roles;
       response.refreshToken = await Auth.refresh_token(usuario);
     } else {
-      response.metodos_autenticacion = metodosAutenticacion;
+      response.auth_methods = metodosAutenticacion;
     }
 
     response.token = await Auth.createToken(tokenInfo, usuario.two_factor_status ? process.env.TWO_FACTOR_SECRET_KEY : process.env.SECRET_KEY);
