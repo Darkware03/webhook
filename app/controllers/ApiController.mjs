@@ -110,9 +110,8 @@ export default class ApiController {
         message: 'Para verificar tu cuenta debes de hacer click en el siguiente enlace:',
         body,
       });
-      return res.status(HttpCode.HTTP_BAD_REQUEST).json({
-        message:
-          'Su cuenta se encuentra suspendida, por favor verificarla por medio del correo que se le ha enviado',
+      return res.status(HttpCode.HTTP_OK).json({
+        message: 'Por favor verificar la cuenta por medio del correo que se le ha enviado',
       });
     }
 
