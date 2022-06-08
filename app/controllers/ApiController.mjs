@@ -43,7 +43,15 @@ export default class ApiController {
       where: {
         email,
       },
-      attributes: ['id', 'email', 'password', 'is_suspended', 'last_login', 'verified', 'two_factor_status'],
+      attributes: [
+        'id',
+        'email',
+        'password',
+        'is_suspended',
+        'last_login',
+        'verified',
+        'two_factor_status',
+      ],
       include: [
         {
           model: MetodoAutenticacion,
@@ -89,21 +97,19 @@ export default class ApiController {
             padding: '5px 10px',
             'font-size': '20px',
             'background-color': '#175efb',
-            href: `${process.env.FRONT_URL}/verificar/${token}`,
+            href: `${process.env.FRONT_URL}/verify-mail/${token}`,
           },
           content: 'VERIFICAR MI CUENTA',
         },
       ];
 
-      await Mailer.sendMail(
-        {
-          email: usuario.email,
-          header,
-          subject: 'Verificacion de correo electronico',
-          message: 'Para verificar tu cuenta debes de hacer click en el siguiente enlace:',
-          body,
-        },
-      );
+      await Mailer.sendMail({
+        email: usuario.email,
+        header,
+        subject: 'Verificacion de correo electronico',
+        message: 'Para verificar tu cuenta debes de hacer click en el siguiente enlace:',
+        body,
+      });
       return res.status(HttpCode.HTTP_BAD_REQUEST).json({
         message:
           'Su cuenta se encuentra suspendida, por favor verificarla por medio del correo que se le ha enviado',
@@ -148,7 +154,10 @@ export default class ApiController {
       response.metodos_autenticacion = metodosAutenticacion;
     }
 
-    response.token = await Auth.createToken(tokenInfo, usuario.two_factor_status ? process.env.TWO_FACTOR_SECRET_KEY : process.env.SECRET_KEY);
+    response.token = await Auth.createToken(
+      tokenInfo,
+      usuario.two_factor_status ? process.env.TWO_FACTOR_SECRET_KEY : process.env.SECRET_KEY,
+    );
 
     if (primaryMethod?.id === 1 && usuario.two_factor_status) {
       await ApiController.sendEmailCode(usuario, primaryMethod.id);
@@ -201,14 +210,12 @@ export default class ApiController {
         content: 'El codigo de verificacion es:',
       },
     ];
-    await Mailer.sendMail(
-      {
-        email: user.email,
-        header,
-        subject: 'Codigo de verificacion de usuario',
-        message: code,
-      },
-    );
+    await Mailer.sendMail({
+      email: user.email,
+      header,
+      subject: 'Codigo de verificacion de usuario',
+      message: code,
+    });
   }
 
   static async logout(req, res) {
@@ -265,14 +272,12 @@ export default class ApiController {
           },
         ];
 
-        await Mailer.sendMail(
-          {
-            email,
-            header,
-            subject: 'Codigo de verificacion de usuario',
-            message: verificationCode,
-          },
-        );
+        await Mailer.sendMail({
+          email,
+          header,
+          subject: 'Codigo de verificacion de usuario',
+          message: verificationCode,
+        });
       }
 
       return res
@@ -320,12 +325,15 @@ export default class ApiController {
 
     const roles = await getRols.roles(user.id);
     const refreshToken = await Auth.refresh_token(user);
-    const newToken = await Auth.createToken({
-      id: user.id,
-      roles,
-      user,
-      email: user.email,
-    }, process.env.SECRET_KEY);
+    const newToken = await Auth.createToken(
+      {
+        id: user.id,
+        roles,
+        user,
+        email: user.email,
+      },
+      process.env.SECRET_KEY,
+    );
     return res.status(HttpCode.HTTP_OK).send({
       token: newToken,
       refreshToken,
@@ -365,10 +373,13 @@ export default class ApiController {
       two_factor_status: usuario.two_factor_status,
     };
 
-    const token = await Auth.createToken({
-      roles,
-      user: userDatatoken,
-    }, process.env.SECRET_KEY);
+    const token = await Auth.createToken(
+      {
+        roles,
+        user: userDatatoken,
+      },
+      process.env.SECRET_KEY,
+    );
 
     const newRefreshToken = await Auth.refresh_token(refreshTokenExist.Usuario);
     await refreshTokenExist.update({
@@ -399,10 +410,13 @@ export default class ApiController {
       throw new UnprocessableEntityException('El parametro no es un correo valido');
     }
 
-    const token = await Auth.createToken({
-      id: usuario.id,
-      email: usuario.email,
-    }, process.env.SECRET_KEY);
+    const token = await Auth.createToken(
+      {
+        id: usuario.id,
+        email: usuario.email,
+      },
+      process.env.SECRET_KEY,
+    );
 
     await Auth.refresh_token(usuario);
 
@@ -462,39 +476,44 @@ export default class ApiController {
       {
         tagName: 'mj-column',
         attributes: {},
-        children:
-      [
-        {
-          tagName: 'mj-button',
-          attributes: {
-            href: uri,
-            width: '80%',
-            padding: '5px 10px',
-            'font-size': '20px',
-            'background-color': '#175efb',
-            'border-radius': '99px',
-          },
-          content: 'Cambiar contraseña',
-        },
-        {
-          tagName: 'mj-text',
-          attributes: {
-            align: 'justify',
-          },
-          children: [
-            {
-              tagName: 'p',
-              content: 'Si no solicitaste el cambio de contraseña, ignora este correo. Tu contraseña continuará siendo la misma.',
+        children: [
+          {
+            tagName: 'mj-button',
+            attributes: {
+              href: uri,
+              width: '80%',
+              padding: '5px 10px',
+              'font-size': '20px',
+              'background-color': '#175efb',
+              'border-radius': '99px',
             },
-          ],
-        },
-      ],
+            content: 'Cambiar contraseña',
+          },
+          {
+            tagName: 'mj-text',
+            attributes: {
+              align: 'justify',
+            },
+            children: [
+              {
+                tagName: 'p',
+                content:
+                  'Si no solicitaste el cambio de contraseña, ignora este correo. Tu contraseña continuará siendo la misma.',
+              },
+            ],
+          },
+        ],
       },
     ];
 
-    if (!Mailer.sendMail({
-      email: usuario.email, header, subject: 'Restablecer Contraseña', sections,
-    })) {
+    if (
+      !Mailer.sendMail({
+        email: usuario.email,
+        header,
+        subject: 'Restablecer Contraseña',
+        sections,
+      })
+    ) {
       throw new NotFoundException(
         'Error! Hubo un problema al enviar el correo, intente nuevamente.',
       );
@@ -570,19 +589,16 @@ export default class ApiController {
       },
     ];
 
-    await Mailer.sendMail(
-      {
-        email: usuario.email,
-        header,
-        subject: 'Verificación de correo electrónico',
-        message: 'Para verificar tu cuenta debes de hacer click en el siguiente enlace:',
-        body,
-      },
-    );
+    await Mailer.sendMail({
+      email: usuario.email,
+      header,
+      subject: 'Verificación de correo electrónico',
+      message: 'Para verificar tu cuenta debes de hacer click en el siguiente enlace:',
+      body,
+    });
 
     return res.status(HttpCode.HTTP_BAD_REQUEST).json({
-      message:
-        'Se ha reenviado el correo con el token de verificación',
+      message: 'Se ha reenviado el correo con el token de verificación',
     });
   }
 }
