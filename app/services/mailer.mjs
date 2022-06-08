@@ -2,10 +2,9 @@ import nodemailer from 'nodemailer';
 import mjml2html from 'mjml';
 
 const transporter = nodemailer.createTransport({
-  service: process.env.MAIL_SERVICE,
   host: process.env.MAIL_HOST,
   port: process.env.MAIL_PORT,
-  secure: false,
+  secure: process.env.MAIL_SECURE === 'true',
   auth: {
     user: process.env.MAIL_USER,
     pass: process.env.MAIL_PASS,
@@ -72,6 +71,8 @@ export default class Mailer {
         },
       ],
     });
+
+    await transporter.verify();
 
     const mailConfig = {
       from: `${process.env.SISTEM_NAME} <${process.env.MAIL_USER}>`,
