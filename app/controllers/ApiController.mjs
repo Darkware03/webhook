@@ -237,10 +237,10 @@ export default class ApiController {
     if (!token) throw new NoAuthException('No autenticado');
 
     try {
-      const { id, email } = jwt.verify(token, process.env.SECRET_KEY);
+      const { user } = jwt.verify(token, process.env.TWO_FACTOR_SECRET_KEY);
       const authMethod = await MetodoAutenticacionUsuario.findOne({
         where: {
-          id_usuario: id,
+          id_usuario: user.id,
           id_metodo: idMetodo,
         },
       });
@@ -273,7 +273,7 @@ export default class ApiController {
         ];
 
         await Mailer.sendMail({
-          email,
+          email: user.email,
           header,
           subject: 'Codigo de verificacion de usuario',
           message: verificationCode,
