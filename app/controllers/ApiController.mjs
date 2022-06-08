@@ -139,6 +139,7 @@ export default class ApiController {
       email: usuario.email,
       last_login: usuario.last_login,
       two_factor_status: usuario.two_factor_status,
+      auth_methods: metodosAutenticacion,
     };
 
     const response = {};
@@ -150,7 +151,7 @@ export default class ApiController {
       tokenInfo.roles = roles;
       response.refreshToken = await Auth.refresh_token(usuario);
     } else {
-      response.metodos_autenticacion = metodosAutenticacion;
+      response.auth_methods = metodosAutenticacion;
     }
 
     response.token = await Auth.createToken(
