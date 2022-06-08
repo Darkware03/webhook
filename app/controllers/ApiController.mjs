@@ -139,6 +139,7 @@ export default class ApiController {
     const response = {};
     const tokenInfo = {
       user: userInfo,
+      metodos_autenticacion: metodosAutenticacion,
     };
 
     if (!usuario.two_factor_status) {
