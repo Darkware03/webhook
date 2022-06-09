@@ -156,8 +156,6 @@ export default class ApiController {
     if (!usuario.two_factor_status) {
       tokenInfo.roles = roles;
       response.refreshToken = await Auth.refresh_token(usuario);
-    } else {
-      response.auth_methods = metodosAutenticacion;
     }
 
     response.token = await Auth.createToken(

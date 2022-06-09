@@ -24,11 +24,7 @@ import ForbiddenException from '../../handlers/ForbiddenException.mjs';
 export default class UsuarioController {
   static async index(req, res) {
     const {
-      page = 1,
-      per_page: perPage = 10,
-      paginacion = 'true',
-      email,
-      habilitado,
+      page = 1, per_page: perPage = 10, paginacion = 'true', email, habilitado,
     } = req.query;
 
     const filters = {};
@@ -96,21 +92,27 @@ export default class UsuarioController {
         // eslint-disable-next-line no-plusplus
         for (let index = 0; index < perfiles.length; index++) {
           // eslint-disable-next-line no-await-in-loop
-          await VerifyModel.exist(Perfil, perfiles[index], `No se ha encontrado el perfil con id ${perfiles[index]}`);
+          await VerifyModel.exist(
+            Perfil,
+            perfiles[index],
+            `No se ha encontrado el perfil con id ${perfiles[index]}`,
+          );
         }
-        userProfiles = await Perfil.findAll(
-          {
-            where: {
-              id: perfiles,
-            },
+        userProfiles = await Perfil.findAll({
+          where: {
+            id: perfiles,
           },
-        );
+        });
       }
       if (roles) {
         // eslint-disable-next-line no-plusplus
         for (let index = 0; index < roles.length; index++) {
           // eslint-disable-next-line no-await-in-loop
-          await VerifyModel.exist(Rol, roles[index], `No se ha encontrado el rol con id ${roles[index]}`);
+          await VerifyModel.exist(
+            Rol,
+            roles[index],
+            `No se ha encontrado el rol con id ${roles[index]}`,
+          );
         }
         userRoles = await Rol.findAll({
           where: {
@@ -174,15 +176,13 @@ export default class UsuarioController {
         },
       ];
 
-      await Mailer.sendMail(
-        {
-          email: usuario.email,
-          header,
-          subject: 'Verificacion de correo electronico',
-          message: 'Para verificar tu cuenta debes de hacer click en el siguiente enlace:',
-          body,
-        },
-      );
+      await Mailer.sendMail({
+        email: usuario.email,
+        header,
+        subject: 'Verificacion de correo electronico',
+        message: 'Para verificar tu cuenta debes de hacer click en el siguiente enlace:',
+        body,
+      });
 
       await t.commit();
 
@@ -199,16 +199,18 @@ export default class UsuarioController {
   }
 
   static async update(req, res) {
-    const {
-      email, roles = [], perfiles = [],
-    } = req.body;
+    const { email, roles = [], perfiles = [] } = req.body;
     const dataToUpdate = {};
 
     if (email !== null && email !== '') {
       dataToUpdate.email = email;
     }
 
-    const usuario = await VerifyModel.exist(Usuario, req.params.id, `No se ha encontrado el usuario con id ${req.params.id}`);
+    const usuario = await VerifyModel.exist(
+      Usuario,
+      req.params.id,
+      `No se ha encontrado el usuario con id ${req.params.id}`,
+    );
 
     usuario.update(dataToUpdate, {
       where: {
@@ -224,13 +226,15 @@ export default class UsuarioController {
 
   static async destroy(req, res) {
     const { id } = req.params;
-    const usuario = await VerifyModel.exist(Usuario, id, `No se ha encontrado el usuario con id ${id}`);
-
-    await usuario.update(
-      {
-        is_suspended: !usuario.is_suspended,
-      },
+    const usuario = await VerifyModel.exist(
+      Usuario,
+      id,
+      `No se ha encontrado el usuario con id ${id}`,
     );
+
+    await usuario.update({
+      is_suspended: !usuario.is_suspended,
+    });
 
     return res.status(HttpCode.HTTP_OK).json({
       message: usuario.is_suspended ? 'Usuario deshabilitado' : 'Usuario habilitado',
@@ -263,19 +267,13 @@ export default class UsuarioController {
       confirm_password: confirmPassword,
     } = req.body;
     if (!bcrypt.compareSync(passwordActual, req.usuario.password)) {
-      throw new ForbiddenException(
-        'La contraseña proporcionada no es correcta',
-      );
+      throw new ForbiddenException('La contraseña proporcionada no es correcta');
     }
     if (passwordActual === password) {
-      throw new NotFoundException(
-        'La nueva contraseña no puede ser igual que la anterior',
-      );
+      throw new NotFoundException('La nueva contraseña no puede ser igual que la anterior');
     }
     if (password !== confirmPassword) {
-      throw new BadRequestException(
-        'Las contraseñas no coinciden',
-      );
+      throw new BadRequestException('Las contraseñas no coinciden');
     }
 
     const salt = bcrypt.genSaltSync();
@@ -302,10 +300,13 @@ export default class UsuarioController {
 
     const refreshToken = await Auth.refresh_token(req.usuario);
     const roles = await getRols.roles(req.usuario.id);
-    const token = await Auth.createToken({
-      roles,
-      user: req.usuario,
-    }, process.env.SECRET_KEY);
+    const token = await Auth.createToken(
+      {
+        roles,
+        user: req.usuario,
+      },
+      process.env.SECRET_KEY,
+    );
     return res
       .status(HttpCode.HTTP_OK)
       .json({ message: 'Contraseña actualizada con exito', token, refreshToken });
@@ -315,24 +316,18 @@ export default class UsuarioController {
     const { email, password } = req.body;
     /** Validacion que el correo ingresado no sea igual al correo actual */
     if (email === req.usuario.email) {
-      throw new UnprocessableEntityException(
-        'El correo no puede ser igual al anterior',
-      );
+      throw new UnprocessableEntityException('El correo no puede ser igual al anterior');
     }
 
     /** Confirmacion de password para el cambio de contraseña */
     if (!bcrypt.compareSync(password, req.usuario.password)) {
-      throw new BadRequestException(
-        'La contraseña proporcionada no es correcta',
-      );
+      throw new BadRequestException('La contraseña proporcionada no es correcta');
     }
 
     /** Validacion que el correo no se encuentre en uso en la BD */
     const emailExist = await Usuario.findOne({ where: { email } });
     if (emailExist) {
-      throw new NotFoundException(
-        'El correo ya se encuentra en uso',
-      );
+      throw new NotFoundException('El correo ya se encuentra en uso');
     }
 
     /** Envio de notificacion por correo electronico  */
@@ -365,17 +360,23 @@ export default class UsuarioController {
       },
       attributes: ['id', 'email', 'last_login', 'two_factor_status'],
     });
-    await usuario.update({
-      email,
-      token_valid_after: moment().tz('America/El_Salvador').format(),
-    }, { returning: true });
+    await usuario.update(
+      {
+        email,
+        token_valid_after: moment().tz('America/El_Salvador').format(),
+      },
+      { returning: true },
+    );
 
     const refreshToken = await Auth.refresh_token(req.usuario);
     const roles = await getRols.roles(req.usuario.id);
-    const token = await Auth.createToken({
-      roles,
-      user: usuario,
-    }, process.env.SECRET_KEY);
+    const token = await Auth.createToken(
+      {
+        roles,
+        user: usuario,
+      },
+      process.env.SECRET_KEY,
+    );
     return res
       .status(HttpCode.HTTP_OK)
       .json({ message: 'Correo electronico actualizado con exito', token, refreshToken });
@@ -428,14 +429,12 @@ export default class UsuarioController {
       },
     ];
 
-    await Mailer.sendMail(
-      {
-        email: req.usuario.email,
-        header,
-        subject: 'Codigo de verificación de usuario',
-        message: code,
-      },
-    );
+    await Mailer.sendMail({
+      email: req.usuario.email,
+      header,
+      subject: 'Codigo de verificación de usuario',
+      message: code,
+    });
     return res.status(HttpCode.HTTP_OK).send({
       message: 'Favor valide el nuevo metodo de autenticación, revise su correo electrónico',
     });
@@ -450,9 +449,7 @@ export default class UsuarioController {
       },
     });
     if (!methodUser) {
-      throw new NotFoundException(
-        'El usuario no tiene este metodo de autenticacion asociado',
-      );
+      throw new NotFoundException('El usuario no tiene este metodo de autenticacion asociado');
     }
     const verifyCodeParams = {
       code,
@@ -463,9 +460,7 @@ export default class UsuarioController {
     const isValidCode = await Security.verifyTwoFactorAuthCode(verifyCodeParams);
 
     if (!isValidCode) {
-      throw new UnprocessableEntityException(
-        'El codigo proporcionado no es valido',
-      );
+      throw new UnprocessableEntityException('El codigo proporcionado no es valido');
     }
 
     await methodUser.update({ secret_key: methodUser.temporal_key, id_auth_method_status: 1 });
@@ -482,13 +477,11 @@ export default class UsuarioController {
         content: 'Se ha cambiado el metodo de autenticación',
       },
     ];
-    await Mailer.sendMail(
-      {
-        email: req.usuario.email,
-        subject: 'Metodo de autenticacion cambiado.',
-        header,
-      },
-    );
+    await Mailer.sendMail({
+      email: req.usuario.email,
+      subject: 'Metodo de autenticacion cambiado.',
+      header,
+    });
     return res
       .status(HttpCode.HTTP_OK)
       .send({ message: 'Se ha modificado el metodo de autenticación con exito!' });
@@ -503,7 +496,11 @@ export default class UsuarioController {
         id_metodo: idMethod,
       },
     });
-    if (authMethod.id_auth_method_status === 2) throw new UnprocessableEntityException('No es posible seleccionar este método de autenticación debido a que no esta verificado');
+    if (authMethod.id_auth_method_status === 2) {
+      throw new UnprocessableEntityException(
+        'No es posible seleccionar este método de autenticación debido a que no esta verificado',
+      );
+    }
     await MetodoAutenticacionUsuario.update(
       { is_primary: false },
       {
@@ -515,9 +512,7 @@ export default class UsuarioController {
         },
       },
     );
-    await authMethod.update(
-      { is_primary: true },
-    );
+    await authMethod.update({ is_primary: true });
     const header = [
       {
         tagName: 'mj-text',
@@ -531,49 +526,27 @@ export default class UsuarioController {
         content: 'Se ha cambiado el método de autenticación primario',
       },
     ];
-    await Mailer.sendMail(
-      {
-        email: req.usuario.email,
-        subject: 'Alerta de actualización de cuenta.',
-        header,
-      },
-    );
+    await Mailer.sendMail({
+      email: req.usuario.email,
+      subject: 'Alerta de actualización de cuenta.',
+      header,
+    });
     return res.status(HttpCode.HTTP_OK).send({ message: 'Solicitud procesada con exito!' });
   }
 
   static async getMetodosUsuario(req, res) {
-    const metodos = await MetodoAutenticacion.findAll();
-    const usuario = await Usuario.findOne({
-      where: {
-        id: req.usuario.id,
-      },
-      attributes: ['id'],
-      // eslint-disable-next-line max-len
+    const methods = await MetodoAutenticacion.findAll({
       include: [
         {
-          // eslint-disable-next-line max-len
-          model: MetodoAutenticacion,
-          attributes: ['id', 'nombre', 'icono'],
-          through: { attributes: ['is_primary', 'id'] },
+          model: MetodoAutenticacionUsuario,
+          required: false,
+          where: {
+            id_usuario: req.usuario.id,
+          },
         },
       ],
     });
-    const metodosAutenticacion = metodos.map((metodo) => {
-      const isPrimary = usuario.MetodoAutenticacions.filter(
-        (metodoUsuario) => metodoUsuario.id === metodo.id,
-      );
-      return {
-        nombre: metodo.nombre,
-        descripcion: metodo.descripcion,
-        icono: metodo.icono,
-        id: metodo.id,
-        is_primary:
-                    isPrimary.length > 0 ? isPrimary[0].MetodoAutenticacionUsuario.is_primary : null,
-        id_metodo_usuario: isPrimary.length > 0 ? isPrimary[0].MetodoAutenticacionUsuario.id : null,
-      };
-    });
-    return res.status(HttpCode.HTTP_OK).send({
-      metodos_autenticacion: metodosAutenticacion,
-    });
+
+    return res.status(HttpCode.HTTP_OK).json(methods);
   }
 }
