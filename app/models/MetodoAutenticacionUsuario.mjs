@@ -22,8 +22,8 @@ MetodoAutenticacionUsuario.init({
   is_primary: {
     type: psql.Sequelize.BOOLEAN,
   },
-  id_auth_method_status: {
-    type: psql.Sequelize.INTEGER,
+  verified: {
+    type: psql.Sequelize.BOOLEAN,
   },
 }, {
   timestamps: false,

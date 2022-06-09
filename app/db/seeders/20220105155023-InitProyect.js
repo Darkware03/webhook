@@ -78,7 +78,7 @@ module.exports = {
             id_metodo: METODOAUTENTICACION[0].id,
             secret_key: Speakeasy.generateSecret().base32,
             is_primary: true,
-            id_auth_method_status: 1,
+            verified: true,
           },
         ],
         {

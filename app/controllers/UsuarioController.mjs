@@ -141,7 +141,7 @@ export default class UsuarioController {
           is_primary: true,
           secret_key: newToken.secret_code,
           two_factor_status: process.env.TWO_FACTOR_AUTH === 'true',
-          id_auth_method_status: 1,
+          verified: true,
         },
         { transaction: t },
       );
@@ -386,20 +386,23 @@ export default class UsuarioController {
     const { id_method: idMetodo } = req.body;
 
     const token = await Security.generateTwoFactorAuthCode(req.usuario.email);
+    const defaults = {
+      is_primary: false,
+      secret_key: token.secret_code,
+      verified: false,
+    };
 
     const [authMethod, created] = await MetodoAutenticacionUsuario.findOrCreate({
       where: {
         id_usuario: req.usuario.id,
         id_metodo: idMetodo,
       },
-      defaults: {
-        is_primary: false,
-        secret_key: token.secret_code,
-        id_auth_method_status: 2,
-      },
+      defaults,
     });
 
-    if (!created) await authMethod.update({ id_auth_method_status: 2 });
+    if (!created) {
+      await authMethod.update(defaults);
+    }
 
     if (Number(idMetodo) === 2) {
       return res.status(HttpCode.HTTP_OK).send({
@@ -463,7 +466,7 @@ export default class UsuarioController {
       throw new UnprocessableEntityException('El codigo proporcionado no es valido');
     }
 
-    await methodUser.update({ secret_key: methodUser.temporal_key, id_auth_method_status: 1 });
+    await methodUser.update({ secret_key: methodUser.temporal_key, verified: true });
     const header = [
       {
         tagName: 'mj-text',
@@ -496,7 +499,7 @@ export default class UsuarioController {
         id_metodo: idMethod,
       },
     });
-    if (authMethod.id_auth_method_status === 2) {
+    if (!authMethod?.verified) {
       throw new UnprocessableEntityException(
         'No es posible seleccionar este método de autenticación debido a que no esta verificado',
       );
