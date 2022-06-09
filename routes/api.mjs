@@ -17,6 +17,7 @@ import twoFactorAuthSchema from '../app/schemas/TwoFactorAuthSchema.mjs';
 const router = Router();
 router.post('/v1/login', [validate(loginSchema)], Call(ApiController.login));
 router.post('/v1/logout', [auth, bitacora], Call(ApiController.logout));
+router.get('/v1/2fa', [auth], Call(ApiController.twoFactorList));
 router.post('/v1/2fa', [validate(twoFactorAuthSchema)], Call(ApiController.twoFactorAuthLoginChoose));
 router.post('/v1/2fa/verify', [auth2FA], Call(ApiController.verifyTwoFactorAuthCode));
 router.post('/v1/2fa/code', Call(ApiController.sendCode));

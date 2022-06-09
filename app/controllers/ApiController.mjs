@@ -17,6 +17,12 @@ import BadRequestException from '../../handlers/BadRequestException.mjs';
 import Handler from '../../handlers/Handler.mjs';
 
 export default class ApiController {
+  static async twoFactorList(req, res) {
+    const authMethods = await MetodoAutenticacion.findAll();
+
+    res.status(HttpCode.HTTP_OK).json(authMethods);
+  }
+
   static async confirmUser(req, res) {
     const { token } = req.params;
     if (token) {
