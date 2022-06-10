@@ -171,7 +171,7 @@ export default class ApiController {
   }
 
   static async sendCode(req, res) {
-    const { email } = req.body;
+    const { email } = req.usuario;
 
     const usuario = await Usuario.findOne({
       where: {
