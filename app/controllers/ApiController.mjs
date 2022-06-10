@@ -320,7 +320,7 @@ export default class ApiController {
     }
 
     const isValid = await Security.verifyTwoFactorAuthCode(params);
-    if (!isValid) throw new NoAuthException('El codigo proporcionado no es valido');
+    if (!isValid) throw new UnprocessableEntityException('El codigo proporcionado no es valido');
 
     await user.update({
       two_factor_status: true,
