@@ -61,8 +61,6 @@ export default class ApiController {
       include: [
         {
           model: MetodoAutenticacion,
-          attributes: ['id', 'nombre', 'icono'],
-          through: { attributes: ['is_primary', 'id'] },
         },
       ],
     });
@@ -128,14 +126,7 @@ export default class ApiController {
     await usuario.update({
       last_login: moment().tz('America/El_Salvador').format(),
     });
-    const metodosAutenticacion = usuario.MetodoAutenticacions.map((row) => ({
-      nombre: row.nombre,
-      descripcion: row.descripcion,
-      icono: row.icono,
-      id: row.id,
-      is_primary: row.MetodoAutenticacionUsuario.is_primary,
-      id_metodo_usuario: row.MetodoAutenticacionUsuario.id,
-    }));
+    const metodosAutenticacion = usuario.MetodoAutenticacions;
 
     const primaryMethod = metodosAutenticacion.find((item) => item.is_primary);
 
@@ -226,11 +217,10 @@ export default class ApiController {
     await Usuario.update(
       {
         token_valid_after: moment().tz('America/El_Salvador').format(),
-        two_factor_status: false,
       },
       { where: { id: req.usuario.id } },
     );
-    return res.status(HttpCode.HTTP_OK).send({});
+    return res.status(HttpCode.HTTP_OK);
   }
 
   static async twoFactorAuthLoginChoose(req, res, next) {
