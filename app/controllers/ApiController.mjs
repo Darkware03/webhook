@@ -61,6 +61,7 @@ export default class ApiController {
       include: [
         {
           model: MetodoAutenticacion,
+          through: { where: { verified: true } },
         },
       ],
     });
