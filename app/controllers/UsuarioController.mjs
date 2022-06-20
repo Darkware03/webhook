@@ -375,7 +375,7 @@ export default class UsuarioController {
     const token = await Security.generateTwoFactorAuthCode(req.usuario.email);
     const defaults = {
       is_primary: false,
-      secret_key: token.secret_code,
+      temporal_key: token.secret_code,
       verified: false,
     };
 
@@ -388,7 +388,9 @@ export default class UsuarioController {
     });
 
     if (!created) {
-      await authMethod.update(defaults);
+      await authMethod.update({
+        temporal_key: token.secret_code,
+      });
     }
 
     if (Number(idMetodo) === 2) {
@@ -399,7 +401,7 @@ export default class UsuarioController {
     }
 
     const code = speakeasy.totp({
-      secret: authMethod.secret_key,
+      secret: authMethod.temporal_key,
       encoding: 'base32',
       window: Number(process.env.TIME_BASED_TOKEN_2FA),
       step: 10,
@@ -443,7 +445,7 @@ export default class UsuarioController {
     }
     const verifyCodeParams = {
       code,
-      secretKey: methodUser.secret_key,
+      secretKey: methodUser.temporal_key,
     };
 
     if (Number(idMetodo) === 1) verifyCodeParams.time = process.env.TIME_BASED_TOKEN_2FA;

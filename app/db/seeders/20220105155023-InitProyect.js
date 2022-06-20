@@ -56,21 +56,6 @@ module.exports = {
       );
 
       await queryInterface.bulkInsert(
-        'ctl_auth_method_state',
-        [
-          {
-            status: 'Verificado',
-          },
-          {
-            status: 'No verificado',
-          },
-        ],
-        {
-          transaction: TRANSACTION,
-        },
-      );
-
-      await queryInterface.bulkInsert(
         'mnt_metodo_autenticacion_usuario',
         [
           {

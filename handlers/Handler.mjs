@@ -24,45 +24,13 @@ export default class Handler {
   // eslint-disable-next-line consistent-return,no-unused-vars
   static handlerError(err, req, res, next) {
     const debug = process.env.APP_DEBUG === 'true';
-    let message = 'Ha ocurrido un error interno, intentelo más tarde.';
-    const code = Handler.#getErrorCode(err);
+    let code = Handler.#getErrorCode(err);
+    if (err.statusCode) code = err.statusCode;
     if (debug) {
       return res.status(code).json({ err, stack: err.stack });
     }
-    if (err.name && err.name === 'JsonSchemaValidation') return res.status(HttpCode.HTTP_BAD_REQUEST).json(debug ? err : err.validations.body);
 
-    if (err.name === 'SequelizeValidationError' || err.name === 'SequelizeUniqueConstraintError') {
-      return res.status(HttpCode.HTTP_BAD_REQUEST).json(
-        debug
-          ? err
-          : err.errors.map((row) => ({
-            field: row.path,
-            message: row.message,
-          })),
-      );
-    }
-    if (err.name === 'SequelizeForeignKeyConstraintError') {
-      return res.status(HttpCode.HTTP_INTERNAL_SERVER_ERROR).json(
-        debug
-          ? err
-          : {
-            message:
-                'No se puede eliminar uno o más registros debido a que tienen acciones asociadas al sistema',
-          },
-      );
-    }
-
-    if (err.name === 'TokenExpiredError' || err.name === 'JsonWebTokenError') {
-      return res.status(HttpCode.HTTP_UNAUTHORIZED).json({
-        message: 'No autenticado',
-      });
-    }
-
-    if (err.statusCode) message = err.description;
-
-    return res.status(err.statusCode || HttpCode.HTTP_INTERNAL_SERVER_ERROR).json({
-      message,
-    });
+    return res.status(code).json(Handler.#responseContent(err));
   }
 
   static #getErrorCode(err) {
@@ -90,6 +58,38 @@ export default class Handler {
       if (CodeErrors[type].names.includes(err.name)) return CodeErrors[type].code;
     }
     return HttpCode.HTTP_INTERNAL_SERVER_ERROR;
+  }
+
+  static #responseContent(err) {
+    if (err.statusCode) return { message: err.description };
+
+    if (err.name && err.name === 'JsonSchemaValidation') {
+      return err.validations.body;
+    }
+
+    if (err.name === 'SequelizeValidationError' || err.name === 'SequelizeUniqueConstraintError') {
+      return err.errors.map((row) => ({
+        field: row.path,
+        message: row.message,
+      }));
+    }
+
+    if (err.name === 'SequelizeForeignKeyConstraintError') {
+      return {
+        message:
+          'No se puede eliminar uno o más registros debido a que tienen acciones asociadas al sistema',
+      };
+    }
+
+    if (err.name === 'TokenExpiredError' || err.name === 'JsonWebTokenError') {
+      return {
+        message: 'No autenticado',
+      };
+    }
+
+    return {
+      message: 'Ocurrio un error intentelo mas tarde',
+    };
   }
 
   static isOPerationalError(error) {
