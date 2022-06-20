@@ -11,7 +11,6 @@ export default class Handler {
         mensaje: err.message,
         trace: err.stack,
         content: err,
-
       });
       Error.save();
     }
@@ -26,17 +25,31 @@ export default class Handler {
   static handlerError(err, req, res, next) {
     const debug = process.env.APP_DEBUG === 'true';
     let message = 'Ha ocurrido un error interno, intentelo más tarde.';
-    if (debug) return res.status(err.statusCode || HttpCode.HTTP_INTERNAL_SERVER_ERROR).json({ err, stack: err.stack });
+    const code = Handler.#getErrorCode(err);
+    if (debug) {
+      return res.status(code).json({ err, stack: err.stack });
+    }
     if (err.name && err.name === 'JsonSchemaValidation') return res.status(HttpCode.HTTP_BAD_REQUEST).json(debug ? err : err.validations.body);
 
     if (err.name === 'SequelizeValidationError' || err.name === 'SequelizeUniqueConstraintError') {
-      return res.status(HttpCode.HTTP_BAD_REQUEST).json(debug ? err : err.errors.map((row) => ({
-        field: row.path,
-        message: row.message,
-      })));
+      return res.status(HttpCode.HTTP_BAD_REQUEST).json(
+        debug
+          ? err
+          : err.errors.map((row) => ({
+            field: row.path,
+            message: row.message,
+          })),
+      );
     }
     if (err.name === 'SequelizeForeignKeyConstraintError') {
-      return res.status(HttpCode.HTTP_INTERNAL_SERVER_ERROR).json(debug ? err : { message: 'No se puede eliminar uno o más registros debido a que tienen acciones asociadas al sistema' });
+      return res.status(HttpCode.HTTP_INTERNAL_SERVER_ERROR).json(
+        debug
+          ? err
+          : {
+            message:
+                'No se puede eliminar uno o más registros debido a que tienen acciones asociadas al sistema',
+          },
+      );
     }
 
     if (err.name === 'TokenExpiredError' || err.name === 'JsonWebTokenError') {
@@ -50,6 +63,33 @@ export default class Handler {
     return res.status(err.statusCode || HttpCode.HTTP_INTERNAL_SERVER_ERROR).json({
       message,
     });
+  }
+
+  static #getErrorCode(err) {
+    const CodeErrors = {
+      badRequest: {
+        names: [
+          'SequelizeValidationError',
+          'JsonSchemaValidation',
+          'SequelizeUniqueConstraintError',
+        ],
+        code: HttpCode.HTTP_BAD_REQUEST,
+      },
+      unauthorized: {
+        names: ['TokenExpiredError', 'JsonWebTokenError'],
+        code: HttpCode.HTTP_UNAUTHORIZED,
+      },
+      internal: {
+        names: ['SequelizeForeignKeyConstraintError'],
+        code: HttpCode.HTTP_INTERNAL_SERVER_ERROR,
+      },
+    };
+
+    // eslint-disable-next-line no-restricted-syntax,guard-for-in
+    for (const type in CodeErrors) {
+      if (CodeErrors[type].names.includes(err.name)) return CodeErrors[type].code;
+    }
+    return HttpCode.HTTP_INTERNAL_SERVER_ERROR;
   }
 
   static isOPerationalError(error) {

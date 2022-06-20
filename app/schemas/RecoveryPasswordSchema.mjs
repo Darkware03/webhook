@@ -5,15 +5,15 @@ const recoveryPasswordSchema = {
     password: {
       $ref: 'defs.json#/definitions/password',
     },
-    confirmPassword: {
+    confirm_password: {
       $ref: 'defs.json#/definitions/password',
     },
   },
-  required: ['password', 'confirmPassword'],
+  required: ['password', 'confirm_password'],
   errorMessage: {
     required: {
       password: 'El campo password es requerido',
-      confirmPassword: 'El campo confirmPassword es requerido',
+      confirm_password: 'El campo confirmPassword es requerido',
     },
   },
 };

@@ -290,13 +290,13 @@ export default class UsuarioController {
         },
       },
     );
-    const msg = `
-      <p><span>Estimado/a usuario</span></p>
-      <p><span>Se le informa que acaba de cambiar la contraseña de su cuenta de manera exitosa</span></p>
-      <p><span>En caso de no haber realizado el cambio de contraseña, por favor contacte inmediatamente al administrador</span></p>
-    `;
-
-    await Mailer.sendMail(req.usuario.email, msg, 'Cambio de contraseña', 'Contraseña modificada');
+    const header = [];
+    await Mailer.sendMail({
+      email: req.usuario.email,
+      header,
+      subject: 'Cambio de contraseña',
+      message: 'Constraseña modificada',
+    });
 
     const refreshToken = await Auth.refresh_token(req.usuario);
     const roles = await getRols.roles(req.usuario.id);
@@ -330,30 +330,17 @@ export default class UsuarioController {
       throw new NotFoundException('El correo ya se encuentra en uso');
     }
 
-    /** Envio de notificacion por correo electronico  */
     const message = `
-                <mjml>
-                <mj-body>
-                  <mj-section>
-                    <mj-column>
-                      <mj-image src="https://next.salud.gob.sv/index.php/s/AHEMQ38JR93fnXQ/download" width="350px"></mj-image>
-                          <mj-button width="80%" padding="5px 10px" font-size="20px" background-color="#175efb" border-radius="99px">
-                            <mj-text  align="center" font-weight="bold"  color="#ffffff" >
-                              Confirmacion de cambio de correo electronico
-                            </mj-text>
-                        </mj-button>
-                      <mj-spacer css-class="primary"></mj-spacer>
-                      <mj-divider border-width="3px" border-color="#175efb" />
-                      <mj-text  align="center" font-size="16px">
-                        <p>Estimado usuario se le comunica que el correo: <span style="font-weight:bold;">${req.usuario.email} </span>
-                        ha sido cambiado satisfactoriamente. </p>
-                        <p>Desde este momento <span style="font-weight:bold;">${email}</span> manejará la cuenta en donde solicito el cambio</p>
-                      </mj-text>
-                    </mj-column>
-                  </mj-section>
-                </mj-body>
-              </mjml>`;
-    await Mailer.sendMail(email, null, 'Cambio de email', null, message);
+      Estimado usuario se le comunica que el correo: ${req.usuario.email}
+        ha sido cambiado satisfactoriamente.
+        Desde este momento ${email}
+    manejará la cuenta en donde solicito el cambio`;
+    await Mailer.sendMail({
+      email,
+      header: [],
+      message,
+      subject: 'Cambio de email',
+    });
     const usuario = await Usuario.findOne({
       where: {
         id: req.usuario.id,

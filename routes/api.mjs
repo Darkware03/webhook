@@ -18,7 +18,11 @@ const router = Router();
 router.post('/v1/login', [validate(loginSchema)], Call(ApiController.login));
 router.post('/v1/logout', [auth, bitacora], Call(ApiController.logout));
 router.get('/v1/2fa', [auth], Call(ApiController.twoFactorList));
-router.post('/v1/2fa', [validate(twoFactorAuthSchema)], Call(ApiController.twoFactorAuthLoginChoose));
+router.post(
+  '/v1/2fa',
+  [validate(twoFactorAuthSchema)],
+  Call(ApiController.twoFactorAuthLoginChoose),
+);
 router.post('/v1/2fa/verify', [auth2FA], Call(ApiController.verifyTwoFactorAuthCode));
 router.post('/v1/2fa/code', [auth2FA], Call(ApiController.sendCode));
 router.post('/v1/2fa/verification/token', Call(ApiController.sendVerificationToken));
@@ -29,7 +33,11 @@ router.use('/v1/perfiles', [auth, bitacora], routesPerfil);
 router.use('/v1/roles', [auth, bitacora], routesRoles);
 router.use('/v1/tipo/roles', [auth, bitacora], routesTipoRoles);
 router.use('/v1/rutas', [auth, bitacora], routesRutas);
-router.put('/v1/recovery_password/change_password', [validate(recoveryPasswordSchema)], Call(ApiController.recoveryPassword));
-router.use('/v1/recovery_password/send_email/:email', Call(ApiController.recoveryPasswordSendEmail));
+router.put(
+  '/v1/password/change',
+  [validate(recoveryPasswordSchema)],
+  Call(ApiController.changePassword),
+);
+router.post('/v1/password/reset/', Call(ApiController.resetPassword));
 
 export default router;

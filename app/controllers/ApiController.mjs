@@ -221,7 +221,7 @@ export default class ApiController {
       },
       { where: { id: req.usuario.id } },
     );
-    return res.status(HttpCode.HTTP_OK);
+    return res.status(HttpCode.HTTP_OK).json();
   }
 
   static async twoFactorAuthLoginChoose(req, res, next) {
@@ -395,16 +395,14 @@ export default class ApiController {
     });
   }
 
-  static async recoveryPasswordSendEmail(req, res) {
+  static async resetPassword(req, res) {
     const usuario = await Usuario.findOne({
       where: {
-        email: req.params.email,
+        email: req.body.email,
         is_suspended: false,
       },
     });
-    if (usuario === null) {
-      throw new UnprocessableEntityException('El parametro no es un correo valido');
-    }
+    if (!usuario) throw new UnprocessableEntityException('El parametro no es un correo valido');
 
     const token = await Auth.createToken(
       {
@@ -421,7 +419,7 @@ export default class ApiController {
       { where: { id: usuario.id } },
     );
 
-    const uri = `http://${process.env.URL}/api/recovery_password/${token}`;
+    const uri = `${process.env.FRONT_URL}/reset-password/${token}`;
 
     const header = [
       {
@@ -503,12 +501,12 @@ export default class ApiController {
     ];
 
     if (
-      !Mailer.sendMail({
+      !(await Mailer.sendMail({
         email: usuario.email,
         header,
         subject: 'Restablecer Contraseña',
         sections,
-      })
+      }))
     ) {
       throw new NotFoundException(
         'Error! Hubo un problema al enviar el correo, intente nuevamente.',
@@ -518,16 +516,16 @@ export default class ApiController {
     return res.status(HttpCode.HTTP_OK).json({ message: 'El correo ha sido enviado' });
   }
 
-  static async recoveryPassword(req, res) {
-    const { password, confirmPassword } = req.body;
+  static async changePassword(req, res) {
+    const { password, confirm_password: confirmPassword } = req.body;
     const token = req.headers.authorization.split(' ')[1];
     const salt = bcrypt.genSaltSync();
-    const passwordCrypt = bcrypt.hashSync(password, salt);
-
     if (password !== confirmPassword) {
       throw new NotFoundException('Error! Las contraseñas  no coinciden');
     }
-    const { user } = jwt.verify(token, process.env.SECRET_KEY);
+
+    const passwordCrypt = bcrypt.hashSync(password, salt);
+    const { id } = jwt.verify(token, process.env.SECRET_KEY);
 
     await Usuario.update(
       {
@@ -536,7 +534,7 @@ export default class ApiController {
       },
       {
         where: {
-          id: user.id,
+          id,
         },
       },
     );
