@@ -71,18 +71,22 @@ module.exports = {
         },
       );
 
-      const [backend, admin] = await queryInterface.bulkInsert('ctl_tipo_rol', [
-        { name: 'Backend', prefijo: 'ROLE_' },
-        { name: 'Admin', prefijo: 'ROLE_ADMIN_' },
-        { name: 'Frontend', prefijo: 'ROLE_FRONT_' },
-      ], {
-        returning: ['id'],
-        transaction: TRANSACTION,
-      });
+      const [backend, admin] = await queryInterface.bulkInsert(
+        'ctl_tipo_rol',
+        [
+          { name: 'Backend', prefijo: 'ROLE_' },
+          { name: 'Admin', prefijo: 'ROLE_ADMIN_' },
+          { name: 'Frontend', prefijo: 'ROLE_FRONT_' },
+        ],
+        {
+          returning: ['id'],
+          transaction: TRANSACTION,
+        },
+      );
 
       /**
-             * ROLES PARA EL BACKEND
-             * */
+       * ROLES PARA EL BACKEND
+       * */
       const ROLES = await queryInterface.bulkInsert(
         'mnt_rol',
         [
@@ -107,8 +111,8 @@ module.exports = {
           { name: 'ROLE_USER_AUTH_METHOD_LIST', id_tipo_rol: backend.id },
 
           /**
-                     * ROLES PARA EL ADMIN
-                     * */
+           * ROLES PARA EL ADMIN
+           * */
           { name: 'ROLE_ADMIN_PROFILE_DELETE', id_tipo_rol: admin.id },
           { name: 'ROLE_ADMIN_ROLE_DELETE', id_tipo_rol: admin.id },
           { name: 'ROLE_ADMIN_PATH_DELETE', id_tipo_rol: admin.id },
@@ -122,8 +126,8 @@ module.exports = {
       );
 
       /**
-             * ROLES PARA LAS RUTAS DEL ADMIN
-             * */
+       * ROLES PARA LAS RUTAS DEL ADMIN
+       * */
       const ROLES_RUTAS_ADMIN = await queryInterface.bulkInsert(
         'mnt_rol',
         [
@@ -166,8 +170,8 @@ module.exports = {
           },
           {
             nombre: 'perfiles',
-            uri: '/perfiles/list',
-            nombre_uri: 'perfilesList',
+            uri: '/profiles',
+            nombre_uri: 'profiles',
             mostrar: true,
             icono: 'mdi-account',
             orden: 2,
@@ -176,8 +180,8 @@ module.exports = {
           },
           {
             nombre: 'perfiles',
-            uri: '/perfiles/create',
-            nombre_uri: 'perfilesCreate',
+            uri: '/profiles/create',
+            nombre_uri: 'profilesCreate',
             mostrar: false,
             icono: 'mdi-account',
             orden: null,
@@ -186,8 +190,8 @@ module.exports = {
           },
           {
             nombre: 'perfiles',
-            uri: '/perfiles/edit',
-            nombre_uri: 'perfilesEdit',
+            uri: '/profiles/edit',
+            nombre_uri: 'profilesEdit',
             mostrar: false,
             icono: 'mdi-account',
             orden: null,
@@ -196,8 +200,8 @@ module.exports = {
           },
           {
             nombre: 'roles',
-            uri: '/roles/list',
-            nombre_uri: 'rolesList',
+            uri: '/roles',
+            nombre_uri: 'roles',
             mostrar: true,
             icono: 'mdi-account-group',
             orden: null,
@@ -216,8 +220,8 @@ module.exports = {
           },
           {
             nombre: 'rutas',
-            uri: '/rutas/list',
-            nombre_uri: 'rutasList',
+            uri: '/paths',
+            nombre_uri: 'paths',
             mostrar: true,
             icono: 'mdi-routes',
             orden: 2,
@@ -226,8 +230,8 @@ module.exports = {
           },
           {
             nombre: 'rutas',
-            uri: '/rutas/create',
-            nombre_uri: 'rutasCreate',
+            uri: '/paths/create',
+            nombre_uri: 'pathsCreate',
             mostrar: false,
             icono: 'mdi-routes',
             orden: null,
@@ -236,8 +240,8 @@ module.exports = {
           },
           {
             nombre: 'rutas',
-            uri: '/rutas/edit',
-            nombre_uri: 'rutasEdit',
+            uri: '/paths/edit',
+            nombre_uri: 'pathsEdit',
             mostrar: false,
             icono: 'mdi-routes',
             orden: null,
@@ -246,8 +250,8 @@ module.exports = {
           },
           {
             nombre: 'usuarios',
-            uri: '/usuarios/list',
-            nombre_uri: 'usuariosList',
+            uri: '/users',
+            nombre_uri: 'users',
             mostrar: true,
             icono: 'mdi-face-man',
             orden: null,
@@ -256,8 +260,8 @@ module.exports = {
           },
           {
             nombre: 'usuarios',
-            uri: '/usuarios/create',
-            nombre_uri: 'usuariosCreate',
+            uri: '/users/create',
+            nombre_uri: 'usersCreate',
             mostrar: false,
             icono: 'mdi-face-man',
             orden: null,
@@ -266,8 +270,8 @@ module.exports = {
           },
           {
             nombre: 'usuarios',
-            uri: '/usuarios/edit',
-            nombre_uri: 'usuariosEdit',
+            uri: '/users/edit',
+            nombre_uri: 'usersEdit',
             mostrar: false,
             icono: 'mdi-face-man',
             orden: null,
@@ -276,8 +280,8 @@ module.exports = {
           },
           {
             nombre: 'perfil',
-            uri: '/perfil',
-            nombre_uri: 'perfil',
+            uri: '/profile',
+            nombre_uri: 'profile',
             mostrar: false,
             icono: 'mdi-account-lock',
             orden: null,
@@ -286,8 +290,8 @@ module.exports = {
           },
           {
             nombre: 'seguridad',
-            uri: '/seguridad',
-            nombre_uri: 'seguridad',
+            uri: '/security',
+            nombre_uri: 'security',
             mostrar: false,
             icono: null,
             orden: null,
@@ -348,11 +352,11 @@ module.exports = {
 
   down: async (queryInterface) => {
     /**
-         * Add commands to revert seed here.
-         *
-         * Example:
-         * await queryInterface.bulkDelete('People', null, {});
-         */
+     * Add commands to revert seed here.
+     *
+     * Example:
+     * await queryInterface.bulkDelete('People', null, {});
+     */
 
     await Promise.all([
       queryInterface.bulkDelete('mnt_usuario_perfil', null, {}),
