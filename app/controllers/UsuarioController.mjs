@@ -140,7 +140,6 @@ export default class UsuarioController {
           id_metodo: 1,
           is_primary: true,
           secret_key: newToken.secret_code,
-          two_factor_status: process.env.TWO_FACTOR_AUTH === 'true',
           verified: true,
         },
         { transaction: t },
