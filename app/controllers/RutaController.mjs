@@ -124,7 +124,7 @@ export default class RutaController {
         attributes: ['id', 'name'],
       },
     });
-    return res.status(HttpCode.HTTP_OK).json(ruta); // ?
+    return res.status(HttpCode.HTTP_OK).json(ruta.dataValues);
   }
 
   static async update(req, res) {
