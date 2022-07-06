@@ -20,6 +20,8 @@
     "migration:revert": "sequelize-cli db:migrate:undo",
     "migration:delete": "sequelize-cli db:migrate:undo:all",
     "seed": "sequelize-cli db:seed:all",
+    "seeder:generate": "sequelize-cli seed:generate --name",
+    "seeder:undo": "sequelize-cli db:seed:undo:all",
     "seed:test": "export APP_ENV=test&& sequelize-cli db:seed:all",
     "prepare": "husky install"
   },

@@ -371,5 +371,16 @@ module.exports = {
       queryInterface.bulkDelete('mnt_metodo_autenticacion', null, {}),
       queryInterface.bulkDelete('mnt_perfil', null, {}),
     ]);
+    await queryInterface.sequelize.query('ALTER SEQUENCE mnt_usuario_perfil_id_seq RESTART WITH 1;');
+    await queryInterface.sequelize.query('ALTER SEQUENCE mnt_ruta_rol_id_seq RESTART WITH 1;');
+    await queryInterface.sequelize.query('ALTER SEQUENCE mnt_perfil_rol_id_seq RESTART WITH 1;');
+    await queryInterface.sequelize.query('ALTER SEQUENCE mnt_ruta_id_seq RESTART WITH 1;');
+    await queryInterface.sequelize.query('ALTER SEQUENCE mnt_rol_id_seq RESTART WITH 1;');
+    await queryInterface.sequelize.query('ALTER SEQUENCE ctl_tipo_rol_id_seq RESTART WITH 1;');
+    await queryInterface.sequelize.query('ALTER SEQUENCE mnt_metodo_autenticacion_usuario_id_seq RESTART WITH 1;');
+    await queryInterface.sequelize.query('ALTER SEQUENCE refresh_tokens_id_seq RESTART WITH 1;');
+    await queryInterface.sequelize.query('ALTER SEQUENCE mnt_usuario_id_seq RESTART WITH 1;');
+    await queryInterface.sequelize.query('ALTER SEQUENCE mnt_metodo_autenticacion_id_seq RESTART WITH 1;');
+    await queryInterface.sequelize.query('ALTER SEQUENCE mnt_perfil_id_seq RESTART WITH 1;');
   },
 };
