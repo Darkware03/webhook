@@ -47,7 +47,7 @@ export default class ApiController {
     const { email, password } = req.body;
     const usuario = await Usuario.findOne({
       where: {
-        email,
+        email: email.toLowerCase(),
       },
       attributes: [
         'id',
