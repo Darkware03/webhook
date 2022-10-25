@@ -7,17 +7,20 @@ export default class File {
 
   #data;
 
+  #path;
+
   constructor(file) {
     if (!Buffer.isBuffer(file.data)) {
       throw new LogicalException('ERR_INVALID_FILE', 'No se puede cargar este objeto como archivo');
     }
 
     const {
-      name, data,
+      name, data, path = null,
     } = file;
 
     this.#name = name;
     this.#data = data;
+    this.#path = path;
   }
 
   async getExtension() {
@@ -60,5 +63,9 @@ export default class File {
   getHashMD5() {
     const md5 = crypto.createHash('md5').update(this.#name).digest('hex');
     return md5;
+  }
+
+  getPath() {
+    return this.#path;
   }
 }

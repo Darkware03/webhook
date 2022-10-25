@@ -35,6 +35,7 @@
     "ajv-dates": "^1.1.0",
     "ajv-errors": "^3.0.0",
     "ajv-formats": "^2.1.1",
+    "basic-ftp": "^5.0.2",
     "bcryptjs": "^2.4.3",
     "body-parse": "^0.1.0",
     "chai-http": "^4.3.0",
