@@ -31,6 +31,6 @@ services:
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
     volumes:
-      - ./storage/redis:/bitnami
-
-
+      - redis-data:/bitnami/redis/data
+volumes:
+  redis-data:

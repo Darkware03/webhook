@@ -14,7 +14,6 @@ import swagger from './routes/swagger.mjs';
 export default class Main {
   constructor() {
     this.server = Server;
-
     this.configuracion();
     this.server.start();
     this.routes();
