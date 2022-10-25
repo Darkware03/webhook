@@ -10,6 +10,7 @@ import Handler from './handlers/Handler.mjs';
 import Server from './configs/server.mjs';
 import NotFoundExeption from './handlers/NotFoundExeption.mjs';
 import swagger from './routes/swagger.mjs';
+import WebSocketServer from './app/services/WebSocketServer.mjs';
 
 export default class Main {
   constructor() {
@@ -18,6 +19,8 @@ export default class Main {
     this.server.start();
     this.routes();
     this.ExceptionConfig();
+    WebSocketServer.getInstance();
+    WebSocketServer.connection();
   }
 
   routes() {
