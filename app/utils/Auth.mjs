@@ -24,7 +24,6 @@ export default class Auth {
       valid: valid.format(),
     }, parseInt(moment.duration(valid.diff(moment())).asSeconds(), 10));
     const result = await Cache.hGet(REFRESH_TOKEN, 'refresh_token');
-    console.log(REFRESH_TOKEN);
     return result;
   }
 }
