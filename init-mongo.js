@@ -1,12 +1,12 @@
 /* eslint-disable no-undef */
 db.createUser(
   {
-    user: _getEnv('MONGO_INITDB_ROOT_USERNAME'),
-    pwd: _getEnv('MONGO_INITDB_ROOT_PASSWORD'),
+    user: process.env.MONGO_INITDB_ROOT_USERNAME,
+    pwd: process.env.MONGO_INITDB_ROOT_PASSWORD,
     roles: [
       {
         role: 'readWrite',
-        db: _getEnv('MONGO_INITDB_DATABASE'),
+        db: process.env.MONGO_INITDB_DATABASE,
       },
     ],
   },
