@@ -16,7 +16,7 @@ export default class Ftp {
       await Ftp.ftpClient.access(ftpConfig);
     } catch {
       // eslint-disable-next-line no-console
-      console.err('No se ha podido establecer conexión con el servidor ftp');
+      console.error('No se ha podido establecer conexión con el servidor ftp');
     }
   }
 

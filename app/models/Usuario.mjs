@@ -82,6 +82,8 @@ class Usuario extends psql.Model {
       is_suspended: this.is_suspended,
       perfiles: this.Perfils,
       roles: this.Rols,
+      two_factor_status: this.two_factor_status,
+      metodos_autenticacion: this.MetodoAutenticacions,
     };
   }
 }

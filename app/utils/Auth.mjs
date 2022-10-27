@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { v4 as uuid } from 'uuid';
 import moment from 'moment-timezone';
-import { RefreshToken } from '../models/index.mjs';
+import Cache from '../nucleo/Cache.mjs';
 
 export default class Auth {
   static async createToken(PAYLOAD, secretKey) {
@@ -17,12 +17,14 @@ export default class Auth {
 
   static async refresh_token(user) {
     const REFRESH_TOKEN = uuid();
-    const result = await RefreshToken.create({
+    const valid = moment().add(process.env.REFRESH_EXPIRATION_TIME, process.env.REFRESH_EXPIRATION_TYPE).tz('America/El_Salvador');
+    await Cache.hSet(REFRESH_TOKEN, {
       refresh_token: REFRESH_TOKEN,
-      id_usuario: user.id,
-      valid: moment().add(process.env.REFRESH_EXPIRATION_TIME, process.env.REFRESH_EXPIRATION_TYPE).tz('America/El_Salvador').format(),
-    });
-
-    return result.refresh_token;
+      id_usuario: user?.id,
+      valid: valid.format(),
+    }, parseInt(moment.duration(valid.diff(moment())).asSeconds(), 10));
+    const result = await Cache.hGet(REFRESH_TOKEN, 'refresh_token');
+    console.log(REFRESH_TOKEN);
+    return result;
   }
 }

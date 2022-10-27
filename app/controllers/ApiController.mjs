@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 import moment from 'moment-timezone';
 import jwt from 'jsonwebtoken';
 import speakeasy from 'speakeasy';
-import { Usuario, RefreshToken } from '../models/index.mjs';
+import { Usuario } from '../models/index.mjs';
 import HttpCode from '../../configs/httpCode.mjs';
 import NoAuthException from '../../handlers/NoAuthException.mjs';
 import Auth from '../utils/Auth.mjs';
@@ -15,6 +15,7 @@ import Security from '../services/security.mjs';
 import MetodoAutenticacion from '../models/MetodoAutenticacion.mjs';
 import BadRequestException from '../../handlers/BadRequestException.mjs';
 import Handler from '../../handlers/Handler.mjs';
+import Cache from '../nucleo/Cache.mjs';
 
 export default class ApiController {
   static async twoFactorList(req, res) {
@@ -61,8 +62,10 @@ export default class ApiController {
       include: [
         {
           model: MetodoAutenticacion,
-          attributes: ['id', 'nombre', 'icono'],
-          through: { attributes: ['is_primary', 'id'] },
+          attributes: ['id', 'nombre', 'icono', 'descripcion'],
+          through: {
+            attributes: ['is_primary', 'id'],
+          },
         },
       ],
     });
@@ -78,83 +81,27 @@ export default class ApiController {
     if (!validPassword) throw new NoAuthException('Credenciales no validas');
 
     if (!usuario.verified) {
-      const idUsuario = usuario.id;
-      const token = await Auth.createToken({ idUsuario }, process.env.SECRET_KEY);
+      ApiController.sendVerificationUserMail(usuario);
 
-      const header = [
-        {
-          tagName: 'mj-button',
-          attributes: {
-            width: '80%',
-            padding: '5px 10px',
-            'font-size': '20px',
-            'background-color': '#175efb',
-            'border-radius': '99px',
-          },
-          content: `Hola ${usuario.email}`,
-        },
-      ];
-
-      const body = [
-        {
-          tagName: 'mj-button',
-          attributes: {
-            width: '80%',
-            padding: '5px 10px',
-            'font-size': '20px',
-            'background-color': '#175efb',
-            href: `${process.env.FRONT_URL}/verify-mail/${token}`,
-          },
-          content: 'VERIFICAR MI CUENTA',
-        },
-      ];
-
-      await Mailer.sendMail({
-        email: usuario.email,
-        header,
-        subject: 'Verificacion de correo electronico',
-        message: 'Para verificar tu cuenta debes de hacer click en el siguiente enlace:',
-        body,
-      });
       return res.status(HttpCode.HTTP_OK).json({
         message: 'Por favor verificar la cuenta por medio del correo que se le ha enviado',
       });
     }
 
-    if (usuario.is_suspended) {
-      throw new NoAuthException('El usuario se encuentra suspendido');
-    }
+    if (usuario.is_suspended) throw new NoAuthException('El usuario se encuentra suspendido');
 
     await usuario.update({
       last_login: moment().tz('America/El_Salvador').format(),
     });
-    const metodosAutenticacion = usuario.MetodoAutenticacions.map((row) => ({
-      nombre: row.nombre,
-      descripcion: row.descripcion,
-      icono: row.icono,
-      id: row.id,
-      is_primary: row.MetodoAutenticacionUsuario.is_primary,
-      id_metodo_usuario: row.MetodoAutenticacionUsuario.id,
-    }));
 
-    const primaryMethod = metodosAutenticacion.find((item) => item.is_primary);
-
-    const roles = await getRols.roles(usuario.id);
-    const userInfo = {
-      id: usuario.id,
-      email: usuario.email,
-      last_login: usuario.last_login,
-      two_factor_status: usuario.two_factor_status,
-      auth_methods: metodosAutenticacion,
-    };
+    const primaryMethod = usuario.MetodoAutenticacions.find((item) => item.MetodoAutenticacionUsuario.is_primary);
 
     const response = {};
     const tokenInfo = {
-      user: userInfo,
+      user: usuario,
     };
 
     if (!usuario.two_factor_status) {
-      tokenInfo.roles = roles;
       response.refreshToken = await Auth.refresh_token(usuario);
     }
 
@@ -347,60 +294,25 @@ export default class ApiController {
   }
 
   static async RefreshToken(req, res) {
-    const refreshTokenExist = await RefreshToken.findOne({
-      where: {
-        refresh_token: req.body.refresh_token,
-      },
-      attributes: ['id', 'valid'],
-      include: [
-        {
-          model: Usuario,
-          attributes: ['id', 'email', 'last_login'],
-        },
-      ],
-    });
+    const refreshTokenExist = await Cache.hGetAll(req.body.refresh_token);
     if (!refreshTokenExist) {
-      throw new NoAuthException();
-    }
-    const roles = await getRols.roles(refreshTokenExist.Usuario.id);
-    const tokenValidTime = moment(refreshTokenExist.valid).valueOf();
-    const nowTime = moment().tz('America/El_Salvador').valueOf();
-    if (tokenValidTime < nowTime) {
       throw new NoAuthException('El refresh token porporcionado no es valido');
     }
-
-    const { Usuario: usuario } = refreshTokenExist;
-
-    const userDatatoken = {
-      id: usuario.id,
-      email: usuario.email,
-      last_login: usuario.last_login,
-      two_factor_status: usuario.two_factor_status,
-    };
+    const usuario = await Usuario.findByPk(refreshTokenExist.id_usuario);
 
     const token = await Auth.createToken(
       {
-        roles,
-        user: userDatatoken,
+        user: usuario,
       },
       process.env.SECRET_KEY,
     );
 
-    const newRefreshToken = await Auth.refresh_token(refreshTokenExist.Usuario);
-    await refreshTokenExist.update({
-      valid: moment()
-        .add(
-          process.env.REFRESH_TOKEN_INVALID_EXPIRATION_TIME,
-          process.env.REFRESH_TOKEN_INVALID_EXPIRATION_TYPE,
-        )
-        .tz('America/El_Salvador')
-        .format(),
-    });
+    const newRefreshToken = await Auth.refresh_token(usuario);
 
     return res.status(HttpCode.HTTP_OK).json({
       token,
       refresh_token: newRefreshToken,
-      user: refreshTokenExist.Usuario,
+      user: usuario,
     });
   }
 
@@ -602,6 +514,47 @@ export default class ApiController {
 
     return res.status(HttpCode.HTTP_BAD_REQUEST).json({
       message: 'Se ha reenviado el correo con el token de verificación',
+    });
+  }
+
+  static async sendVerificationUserMail(usuario) {
+    const idUsuario = usuario.id;
+    const token = await Auth.createToken({ idUsuario }, process.env.SECRET_KEY);
+
+    const header = [
+      {
+        tagName: 'mj-button',
+        attributes: {
+          width: '80%',
+          padding: '5px 10px',
+          'font-size': '20px',
+          'background-color': '#175efb',
+          'border-radius': '99px',
+        },
+        content: `Hola ${usuario.email}`,
+      },
+    ];
+
+    const body = [
+      {
+        tagName: 'mj-button',
+        attributes: {
+          width: '80%',
+          padding: '5px 10px',
+          'font-size': '20px',
+          'background-color': '#175efb',
+          href: `${process.env.FRONT_URL}/verify-mail/${token}`,
+        },
+        content: 'VERIFICAR MI CUENTA',
+      },
+    ];
+
+    await Mailer.sendMail({
+      email: usuario.email,
+      header,
+      subject: 'Verificacion de correo electronico',
+      message: 'Para verificar tu cuenta debes de hacer click en el siguiente enlace:',
+      body,
     });
   }
 }
