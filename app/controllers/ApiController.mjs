@@ -7,7 +7,6 @@ import HttpCode from '../../configs/httpCode.mjs';
 import NoAuthException from '../../handlers/NoAuthException.mjs';
 import Auth from '../utils/Auth.mjs';
 import NotFoundException from '../../handlers/NotFoundExeption.mjs';
-import Mailer from '../services/mailer.mjs';
 import UnprocessableEntityException from '../../handlers/UnprocessableEntityException.mjs';
 import getRols from '../services/getRols.mjs';
 import MetodoAutenticacionUsuario from '../models/MetodoAutenticacionUsuario.mjs';
@@ -16,6 +15,7 @@ import MetodoAutenticacion from '../models/MetodoAutenticacion.mjs';
 import BadRequestException from '../../handlers/BadRequestException.mjs';
 import Handler from '../../handlers/Handler.mjs';
 import Cache from '../nucleo/Cache.mjs';
+import addEmailQueue from '../jobs/queues/email.queue.mjs';
 
 export default class ApiController {
   static async twoFactorList(req, res) {
@@ -161,12 +161,13 @@ export default class ApiController {
         content: 'El codigo de verificacion es:',
       },
     ];
-    await Mailer.sendMail({
+    const params = {
       email: user.email,
       header,
       subject: 'Codigo de verificacion de usuario',
       message: code,
-    });
+    };
+    await addEmailQueue(params);
   }
 
   static async logout(req, res) {
@@ -224,12 +225,14 @@ export default class ApiController {
           },
         ];
 
-        await Mailer.sendMail({
+        const params = {
           email: user.email,
           header,
           subject: 'Codigo de verificacion de usuario',
           message: verificationCode,
-        });
+        };
+
+        await addEmailQueue(params);
       }
 
       return res
@@ -421,18 +424,14 @@ export default class ApiController {
       },
     ];
 
-    if (
-      !(await Mailer.sendMail({
-        email: usuario.email,
-        header,
-        subject: 'Restablecer Contraseña',
-        sections,
-      }))
-    ) {
-      throw new NotFoundException(
-        'Error! Hubo un problema al enviar el correo, intente nuevamente.',
-      );
-    }
+    const params = {
+      email: usuario.email,
+      header,
+      subject: 'Restablecer Contraseña',
+      sections,
+    };
+
+    await addEmailQueue(params);
 
     return res.status(HttpCode.HTTP_OK).json({ message: 'El correo ha sido enviado' });
   }
@@ -504,13 +503,15 @@ export default class ApiController {
       },
     ];
 
-    await Mailer.sendMail({
+    const params = {
       email: usuario.email,
       header,
       subject: 'Verificación de correo electrónico',
       message: 'Para verificar tu cuenta debes de hacer click en el siguiente enlace:',
       body,
-    });
+    };
+
+    await addEmailQueue(params);
 
     return res.status(HttpCode.HTTP_BAD_REQUEST).json({
       message: 'Se ha reenviado el correo con el token de verificación',
@@ -549,12 +550,14 @@ export default class ApiController {
       },
     ];
 
-    await Mailer.sendMail({
+    const params = {
       email: usuario.email,
       header,
       subject: 'Verificacion de correo electronico',
       message: 'Para verificar tu cuenta debes de hacer click en el siguiente enlace:',
       body,
-    });
+    };
+
+    await addEmailQueue(params);
   }
 }

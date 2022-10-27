@@ -39,6 +39,7 @@
     "basic-ftp": "^5.0.2",
     "bcryptjs": "^2.4.3",
     "body-parse": "^0.1.0",
+    "bull": "^4.10.1",
     "chai-http": "^4.3.0",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
