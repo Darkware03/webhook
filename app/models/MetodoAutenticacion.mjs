@@ -24,6 +24,7 @@ class MetodoAutenticacion extends psql.Model {
       icono: this.icono,
       is_primary: this.MetodoAutenticacionUsuario?.is_primary || false,
       verified: this.MetodoAutenticacionUsuario?.verified,
+      id_metodo_usuario: this.MetodoAutenticacionUsuario?.id,
       configured: !!this.MetodoAutenticacionUsuario,
     };
   }

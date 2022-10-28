@@ -122,7 +122,7 @@ export default class UsuarioController {
       }
       const usuario = await Usuario.create(
         {
-          email,
+          email: email.toLowerCase(),
           password: passwordCrypt,
           is_suspended: isSuspended,
           two_factor_status: process.env.TWO_FACTOR_AUTH === 'true',

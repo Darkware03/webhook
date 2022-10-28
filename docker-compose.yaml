@@ -1,0 +1,36 @@
+version: '3.1'
+services:
+  mongo:
+    image: mongo:6.0
+    restart: always
+    ports: 
+      - ${MONGOOSE_PORT}:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGOOSE_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGOOSE_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGOSE_DATABASE}
+    volumes:
+      - ./storage/mongodb:/data/db
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+  postgres:
+    image: postgres:14.5
+    restart: always
+    ports:
+      - ${DB_PORT}:5432
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_DB: ${DB_DATABASE}
+    volumes:
+      - ./storage/db:/var/lib/postgresql/data
+  redis:
+    image: bitnami/redis:7.0
+    restart: always
+    ports: 
+      - ${REDIS_PORT}:6379
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    volumes:
+      - redis-data:/bitnami/redis/data
+volumes:
+  redis-data:
