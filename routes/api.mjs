@@ -13,7 +13,7 @@ import routesRutas from './api/ruta.mjs';
 import recoveryPasswordSchema from '../app/schemas/RecoveryPasswordSchema.mjs';
 import loginSchema from '../app/schemas/LoginSchema.mjs';
 import twoFactorAuthSchema from '../app/schemas/TwoFactorAuthSchema.mjs';
-
+import SINGBOX from '../app/services/SINGBOX.mjs';
 const router = Router();
 router.post('/v1/login', [validate(loginSchema)], Call(ApiController.login));
 router.post('/v1/logout', [auth, bitacora], Call(ApiController.logout));
@@ -39,5 +39,8 @@ router.put(
   Call(ApiController.changePassword),
 );
 router.post('/v1/password/reset/', Call(ApiController.resetPassword));
+router.post('/v1/probar', Call(SINGBOX.singDocument));
+router.get('/v1/pdf', Call(SINGBOX.obtenerDocumento));
+router.post('/v1/listen', Call(SINGBOX.listen));
 
 export default router;

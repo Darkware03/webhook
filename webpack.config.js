@@ -48,4 +48,7 @@ module.exports = {
     new DotEnv(),
     new ESLintPlugin(),
   ],
+  experiments: {
+    topLevelAwait: true
+  },
 };

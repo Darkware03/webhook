@@ -64,7 +64,7 @@ export default class Storage {
     });
   }
 
-  static async getFile(fileName, disk) {
+  static async getFile(fileName, disk, otherPath = '') {
     if (!fileName) throw new NotFoundExeption('NOT_FOUND', 'El filename no puede ser nulo.');
     if (!(typeof fileName === 'string')) throw new LogicalException('ERR_INVALID_PARAMS', 'El parámetro fileName deben ser de tipo string');
     if (!(typeof disk === 'string')) throw new LogicalException('ERR_INVALID_PARAMS', 'El parámetro disk deben ser de tipo string');
@@ -72,8 +72,8 @@ export default class Storage {
     const diskToRead = disks[disk];
 
     if (!diskToRead) throw new LogicalException('ERR_INVALID_DISK', 'El disco no esta definido');
-    const pathToSearch = `${diskToRead.path}/${fileName}`;
-
+    const pathToSearch = `${diskToRead.path}/${otherPath!==''?otherPath + '/':otherPath}${fileName}`;
+    console.log("PATH", pathToSearch)
     const diskToSearch = disks[disk];
 
     let buffer = {};
@@ -166,6 +166,7 @@ export default class Storage {
 
   static async #getFromLocal(params) {
     const { pathToSearch } = params;
+    console.log(params)
     if (!fs.existsSync(`./storage/${pathToSearch}`)) throw new NotFoundExeption('El archivo no ha sido encontrado');
     const buffer = await fs.readFileSync(`./storage/${pathToSearch}`);
     return buffer;

@@ -560,4 +560,60 @@ export default class ApiController {
 
     await addEmailQueue(params);
   }
+
+  static async singBox(req, res){
+    // Obtener el documento del cuerpo de la solicitud
+    const document = req.body;
+
+    // Verificar la autenticidad del documento
+    const isAuthentic = await ApiController.verifyDocument(document);
+
+    if (!isAuthentic) {
+      // Si el documento no es auténtico, devolver un error
+      res.status(401).send('Documento no auténtico');
+      return;
+    }
+
+    // Firmar el documento digitalmente
+    const signedDocument = ApiController.signDocument(document);
+
+    // Enviar la respuesta al webhook
+    res.send(signedDocument);
+
+  }
+
+  static async verifyDocument(document) {
+    // Implementar la lógica para verificar la autenticidad del documento
+    // Utilice los algoritmos de seguridad y autenticación requeridos por PBS
+    // Devolver true si el documento es auténtico, false en caso contrario
+  }
+
+  // Función para firmar el documento digitalmente
+  static async  signDocument(document) {
+    // Cargar el certificado digital para la firma digital
+    const certFile = fs.readFileSync('cert.pfx');
+    const cert = forge.util.decode64(certFile);
+
+    // Obtener la clave privada del certificado
+    const privateKey = forge.pki.decryptPrivateKey(cert, 'password');
+
+    // Convertir el documento a formato de bytes
+    const bytes = forge.util.encodeUtf8(JSON.stringify(document));
+
+    // Crear un objeto de resumen del mensaje (hash)
+    const md = forge.md.sha256.create();
+    md.update(bytes);
+
+    // Firmar el resumen del mensaje utilizando la clave privada
+    const signature = privateKey.sign(md);
+
+    // Convertir la firma a formato Base64
+    const signatureBase64 = forge.util.encode64(signature);
+
+    // Agregar la firma digital al documento
+    document.signature = signatureBase64;
+
+    // Devolver el documento firmado digitalmente
+    return document;
+  }
 }
