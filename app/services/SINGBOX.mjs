@@ -57,6 +57,7 @@ export default class SINGBOX {
             //si todo sale bien se debe de retornar el documento
             return response;
         }catch (e) {
+            console.log(e);
             throw new LogicalException();
         }
     }
