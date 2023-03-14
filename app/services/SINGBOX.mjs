@@ -71,6 +71,8 @@ export default class SINGBOX {
         console.log("LISTEN", req)
     }
     static async validarDocumento(responseID) {
+        const numero = responseID.toFixed(50);
+        console.log(numero);
         console.log(responseID);
         console.log(parseFloat(responseID));
         const response = await axios.get(`${process.env.SINGBOX_URL}/api/job/${parseFloat(responseID)}`);
