@@ -24,7 +24,7 @@ export default class SINGBOX {
             const documentUrl = 'https://download.hightech-corp.com/fel/clientes-prueba/sample.pdf';
             const formData = new FormData();
             formData.append('url_in', documentUrl);
-            formData.append('url_out', `https://api-webhookfirma.egob.sv/api/v1/listen`);
+            formData.append('callback_url', `${process.env.HOST}:${process.env.PORT}/api/v1/listen`);
            // formData.append('urlback', 'http://localhost:8005/api/v1/listen');
             formData.append('env', process.env.ENV_SING);
             formData.append('format', 'pades');
@@ -53,7 +53,6 @@ export default class SINGBOX {
             if (response?.data?.exception === 'TypeError'){
                 throw new LogicalException();
             }
-            console.log(response?.data);
          //  await SINGBOX.validarDocumento(response?.data?.id);
             //si todo sale bien se debe de retornar el documento
             return response;
@@ -67,34 +66,12 @@ export default class SINGBOX {
         return res.sendFile(image.getName(), { root: `storage/app/${req?.body?.numero_documento}` });
     }
 
-    static async listen(req, res) {
-        const { id, state, type } = req.body;
-        if (state === 'done' && type === 'sign') {
-            // El documento ha sido firmado con éxito
-
-            // Descargar el archivo firmado
-            const url = `https://felqa.pbs.com/document/${id}/download/signed`;
-            const path = './signed-doc.pdf';
-            const file = fs.createWriteStream(path);
-
-            https.get(url, (response) => {
-                response.pipe(file);
-            });
-
-            // Ejecutar comando para procesar el documento firmado
-            exec(`process-signed-doc ${path}`, (error, stdout, stderr) => {
-                if (error) {
-                    console.error(`Error al procesar el documento: ${error}`);
-                    return;
-                }
-                console.log(`Proceso completado: ${stdout}`);
-            });
-        }
-        res.sendStatus(200);
+    static async listen(req) {
+        console.log("LISTEN", req)
     }
     static async validarDocumento(responseID) {
         try {
-            console.log("ENTREA VALIDAR", responseID);
+            console.log("ENTREA VALIDAR", responseID?.data);
             const response = await axios.get(`${process.env.SINGBOX_URL}/api/job/${responseID}`);
             if (response?.data?.state === 'failed'){
                 throw new LogicalException();
