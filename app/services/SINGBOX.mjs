@@ -58,7 +58,7 @@ export default class SINGBOX {
             //si todo sale bien se debe de retornar el documento
 
             console.log(response);
-            return res.status(200);
+            return res.status(200).json({message: 'ok'});
         }catch (e) {
             console.log(e);
             throw new LogicalException();
