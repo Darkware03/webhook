@@ -53,7 +53,8 @@ export default class SINGBOX {
             if (response?.data?.exception === 'TypeError'){
                 throw new LogicalException();
             }
-           await SINGBOX.validarDocumento(response?.data?.id);
+            console.log(response?.data);
+         //  await SINGBOX.validarDocumento(response?.data?.id);
             //si todo sale bien se debe de retornar el documento
             return response;
         }catch (e) {
@@ -67,22 +68,30 @@ export default class SINGBOX {
     }
 
     static async listen(req, res) {
-        const evento = req.body;
-        // Comprobar si el evento es de firma de documento
-        console.log(evento);
-        if (evento.event_type === 'document_signed') {
-            const documento = evento.payload;
+        const { id, state, type } = req.body;
+        if (state === 'done' && type === 'sign') {
+            // El documento ha sido firmado con éxito
 
-            // Procesar la información del documento firmado
-            console.log(`Documento ${documento.document_id} firmado por ${documento.signer.name}`);
+            // Descargar el archivo firmado
+            const url = `https://felqa.pbs.com/document/${id}/download/signed`;
+            const path = './signed-doc.pdf';
+            const file = fs.createWriteStream(path);
 
-            // Enviar una notificación por correo electrónico
-            console.log(documento);
+            https.get(url, (response) => {
+                response.pipe(file);
+            });
+
+            // Ejecutar comando para procesar el documento firmado
+            exec(`process-signed-doc ${path}`, (error, stdout, stderr) => {
+                if (error) {
+                    console.error(`Error al procesar el documento: ${error}`);
+                    return;
+                }
+                console.log(`Proceso completado: ${stdout}`);
+            });
         }
-
-        // Responder al servidor de SingBox
         res.sendStatus(200);
-}
+    }
     static async validarDocumento(responseID) {
         try {
             console.log("ENTREA VALIDAR", responseID);
