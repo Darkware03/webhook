@@ -77,7 +77,6 @@ export default class SINGBOX {
                 throw new LogicalException();
             }
             console.log("response validacion", response);
-            return response;
         }catch (e) {
             console.log("EEROR",e);
             throw new LogicalException();
