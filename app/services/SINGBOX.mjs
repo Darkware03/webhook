@@ -49,6 +49,7 @@ export default class SINGBOX {
                 throw new LogicalException();
             }
            await SINGBOX.validarDocumento(response?.data?.id);
+            //si todo sale bien se debe de retornar el documento
             return response;
         }catch (e) {
             throw new LogicalException();
@@ -75,25 +76,4 @@ export default class SINGBOX {
         }
     }
 
-    static async getUserInfoAdmin(token) {
-        const response = await axios.post(`${process.env.IDENTIDAD_DIGITAL_URL_ADMIN}/api/user`, {}, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
-        return response;
-    }
-
-    static async getEmpleadoInfo(token, idInstitucion){
-        try {
-            const response = await axios.get(`${process.env.IDENTIDAD_DIGITAL_URL}/api/func/get-user-insti/${idInstitucion}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            return response;
-        }catch (e) {
-            console.log("ERROR", e)
-        }
-    }
 }
