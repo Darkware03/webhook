@@ -4,7 +4,6 @@ import Storage from "../nucleo/Storage.mjs";
 import FormData from "form-data";
 export default class SINGBOX {
     static async comprobarConexion() {
-        console.log("LLEGO");
          try {
              const probarConexion = await axios.get(`${process.env.SINGBOX_URL}/api/echo?message=SIGNCLOUD_UP`);
              console.log(probarConexion);
@@ -75,10 +74,12 @@ export default class SINGBOX {
     }
     static async validarDocumento(responseID) {
         try {
+            console.log("ENTREA VALIDAR", responseID);
             const response = await axios.get(`${process.env.SINGBOX_URL}/api/job/${responseID}`);
             if (response?.data?.state === 'failed'){
                 throw new LogicalException();
             }
+            console.log("response validacion", response);
             return response;
         }catch (e) {
             throw new LogicalException();
