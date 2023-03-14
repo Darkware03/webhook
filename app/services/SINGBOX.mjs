@@ -54,7 +54,9 @@ export default class SINGBOX {
             if (response?.data?.exception === 'TypeError'){
                 throw new LogicalException();
             }
+            console.log("ANTES DE",response);
             setInterval (async(response) => {
+                console.log(response);
               await SINGBOX.validarDocumento(response?.data?.id);
                 //si todo sale bien se debe de retornar el documento
             },5000)
