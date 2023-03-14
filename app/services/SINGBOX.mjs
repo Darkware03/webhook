@@ -55,9 +55,8 @@ export default class SINGBOX {
                 throw new LogicalException();
             }
             setInterval (async() => {
-                const myres = await SINGBOX.validarDocumento(response?.data?.id);
+              await SINGBOX.validarDocumento(response?.data?.id);
                 //si todo sale bien se debe de retornar el documento
-                console.log(myres);
             },5000)
             //return res.status(200).json({message: 'ok'});
         }catch (e) {
