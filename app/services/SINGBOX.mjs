@@ -77,7 +77,7 @@ export default class SINGBOX {
             if (response?.data?.state === 'failed'){
                 throw new LogicalException();
             }
-            console.log("response validacion", response?.data);
+            console.log("response validacion", response);
             return response;
         }catch (e) {
             console.log(e);
