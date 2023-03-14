@@ -18,6 +18,7 @@ export default class SINGBOX {
     }
 
     static async singDocument(req) {
+        console.log("ENTRO");
         await SINGBOX.comprobarConexion();
         try {
             const n_pag = req?.nPag;
