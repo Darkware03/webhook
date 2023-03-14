@@ -66,9 +66,22 @@ export default class SINGBOX {
         return res.sendFile(image.getName(), { root: `storage/app/${req?.body?.numero_documento}` });
     }
 
-    static async listen(req) {
-        console.log("LISTEN", req)
-    }
+    static async listen(req, res) {
+        const evento = req.body;
+        // Comprobar si el evento es de firma de documento
+        if (evento.event_type === 'document_signed') {
+            const documento = evento.payload;
+
+            // Procesar la información del documento firmado
+            console.log(`Documento ${documento.document_id} firmado por ${documento.signer.name}`);
+
+            // Enviar una notificación por correo electrónico
+            console.log(documento);
+        }
+
+        // Responder al servidor de SingBox
+        res.sendStatus(200);
+}
     static async validarDocumento(responseID) {
         try {
             console.log("ENTREA VALIDAR", responseID);
