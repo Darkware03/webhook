@@ -74,12 +74,12 @@ export default class SINGBOX {
     }
     static async validarDocumento(responseID) {
         try {
-            console.log("ENTREA VALIDAR", responseID);
+            console.log("ENTREA VALIDAR", responseID?.data);
             const response = await axios.get(`${process.env.SINGBOX_URL}/api/job/${responseID}`);
             if (response?.data?.state === 'failed'){
                 throw new LogicalException();
             }
-            console.log("response validacion", response);
+            console.log("response validacion", response?.data);
             return response;
         }catch (e) {
             throw new LogicalException();
