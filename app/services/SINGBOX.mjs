@@ -79,6 +79,7 @@ export default class SINGBOX {
             console.log("response validacion", response?.data);
             return response;
         }catch (e) {
+            console.log(e);
             throw new LogicalException();
         }
     }
