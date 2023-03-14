@@ -17,7 +17,7 @@ export default class SINGBOX {
          }
     }
 
-    static async singDocument(req) {
+    static async singDocument(req, res) {
         console.log("ENTRO");
         await SINGBOX.comprobarConexion();
         try {
@@ -58,7 +58,7 @@ export default class SINGBOX {
             //si todo sale bien se debe de retornar el documento
 
             console.log(response);
-            return response;
+            return res.status(200);
         }catch (e) {
             console.log(e);
             throw new LogicalException();
