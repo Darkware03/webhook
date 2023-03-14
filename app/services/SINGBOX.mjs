@@ -69,6 +69,7 @@ export default class SINGBOX {
     static async listen(req, res) {
         const evento = req.body;
         // Comprobar si el evento es de firma de documento
+        console.log(evento);
         if (evento.event_type === 'document_signed') {
             const documento = evento.payload;
 
