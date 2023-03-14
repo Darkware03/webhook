@@ -56,6 +56,8 @@ export default class SINGBOX {
             }
          //  await SINGBOX.validarDocumento(response?.data?.id);
             //si todo sale bien se debe de retornar el documento
+
+            console.log(response);
             return response;
         }catch (e) {
             console.log(e);
