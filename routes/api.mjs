@@ -42,6 +42,6 @@ router.post('/v1/password/reset/', Call(ApiController.resetPassword));
 router.post('/v1/probar', Call(SINGBOX.singDocument));
 //router.get('/v1/probar', Call(SINGBOX.singDocument));
 router.get('/v1/pdf', Call(SINGBOX.obtenerDocumento));
-router.get('/v1/listen', Call(SINGBOX.listen));
+router.post('/v1/listen', Call(SINGBOX.listen));
 
 export default router;
