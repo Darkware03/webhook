@@ -54,11 +54,12 @@ export default class SINGBOX {
             if (response?.data?.exception === 'TypeError'){
                 throw new LogicalException();
             }
-         //  await SINGBOX.validarDocumento(response?.data?.id);
-            //si todo sale bien se debe de retornar el documento
-
-            console.log(response);
-            return res.status(200).json({message: 'ok'});
+            setInterval (async() => {
+                const myres = await SINGBOX.validarDocumento(response?.data?.id);
+                //si todo sale bien se debe de retornar el documento
+                console.log(myres);
+            },5000)
+            //return res.status(200).json({message: 'ok'});
         }catch (e) {
             console.log(e);
             throw new LogicalException();
