@@ -6,11 +6,9 @@ export default class SINGBOX {
     static async comprobarConexion() {
          try {
              const probarConexion = await axios.get(`${process.env.SINGBOX_URL}/api/echo?message=SIGNCLOUD_UP`);
-             console.log(probarConexion);
              if (probarConexion.data === 'SIGNCLOUD_UP'){
                  return true;
              }else {
-                 console.log("ERROR", e);
                  throw new LogicalException();
              }
          }catch (e) {
@@ -52,7 +50,6 @@ export default class SINGBOX {
             formData.append('npage', (n_pag-1));
 
             const response =await axios.post(`${process.env.SINGBOX_URL}/api/sign`,formData);
-            console.log(response)
             if (response?.data?.exception === 'TypeError'){
                 throw new LogicalException();
             }
@@ -74,7 +71,7 @@ export default class SINGBOX {
     }
     static async validarDocumento(responseID) {
         try {
-            console.log("ENTREA VALIDAR", responseID?.data);
+            console.log("ENTREA VALIDAR", responseID);
             const response = await axios.get(`${process.env.SINGBOX_URL}/api/job/${responseID}`);
             if (response?.data?.state === 'failed'){
                 throw new LogicalException();
