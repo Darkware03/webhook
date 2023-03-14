@@ -25,7 +25,7 @@ export default class SINGBOX {
             const documentUrl = 'https://download.hightech-corp.com/fel/clientes-prueba/sample.pdf';
             const formData = new FormData();
             formData.append('url_in', documentUrl);
-            formData.append('callback_url', `${process.env.HOST}:${process.env.PORT}/api/v1/listen`);
+            formData.append('urlback', `${process.env.HOST}:${process.env.PORT}/api/v1/listen`);
            // formData.append('urlback', 'http://localhost:8005/api/v1/listen');
             formData.append('env', process.env.ENV_SING);
             formData.append('format', 'pades');
