@@ -4,6 +4,7 @@ import Storage from "../nucleo/Storage.mjs";
 import FormData from "form-data";
 export default class SINGBOX {
     static async comprobarConexion() {
+        console.log("LLEGO");
          try {
              const probarConexion = await axios.get(`${process.env.SINGBOX_URL}/api/echo?message=SIGNCLOUD_UP`);
              console.log(probarConexion);
