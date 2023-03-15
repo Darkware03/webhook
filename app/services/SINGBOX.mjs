@@ -28,8 +28,8 @@ export default class SINGBOX {
             const documentUrl = 'https://download.hightech-corp.com/fel/clientes-prueba/sample.pdf';
             const formData = new FormData();
             formData.append('url_in', documentUrl);
-            formData.append('url_out', `https://api-webhookfirma.egob.sv/api/v1/listen`);
-            formData.append('urlback', 'https://api-webhookfirma.egob.sv/api/v1/listen');
+            formData.append('url_out', `https://api-webhookfirma.egob.sv/api/v1/guardarDocumento`);
+            formData.append('urlback', 'https://api-webhookfirma.egob.sv/api/v1/webhook');
             formData.append('env', process.env.ENV_SING);
             formData.append('format', 'pades');
             formData.append('username', '1122338');
@@ -71,8 +71,11 @@ export default class SINGBOX {
         return res.sendFile(image.getName(), { root: `storage/app/${req?.body?.numero_documento}` });
     }
 
-    static async listen(req) {
-        console.log("LISTEN", req)
+    static async webHook(req) {
+        console.log("LISTEN WEBHOOK", req)
+    }
+    static async guardarDocumento(req) {
+        console.log("LISTEN Guardar DOC", req)
     }
     static async validarDocumento(responseID, res) {
         const id = new bigDecimal(responseID);
