@@ -91,20 +91,24 @@ export default class SINGBOX {
         return res.status(200); */
 
 
-        const post = req.body;
-        console.log("POST", post);
-        const filePath = path.join(__dirname, 'signbox-files/');
-        console.log("FILEPAT", filePath);
-        fs.writeFile(filePath, post, function (err) {
-            console.log("ERR", err);
-            if (err) {
-                console.error("ERROR",err);
-                res.status(500).send('Error al escribir el archivo');
-            } else {
-                console.log("EXITO",'Archivo guardado correctamente');
-                res.send('Archivo guardado correctamente');
-            }
-        });
+      try {
+          const post = req.body;
+          console.log("POST", post);
+          const filePath = path.join(__dirname, 'signbox-files/');
+          console.log("FILEPAT", filePath);
+          fs.writeFile(filePath, post, function (err) {
+              console.log("ERR", err);
+              if (err) {
+                  console.error("ERROR",err);
+                  res.status(500).send('Error al escribir el archivo');
+              } else {
+                  console.log("EXITO",'Archivo guardado correctamente');
+                  res.send('Archivo guardado correctamente');
+              }
+          });
+      }catch (e) {
+          console.log("ERROR", e);
+      }
     }
     static async validarDocumento(responseID, res) {
         const id = new bigDecimal(responseID);
