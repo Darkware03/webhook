@@ -73,9 +73,13 @@ export default class SINGBOX {
     }
     static async validarDocumento(responseID, res) {
         const id = new bigDecimal(responseID);
+        const idToInt = id.toString();
+        const idToDecimal = parseFloat(id);
         console.log("DATA",id.value);
         console.log("type", typeof id.value);
+        console.log("type", typeof idToDecimal);
         console.log("isNan", isNaN(id.value));
+        console.log("isNan", idToDecimal);
         const response = await axios.get(`${process.env.SINGBOX_URL}/api/job/${id.value}`);
         console.log(response);
         if (response?.data?.state === 'failed') return res.status(400).json({pbsErrors: response.data, responseID: responseID})
