@@ -75,6 +75,9 @@ export default class SINGBOX {
         const id = new bigDecimal(responseID);
         const idToDecimal = parseFloat(id.value);
         console.log("TYPOF", typeof idToDecimal);
+        console.log("TYPOF", responseID);
+        console.log("idnormal", typeof responseID);
+        console.log("idnormal",  responseID);
         const response = await axios.get(`${process.env.SINGBOX_URL}/api/job/${idToDecimal}`);
         console.log(response);
         if (response?.data?.state === 'failed') return res.status(400).json({pbsErrors: response.data, responseID: responseID})
