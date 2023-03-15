@@ -105,8 +105,6 @@ export default class SINGBOX {
         console.log("LISTEN WEBHOOK", req)
     }
     static async guardarDocumento(req, res) {
-        console.log(req);
-        console.log("LLEGE");
 
     /*     const uploadedFile = await Storage.disk('documents').put({
             file: req.file,
@@ -133,6 +131,7 @@ export default class SINGBOX {
               fs.mkdirSync(filePath);
           }
           const data = JSON.stringify(post); // Convertir objeto a cadena JSON
+          console.log("DATAJSON", data);
           console.log(data);
           const file_handle = fs.openSync(path.join(filePath, 'file.pdf'), 'w');
           fs.writeSync(file_handle, data);
@@ -162,6 +161,7 @@ export default class SINGBOX {
                   res.send('Archivo guardado correctamente');
               }
           }); */
+          return res.status(200);
       }catch (e) {
           console.log("ERROR", e);
       }
