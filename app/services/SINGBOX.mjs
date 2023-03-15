@@ -78,6 +78,7 @@ export default class SINGBOX {
         const data = req.body;
         console.log("LISTEN Guardar DOC", data)
         console.log("LISTEN Guardar DOC", req)
+        res.status(200).json({message: "funciona"})
     }
     static async validarDocumento(responseID, res) {
         const id = new bigDecimal(responseID);
