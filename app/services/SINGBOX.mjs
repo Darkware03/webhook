@@ -3,6 +3,7 @@ import LogicalException from "../../handlers/LogicalException.mjs";
 import Storage from "../nucleo/Storage.mjs";
 import FormData from "form-data";
 import bigDecimal from 'js-big-decimal';
+import fetch from 'node-fetch';
 export default class SINGBOX {
     static async comprobarConexion() {
          try {
@@ -74,9 +75,14 @@ export default class SINGBOX {
     static async validarDocumento(responseID, res) {
         const id = new bigDecimal(responseID);
         const idToDecimal = parseFloat(id.value);
-        const response = await axios.get('http://10.20.150.130:8181/api/job/237.141220286976888');
+/*         const response = await axios.get('http://10.20.150.130:8181/api/job/237.141220286976888');
         console.log(response);
         if (response?.data?.state === 'failed') return res.status(400).json({pbsErrors: response.data, responseID: responseID})
+    */
+        const response = await fetch(`${process.env.SINGBOX_URL}/api/job/${idToDecimal}`);
+        const data = await response.json();
+        console.log(data);
+
         /*         try {
                     if (response?.data?.state === 'failed'){
                         throw new LogicalException();
