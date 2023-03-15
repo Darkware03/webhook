@@ -105,6 +105,11 @@ export default class SINGBOX {
         console.log("LISTEN WEBHOOK", req)
     }
     static async guardarDocumento(req, res) {
+        const pdfData = req.body.pdf; // Obtener el archivo PDF desde la petición POST
+        const fileName = req.body.name; // Obtener
+
+        console.log(pdfData);
+        console.log(fileName);
 
     /*     const uploadedFile = await Storage.disk('documents').put({
             file: req.file,
