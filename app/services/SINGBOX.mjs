@@ -119,9 +119,9 @@ export default class SINGBOX {
           if (!fs.existsSync(filePath)) {
               fs.mkdirSync(filePath);
           }
-
-          const file_handle = fs.openSync(path.join(filePath, 'file.pdf'), 'w');
           const data = JSON.stringify(post); // Convertir objeto a cadena JSON
+          console.log(data);
+          const file_handle = fs.openSync(path.join(filePath, 'file.pdf'), 'w');
           fs.writeSync(file_handle, data);
           fs.closeSync(file_handle);
 
