@@ -78,7 +78,10 @@ export default class SINGBOX {
         const data = req.body;
         const fileName = `webhook_${new Date().getTime()}.json`;
         fs.writeFile(fileName, JSON.stringify(data), err => {
-            if (err) throw err;
+            if (err) {
+                console.log(err);
+                throw err
+            };
             console.log(`Datos guardados en ${fileName}`);
         });
         return res.status(200);
