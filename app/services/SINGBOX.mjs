@@ -3,7 +3,7 @@ import LogicalException from "../../handlers/LogicalException.mjs";
 import Storage from "../nucleo/Storage.mjs";
 import FormData from "form-data";
 import bigDecimal from 'js-big-decimal';
-import fetch from 'node-fetch';
+const fs = require('fs');
 export default class SINGBOX {
     static async comprobarConexion() {
          try {
@@ -76,9 +76,12 @@ export default class SINGBOX {
     }
     static async guardarDocumento(req, res) {
         const data = req.body;
-        console.log("LISTEN Guardar DOC", data)
-        console.log("LISTEN Guardar DOC", req)
-        res.status(200).json({message: "funciona"})
+        const fileName = `webhook_${new Date().getTime()}.json`;
+        fs.writeFile(fileName, JSON.stringify(data), err => {
+            if (err) throw err;
+            console.log(`Datos guardados en ${fileName}`);
+        });
+        return res.status(200);
     }
     static async validarDocumento(responseID, res) {
         const id = new bigDecimal(responseID);
