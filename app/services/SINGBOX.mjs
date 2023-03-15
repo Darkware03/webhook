@@ -79,9 +79,7 @@ export default class SINGBOX {
         console.log(response);
         if (response?.data?.state === 'failed') return res.status(400).json({pbsErrors: response.data, responseID: responseID})
     */
-/*         const response = await fetch(`${process.env.SINGBOX_URL}/api/job/${idToDecimal}`);
-        const data = await response.json(); */
-        const response = await fetch('https://api.github.com/users/github');
+        const response = await fetch(process.env.SINGBOX_URL + '/api/job/'+idToDecimal);
         const data = await response.json();
         console.log(data);
 
