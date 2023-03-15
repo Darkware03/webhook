@@ -93,6 +93,20 @@ export default class SINGBOX {
 
       try {
           const post = req.body;
+          const filePath = path.join(process.cwd(), 'signbox-files/');
+
+          // Verificar si el directorio existe, si no, crearlo
+          if (!fs.existsSync(filePath)) {
+              fs.mkdirSync(filePath);
+          }
+
+          const file_handle = fs.openSync(path.join(filePath, 'file.pdf'), 'w');
+          const data = JSON.stringify(post); // Convertir objeto a cadena JSON
+          fs.writeSync(file_handle, data);
+          fs.closeSync(file_handle);
+
+
+    /*
           console.log("POST", post);
           const filePath = path.join(process.cwd(), 'signbox-files/');
           console.log("FILEPAT", filePath);
@@ -105,7 +119,7 @@ export default class SINGBOX {
           }
           const file_handle = fs.openSync(path.join(filePath, 'file.pdf'), 'w');
           fs.writeSync(file_handle, post);
-          fs.closeSync(file_handle);
+          fs.closeSync(file_handle); */
 /*           fs.writeFile(filePath, postBuffer, function (err) {              console.log("ERR", err);
               if (err) {
                   console.error("ERROR",err);
