@@ -25,7 +25,7 @@ export default class SINGBOX {
             const documentUrl = 'https://download.hightech-corp.com/fel/clientes-prueba/sample.pdf';
             const formData = new FormData();
             formData.append('url_in', documentUrl);
-            formData.append('urlback', `${process.env.HOST}:${process.env.PORT}/api/v1/listen`);
+            formData.append('url_out', `${process.env.HOST}:${process.env.PORT}/api/v1/listen`);
            // formData.append('urlback', 'http://localhost:8005/api/v1/listen');
             formData.append('env', process.env.ENV_SING);
             formData.append('format', 'pades');
@@ -71,7 +71,7 @@ export default class SINGBOX {
         console.log("LISTEN", req)
     }
     static async validarDocumento(responseID) {
-        const response = await axios.get(`${process.env.SINGBOX_URL}/api/job/${parseFloat(Number(responseID))}`);
+        const response = await axios.get(`${process.env.SINGBOX_URL}/api/job/${responseID}`);
         console.log(response);
         /*         try {
                     if (response?.data?.state === 'failed'){
