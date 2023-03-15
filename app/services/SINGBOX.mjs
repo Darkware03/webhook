@@ -69,6 +69,7 @@ export default class SINGBOX {
 /*         const image = await Storage.getFile("Documento31.pdf", 'local', req?.body?.numero_documento);
         return res.sendFile(image.getName(), { root: `storage/app/${req?.body?.numero_documento}` });
      */
+        console.log(req);
         const filePath = path.join(process.cwd(), 'signbox-files','file.pdf');
 /*
         // Verificar si el archivo existe
@@ -87,7 +88,9 @@ export default class SINGBOX {
             res.contentType('application/pdf');
             res.send(data);
         }); */
-        fs.readFile(filePath, (err, data) => {
+
+        //descarga
+/*         fs.readFile(filePath, (err, data) => {
             if (err) {
                 res.writeHead(500, {'Content-Type': 'text/plain'});
                 res.end('Error al cargar el archivo');
@@ -96,7 +99,7 @@ export default class SINGBOX {
                 res.setHeader('Content-Type', 'application/pdf');
                 res.send(data);
             }
-        });
+        }); */
     }
     static async webHook(req, res) {
         console.log("LISTEN WEBHOOK", req)
