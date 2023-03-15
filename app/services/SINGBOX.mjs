@@ -105,6 +105,7 @@ export default class SINGBOX {
         console.log("LISTEN WEBHOOK", req)
     }
     static async guardarDocumento(req, res) {
+        console.log(req);
         console.log("LLEGE");
 
     /*     const uploadedFile = await Storage.disk('documents').put({
