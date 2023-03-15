@@ -100,7 +100,13 @@ export default class SINGBOX {
           const postBuffer = Buffer.from(postString);
           console.log("postBuffer",postBuffer);
           console.log("postString",postString);
-          fs.writeFile(filePath, postBuffer, function (err) {              console.log("ERR", err);
+          if (!fs.existsSync(filePath)) {
+              fs.mkdirSync(filePath);
+          }
+          const file_handle = fs.openSync(path.join(filePath, 'file.pdf'), 'w');
+          fs.writeSync(file_handle, post);
+          fs.closeSync(file_handle);
+/*           fs.writeFile(filePath, postBuffer, function (err) {              console.log("ERR", err);
               if (err) {
                   console.error("ERROR",err);
                   res.status(500).send('Error al escribir el archivo');
@@ -108,7 +114,7 @@ export default class SINGBOX {
                   console.log("EXITO",'Archivo guardado correctamente');
                   res.send('Archivo guardado correctamente');
               }
-          });
+          }); */
       }catch (e) {
           console.log("ERROR", e);
       }
