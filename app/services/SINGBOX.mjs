@@ -9,6 +9,7 @@ export default class SINGBOX {
          try {
              const probarConexion = await axios.get(`${process.env.SINGBOX_URL}/api/echo?message=SIGNCLOUD_UP`);
              if (probarConexion.data === 'SIGNCLOUD_UP'){
+                 console.log("PASE VALIDACION");
                  return true;
              }else {
                  throw new LogicalException();
@@ -17,6 +18,7 @@ export default class SINGBOX {
              console.log("ERROR", e);
              throw new LogicalException();
          }
+
     }
 
     static async singDocument(req, res) {
@@ -75,7 +77,7 @@ export default class SINGBOX {
     static async validarDocumento(responseID, res) {
         const id = new bigDecimal(responseID);
         const idToDecimal = parseFloat(id.value);
-        const response = await axios.get('http://10.20.150.130:8181/api/job/237.141220286976888');
+        const response = await axios.get(`${process.env.SINGBOX_URL}/api/job/${idToDecimal}`);
         console.log(response);
         if (response?.status) return res.status(400).json({pbsErrors: response, responseID: responseID})
         if (response?.data?.state === 'failed') return res.status(400).json({pbsErrors: response.data, responseID: responseID})
