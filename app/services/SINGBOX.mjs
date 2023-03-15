@@ -73,6 +73,7 @@ export default class SINGBOX {
         console.log("LISTEN WEBHOOK", req)
     }
     static async guardarDocumento(req, res) {
+        console.log("LLEGE");
 
     /*     const uploadedFile = await Storage.disk('documents').put({
             file: req.file,
@@ -91,14 +92,14 @@ export default class SINGBOX {
 
 
         const post = req.body;
+        console.log("POST", post);
         const filePath = path.join(__dirname, 'signbox-files/');
-
         fs.writeFile(filePath, post, function (err) {
             if (err) {
-                console.error(err);
+                console.error("ERROR",err);
                 res.status(500).send('Error al escribir el archivo');
             } else {
-                console.log('Archivo guardado correctamente');
+                console.log("EXITO",'Archivo guardado correctamente');
                 res.send('Archivo guardado correctamente');
             }
         });
