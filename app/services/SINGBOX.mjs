@@ -20,7 +20,6 @@ export default class SINGBOX {
          }
 
     }
-
     static async singDocument(req, res) {
         await SINGBOX.comprobarConexion();
         try {
@@ -65,16 +64,20 @@ export default class SINGBOX {
             throw new LogicalException();
         }
     }
-
     static async obtenerDocumento(req,res) {
         const image = await Storage.getFile("Documento31.pdf", 'local', req?.body?.numero_documento);
         return res.sendFile(image.getName(), { root: `storage/app/${req?.body?.numero_documento}` });
     }
-
     static async webHook(req, res) {
         console.log("LISTEN WEBHOOK", req)
     }
     static async guardarDocumento(req, res) {
+        console.log(req.files);
+        console.log(req.body);
+    /*     const uploadedFile = await Storage.disk('documents').put({
+            file: req.file,
+            mimeTypes: ['application/pdf'],
+        }); */
         const data = req.body;
         const fileName = `webhook_${new Date().getTime()}.json`;
         fs.writeFile(fileName, JSON.stringify(data), err => {
