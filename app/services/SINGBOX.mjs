@@ -32,9 +32,9 @@ export default class SINGBOX {
             formData.append('urlback', 'https://api-webhookfirma.egob.sv/api/v1/webhook');
             formData.append('env', process.env.ENV_SING);
             formData.append('format', 'pades');
-            formData.append('username', '1122338');
-            formData.append('password', '7T8xdGBN');
-            formData.append('pin', 'w98nZZDR');
+            formData.append('username', '1009555');
+            formData.append('password', '7qq926yk');
+            formData.append('pin', 'reereer232QQW');
             formData.append('level', 'BES');
             formData.append('billing_username', process.env.BILLING_USERNAME_COMPANY);
             formData.append('billing_password', process.env.BILLING_PASSWORD_COMPANY);
