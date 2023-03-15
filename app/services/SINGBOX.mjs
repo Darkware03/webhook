@@ -4,6 +4,7 @@ import Storage from "../nucleo/Storage.mjs";
 import FormData from "form-data";
 import bigDecimal from 'js-big-decimal';
 import fs from 'fs';
+import path from 'path';
 export default class SINGBOX {
     static async comprobarConexion() {
          try {
@@ -72,13 +73,12 @@ export default class SINGBOX {
         console.log("LISTEN WEBHOOK", req)
     }
     static async guardarDocumento(req, res) {
-        console.log(req.files);
-        console.log(req.body);
+
     /*     const uploadedFile = await Storage.disk('documents').put({
             file: req.file,
             mimeTypes: ['application/pdf'],
         }); */
-        const data = req.body;
+/*         const data = req.body;
         const fileName = `webhook_${new Date().getTime()}.json`;
         fs.writeFile(fileName, JSON.stringify(data), err => {
             if (err) {
@@ -87,7 +87,21 @@ export default class SINGBOX {
             };
             console.log(`Datos guardados en ${fileName}`);
         });
-        return res.status(200);
+        return res.status(200); */
+
+
+        const post = req.body;
+        const filePath = path.join(__dirname, 'signbox-files/');
+
+        fs.writeFile(filePath, post, function (err) {
+            if (err) {
+                console.error(err);
+                res.status(500).send('Error al escribir el archivo');
+            } else {
+                console.log('Archivo guardado correctamente');
+                res.send('Archivo guardado correctamente');
+            }
+        });
     }
     static async validarDocumento(responseID, res) {
         const id = new bigDecimal(responseID);
