@@ -96,8 +96,11 @@ export default class SINGBOX {
           console.log("POST", post);
           const filePath = path.join(process.cwd(), 'signbox-files/');
           console.log("FILEPAT", filePath);
-          fs.writeFile(filePath, post, function (err) {
-              console.log("ERR", err);
+          const postString = JSON.stringify(post);
+          const postBuffer = Buffer.from(postString);
+          console.log("postBuffer",postBuffer);
+          console.log("postString",postString);
+          fs.writeFile(filePath, postBuffer, function (err) {              console.log("ERR", err);
               if (err) {
                   console.error("ERROR",err);
                   res.status(500).send('Error al escribir el archivo');
