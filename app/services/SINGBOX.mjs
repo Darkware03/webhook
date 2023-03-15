@@ -90,7 +90,7 @@ export default class SINGBOX {
         }); */
 
         //descarga
-/*         fs.readFile(filePath, (err, data) => {
+         fs.readFile(filePath, (err, data) => {
             if (err) {
                 res.writeHead(500, {'Content-Type': 'text/plain'});
                 res.end('Error al cargar el archivo');
@@ -99,7 +99,7 @@ export default class SINGBOX {
                 res.setHeader('Content-Type', 'application/pdf');
                 res.send(data);
             }
-        }); */
+        });
     }
     static async webHook(req, res) {
         const post = req.body;
