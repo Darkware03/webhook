@@ -49,6 +49,7 @@
     "file-type": "^17.1.1",
     "form-data": "^4.0.0",
     "ioredis": "^5.2.3",
+    "js-big-decimal": "^1.4.1",
     "js-yaml": "^4.1.0",
     "json2mjml": "^1.0.3",
     "jsonwebtoken": "^8.5.1",

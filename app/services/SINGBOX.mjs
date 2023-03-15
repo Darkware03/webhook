@@ -2,6 +2,7 @@ import axios from 'axios';
 import LogicalException from "../../handlers/LogicalException.mjs";
 import Storage from "../nucleo/Storage.mjs";
 import FormData from "form-data";
+import bigDecimal from 'js-big-decimal';
 export default class SINGBOX {
     static async comprobarConexion() {
          try {
@@ -18,7 +19,6 @@ export default class SINGBOX {
     }
 
     static async singDocument(req, res) {
-        console.log("ENTRO");
         await SINGBOX.comprobarConexion();
         try {
             const n_pag = req?.nPag;
@@ -71,7 +71,8 @@ export default class SINGBOX {
         console.log("LISTEN", req)
     }
     static async validarDocumento(responseID, res) {
-        const response = await axios.get(`${process.env.SINGBOX_URL}/api/job/${responseID}`);
+        const id = new bigDecimal(responseID);
+        const response = await axios.get(`${process.env.SINGBOX_URL}/api/job/${id}`);
         console.log(response);
         if (response?.data?.state === 'failed') return res.status(400).json({pbsErrors: response.data, responseID: responseID})
         /*         try {
