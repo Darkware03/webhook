@@ -114,12 +114,6 @@ export default class SINGBOX {
         fs.appendFileSync(logFilePath, line);
     }
     static async guardarDocumento(req, res) {
-        const pdfData = req.body.pdf; // Obtener el archivo PDF desde la petición POST
-        const fileName = req.body.name; // Obtener
-
-        console.log(pdfData);
-        console.log(fileName);
-
     /*     const uploadedFile = await Storage.disk('documents').put({
             file: req.file,
             mimeTypes: ['application/pdf'],
@@ -135,8 +129,7 @@ export default class SINGBOX {
         });
         return res.status(200); */
 
-
-      try {
+  /*     try {
           const post = req.body;
           const filePath = path.join(process.cwd(), 'signbox-files/');
 
@@ -152,7 +145,7 @@ export default class SINGBOX {
           fs.closeSync(file_handle);
 
 
-    /*
+    /!*
           console.log("POST", post);
           const filePath = path.join(process.cwd(), 'signbox-files/');
           console.log("FILEPAT", filePath);
@@ -165,8 +158,8 @@ export default class SINGBOX {
           }
           const file_handle = fs.openSync(path.join(filePath, 'file.pdf'), 'w');
           fs.writeSync(file_handle, post);
-          fs.closeSync(file_handle); */
-/*           fs.writeFile(filePath, postBuffer, function (err) {              console.log("ERR", err);
+          fs.closeSync(file_handle); *!/
+/!*           fs.writeFile(filePath, postBuffer, function (err) {              console.log("ERR", err);
               if (err) {
                   console.error("ERROR",err);
                   res.status(500).send('Error al escribir el archivo');
@@ -174,11 +167,36 @@ export default class SINGBOX {
                   console.log("EXITO",'Archivo guardado correctamente');
                   res.send('Archivo guardado correctamente');
               }
-          }); */
+          }); *!/
           return res.status(200);
       }catch (e) {
           console.log("ERROR", e);
-      }
+      } */
+
+        try {
+            const chunks = [];
+            req.on('data', (chunk) => {
+                chunks.push(chunk);
+            });
+            req.on('end', () => {
+                const data = Buffer.concat(chunks);
+                const fileName = 'archivo_firmado.pdf'; // nombre del archivo
+                const filePath = path.join(process.cwd(), 'signbox-files/', fileName);
+                fs.writeFile(filePath, data, (err) => {
+                    if (err) {
+                        console.error("err", err);
+                        res.writeHead(500, { 'Content-Type': 'text/plain' });
+                        res.end('Error al guardar archivo');
+                        return;
+                    }
+                    console.log('Archivo guardado correctamente');
+                    res.writeHead(200, { 'Content-Type': 'text/plain' });
+                    res.end('Archivo guardado correctamente');
+                });
+            });
+        }catch (e) {
+            console.log("ERRORR",e);
+        }
     }
     static async validarDocumento(responseID, res) {
         const id = new bigDecimal(responseID);
