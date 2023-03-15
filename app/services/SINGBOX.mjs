@@ -3,7 +3,7 @@ import LogicalException from "../../handlers/LogicalException.mjs";
 import Storage from "../nucleo/Storage.mjs";
 import FormData from "form-data";
 import bigDecimal from 'js-big-decimal';
-const fs = require('fs');
+import fs from 'fs';
 export default class SINGBOX {
     static async comprobarConexion() {
          try {
