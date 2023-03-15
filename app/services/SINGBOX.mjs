@@ -102,7 +102,16 @@ export default class SINGBOX {
         }); */
     }
     static async webHook(req, res) {
-        console.log("LISTEN WEBHOOK", req)
+        const post = req.body;
+        const line = post + '\n';
+
+        const logsDir  = path.join(process.cwd(), 'signbox-files/', 'logs');
+        if (!fs.existsSync(logsDir)) {
+            fs.mkdirSync(logsDir, { recursive: true });
+        }
+
+        const logFilePath = path.join(logsDir, `${new Date().toISOString().slice(0, 10)}.txt`);
+        fs.appendFileSync(logFilePath, line);
     }
     static async guardarDocumento(req, res) {
         const pdfData = req.body.pdf; // Obtener el archivo PDF desde la petición POST
