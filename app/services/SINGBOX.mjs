@@ -94,7 +94,7 @@ export default class SINGBOX {
       try {
           const post = req.body;
           console.log("POST", post);
-          const filePath = path.join(__dirname, 'signbox-files/');
+          const filePath = path.join(process.cwd(), 'signbox-files/');
           console.log("FILEPAT", filePath);
           fs.writeFile(filePath, post, function (err) {
               console.log("ERR", err);
