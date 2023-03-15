@@ -54,7 +54,7 @@ export default class SINGBOX {
             if (response?.data?.exception === 'TypeError'){
                 throw new LogicalException();
             }
-            setInterval (await SINGBOX.validarDocumento, 5000, response?.data?.id)
+            setInterval (await SINGBOX.validarDocumento, 5000, response?.data?.id, res)
             //return res.status(200).json({message: 'ok'});
         }catch (e) {
             console.log(e);
@@ -70,7 +70,7 @@ export default class SINGBOX {
     static async listen(req) {
         console.log("LISTEN", req)
     }
-    static async validarDocumento(responseID) {
+    static async validarDocumento(responseID, res) {
         const response = await axios.get(`${process.env.SINGBOX_URL}/api/job/${responseID}`);
         console.log(response);
         if (response?.data?.state === 'failed') return res.status(400).json(response.data)
