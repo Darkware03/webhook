@@ -73,7 +73,7 @@ export default class SINGBOX {
     static async validarDocumento(responseID, res) {
         const response = await axios.get(`${process.env.SINGBOX_URL}/api/job/${responseID}`);
         console.log(response);
-        if (response?.data?.state === 'failed') return res.status(400).json(response.data)
+        if (response?.data?.state === 'failed') return res.status(400).json({pbsErrors: response.data, responseID: responseID})
         /*         try {
                     if (response?.data?.state === 'failed'){
                         throw new LogicalException();
