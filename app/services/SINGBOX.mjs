@@ -58,8 +58,8 @@ export default class SINGBOX {
                 throw new LogicalException();
             }
             //setInterval (await SINGBOX.validarDocumento, 5000, response?.data?.id, res)
-            await SINGBOX.validarDocumento(response?.data?.id);
-            //return res.status(200).json({message: 'ok'});
+            //await SINGBOX.validarDocumento(response?.data?.id);
+            return res.status(200).json({message: 'ok'});
         }catch (e) {
             console.log(e);
             throw new LogicalException();
@@ -71,10 +71,10 @@ export default class SINGBOX {
         return res.sendFile(image.getName(), { root: `storage/app/${req?.body?.numero_documento}` });
     }
 
-    static async webHook(req) {
+    static async webHook(req, res) {
         console.log("LISTEN WEBHOOK", req)
     }
-    static async guardarDocumento(req) {
+    static async guardarDocumento(req, res) {
         console.log("LISTEN Guardar DOC", req)
     }
     static async validarDocumento(responseID, res) {
