@@ -70,7 +70,7 @@ export default class SINGBOX {
         return res.sendFile(image.getName(), { root: `storage/app/${req?.body?.numero_documento}` });
      */
         const filePath = path.join(process.cwd(), 'signbox-files','file.pdf');
-
+/*
         // Verificar si el archivo existe
         if (!fs.existsSync(filePath)) {
             res.status(404).send('Archivo no encontrado');
@@ -86,8 +86,17 @@ export default class SINGBOX {
             }
             res.contentType('application/pdf');
             res.send(data);
+        }); */
+        fs.readFile(filePath, (err, data) => {
+            if (err) {
+                res.writeHead(500, {'Content-Type': 'text/plain'});
+                res.end('Error al cargar el archivo');
+            } else {
+                res.setHeader('Content-disposition', 'attachment; filename=file.pdf');
+                res.setHeader('Content-Type', 'application/pdf');
+                res.send(data);
+            }
         });
-
     }
     static async webHook(req, res) {
         console.log("LISTEN WEBHOOK", req)
