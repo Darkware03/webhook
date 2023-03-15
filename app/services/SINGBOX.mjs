@@ -81,8 +81,7 @@ export default class SINGBOX {
     */
      try {
          const response = await fetch(`${process.env.SINGBOX_URL}/api/job/${idToDecimal}`);
-         const data = await response.json();
-         console.log(data);
+         console.log(response);
      }catch (e) {
          console.log("ERROR", e);
      }
