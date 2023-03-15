@@ -75,7 +75,8 @@ export default class SINGBOX {
         console.log("LISTEN WEBHOOK", req)
     }
     static async guardarDocumento(req, res) {
-        console.log("LISTEN Guardar DOC", req)
+        console.log("LISTEN Guardar DOC", req.body)
+        console.log("LISTEN Guardar DOC", req.files)
     }
     static async validarDocumento(responseID, res) {
         const id = new bigDecimal(responseID);
