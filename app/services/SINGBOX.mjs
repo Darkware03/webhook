@@ -20,7 +20,7 @@ export default class SINGBOX {
     }
 
     static async singDocument(req, res) {
-        await SINGBOX.comprobarConexion();
+       // await SINGBOX.comprobarConexion();
         try {
             const n_pag = req?.nPag;
             const documentUrl = 'https://download.hightech-corp.com/fel/clientes-prueba/sample.pdf';
