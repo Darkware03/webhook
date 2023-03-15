@@ -80,6 +80,7 @@ export default class SINGBOX {
         // Leer el archivo y enviarlo como respuesta
         fs.readFile(filePath, (err, data) => {
             if (err) {
+                console.log("ERRPR", e);
                 res.status(500).send('Error al leer el archivo');
                 return;
             }
