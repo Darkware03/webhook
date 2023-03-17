@@ -71,7 +71,6 @@ export default class SINGBOX {
 /*         const image = await Storage.getFile("Documento31.pdf", 'local', req?.body?.numero_documento);
         return res.sendFile(image.getName(), { root: `storage/app/${req?.body?.numero_documento}` });
      */
-        console.log(req);
         const filePath = path.join(process.cwd(), 'signbox-files','archivo_firmado.pdf');
 /*
         // Verificar si el archivo existe
