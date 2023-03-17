@@ -104,9 +104,9 @@ export default class SINGBOX {
     }
     static async webHook(req, res) {
         console.log("WH",req);
+        return res.status(200).json({message:"funciona"})
     }
     static async guardarDocumento(req, res) {
-        console.log("SAVE DOCUMENTO");
     /*     const uploadedFile = await Storage.disk('documents').put({
             file: req.file,
             mimeTypes: ['application/pdf'],
