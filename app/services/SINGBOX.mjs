@@ -6,6 +6,8 @@ import bigDecimal from 'js-big-decimal';
 import fs from 'fs';
 import path from 'path';
 export default class SINGBOX {
+    //oneshot
+    //endpoint empresas no trae toda la info
     static async comprobarConexion() {
          try {
              const probarConexion = await axios.get(`${process.env.SINGBOX_URL}/api/echo?message=SIGNCLOUD_UP`);
@@ -102,16 +104,7 @@ export default class SINGBOX {
         });
     }
     static async webHook(req, res) {
-        const post = req.body;
-        const line = post + '\n';
-
-        const logsDir  = path.join(process.cwd(), 'signbox-files/', 'logs');
-        if (!fs.existsSync(logsDir)) {
-            fs.mkdirSync(logsDir, { recursive: true });
-        }
-
-        const logFilePath = path.join(logsDir, `${new Date().toISOString().slice(0, 10)}.txt`);
-        fs.appendFileSync(logFilePath, line);
+        console.log("WH",req);
     }
     static async guardarDocumento(req, res) {
     /*     const uploadedFile = await Storage.disk('documents').put({
@@ -217,3 +210,7 @@ export default class SINGBOX {
     }
 
 }
+
+
+
+
