@@ -56,6 +56,7 @@ export default class SINGBOX {
             formData.append('npage', (n_pag-1));
 
             const response =await axios.post(`${process.env.SINGBOX_URL}/api/sign`,formData);
+            console.log(response);
             if (response?.data?.exception === 'TypeError'){
                 throw new LogicalException();
             }
@@ -63,7 +64,7 @@ export default class SINGBOX {
             //await SINGBOX.validarDocumento(response?.data?.id);
             return res.status(200).json({message: 'ok'});
         }catch (e) {
-            console.log(e);
+            console.log("ERROR",e);
             throw new LogicalException();
         }
     }
