@@ -56,7 +56,7 @@ export default class SINGBOX {
             formData.append('npage', (n_pag-1));
 
             const response =await axios.post(`${process.env.SINGBOX_URL}/api/sign`,formData);
-            console.log(response);
+            //console.log(response);
             if (response?.data?.exception === 'TypeError'){
                 throw new LogicalException();
             }
