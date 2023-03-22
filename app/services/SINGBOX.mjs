@@ -117,7 +117,6 @@ export default class SINGBOX {
         return res.status(200).json({message: "funciona"});
     }
     static async guardarDocumento(req, res) {
-        console.log("GUARDARDOC", req.params);
     /*     const uploadedFile = await Storage.disk('documents').put({
             file: req.file,
             mimeTypes: ['application/pdf'],
@@ -184,7 +183,7 @@ export default class SINGBOX {
             });
             req.on('end', () => {
                 const data = Buffer.concat(chunks);
-                const fileName = 'archivo_firmado.pdf'; // nombre del archivo
+                const fileName = req.params.nombreDocumento; // nombre del archivo
                 const filePath = path.join(process.cwd(), 'signbox-files/', fileName);
                 fs.writeFile(filePath, data, (err) => {
                     if (err) {
