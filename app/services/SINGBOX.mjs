@@ -104,19 +104,17 @@ export default class SINGBOX {
         });
     }
     static async webHook(req, res) {
-        try {
-            const post = req.body;
-            const line = post + '\n';
-            const logFilePath = path.join(process.cwd(), 'signbox-files', `${new Date().toISOString().slice(0, 10)}.txt`);
-            fs.appendFile(logFilePath, line, function (err) {
-                if (err) throw err;
-                console.log("ERROR LOG", req.body);
-                console.log('La línea fue agregada al archivo de registro!');
-            });
-            return res.status(200).json({post});
-        }catch (e) {
-            console.log("ERRIR", e);
-        }
+        const post = req.body;
+        const line = post + '\n';
+        const logFilePath = path.join(process.cwd(), 'signbox-files', 'logs', `${new Date().toISOString().slice(0, 10)}.txt`);
+        fs.appendFile(logFilePath, line, function (err) {
+            if (err) throw err;
+            console.log(req.body);
+            console.log(req.params);
+            console.log(req.query);
+            console.log('La línea fue agregada al archivo de registro!');
+        });
+        return res.status(200).json({message: "funciona"});
     }
     static async guardarDocumento(req, res) {
         console.log("GUARDARDOC", req.params);
@@ -178,10 +176,11 @@ export default class SINGBOX {
       }catch (e) {
           console.log("ERROR", e);
       } */
+
         try {
             const chunks = [];
             req.on('data', (chunk) => {
-                console.log("chunk", chunk);
+                chunks.push(chunk);
             });
             req.on('end', () => {
                 const data = Buffer.concat(chunks);
