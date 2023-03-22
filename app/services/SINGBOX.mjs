@@ -108,7 +108,6 @@ export default class SINGBOX {
         return res.status(200).json({message:"funciona"})
     }
     static async guardarDocumento(req, res) {
-        console.log("SAVEDOC", req);
     /*     const uploadedFile = await Storage.disk('documents').put({
             file: req.file,
             mimeTypes: ['application/pdf'],
