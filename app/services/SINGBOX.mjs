@@ -106,7 +106,7 @@ export default class SINGBOX {
     static async webHook(req, res) {
         const post = req.body;
         const line = post + '\n';
-        const logFilePath = path.join(process.cwd(), 'signbox-files', 'logs', `${new Date().toISOString().slice(0, 10)}.txt`);
+        const logFilePath = path.join(process.cwd(), 'signbox-files', `${new Date().toISOString().slice(0, 10)}.txt`);
         fs.appendFile(logFilePath, line, function (err) {
             if (err) throw err;
             console.log(req.body);
