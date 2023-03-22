@@ -43,6 +43,6 @@ router.post('/v1/probar', Call(SINGBOX.singDocument));
 //router.get('/v1/probar', Call(SINGBOX.singDocument));
 router.get('/v1/pdf', Call(SINGBOX.obtenerDocumento));
 router.post('/v1/webhook', Call(SINGBOX.webHook));
-router.post('/v1/guardarDocumento', Call(SINGBOX.guardarDocumento));
+router.post('/v1/guardarDocumento/:nombreDocumento', Call(SINGBOX.guardarDocumento));
 
 export default router;
