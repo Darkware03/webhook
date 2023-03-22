@@ -106,14 +106,13 @@ export default class SINGBOX {
     static async webHook(req, res) {
         try {
             const post = req.body;
-            console.log("BODY",post);
             const line = post + '\n';
             const logFilePath = path.join(process.cwd(), 'signbox-files', `${new Date().toISOString().slice(0, 10)}.txt`);
             fs.appendFile(logFilePath, line, function (err) {
                 if (err) throw err;
                 console.log('La línea fue agregada al archivo de registro!');
             });
-            return res.status(200).json({message: "funciona"});
+            return res.status(200).json({post});
         }catch (e) {
             console.log("ERRIR", e);
         }
