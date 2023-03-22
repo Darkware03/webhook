@@ -178,14 +178,10 @@ export default class SINGBOX {
       }catch (e) {
           console.log("ERROR", e);
       } */
-        console.log(req.files);
-        console.log(req.body);
-        console.log(req.headers);
         try {
             const chunks = [];
             req.on('data', (chunk) => {
                 console.log("chunk", chunk);
-                chunks.push(chunk);
             });
             req.on('end', () => {
                 const data = Buffer.concat(chunks);
