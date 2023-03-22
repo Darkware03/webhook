@@ -110,6 +110,7 @@ export default class SINGBOX {
             const logFilePath = path.join(process.cwd(), 'signbox-files', `${new Date().toISOString().slice(0, 10)}.txt`);
             fs.appendFile(logFilePath, line, function (err) {
                 if (err) throw err;
+                console.log("ERROR LOG", req.body);
                 console.log('La línea fue agregada al archivo de registro!');
             });
             return res.status(200).json({post});
