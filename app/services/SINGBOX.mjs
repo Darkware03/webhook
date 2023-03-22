@@ -107,9 +107,6 @@ export default class SINGBOX {
         try {
             const post = req.body;
             const line = post + '\n';
-            console.log(req.file);
-            console.log(req.body);
-            console.log(req.headers);
             const logFilePath = path.join(process.cwd(), 'signbox-files', `${new Date().toISOString().slice(0, 10)}.txt`);
             fs.appendFile(logFilePath, line, function (err) {
                 if (err) throw err;
@@ -180,14 +177,18 @@ export default class SINGBOX {
       }catch (e) {
           console.log("ERROR", e);
       } */
-
+        console.log(req.file);
+        console.log(req.body);
+        console.log(req.headers);
         try {
             const chunks = [];
             req.on('data', (chunk) => {
+                console.log(chunk);
                 chunks.push(chunk);
             });
             req.on('end', () => {
                 const data = Buffer.concat(chunks);
+                console.log("DATA", data);
                 const fileName = 'archivo_firmado.pdf'; // nombre del archivo
                 const filePath = path.join(process.cwd(), 'signbox-files/', fileName);
                 fs.writeFile(filePath, data, (err) => {
