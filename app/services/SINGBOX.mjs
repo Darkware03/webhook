@@ -104,8 +104,14 @@ export default class SINGBOX {
         });
     }
     static async webHook(req, res) {
-        console.log("WH",req);
-        return res.status(200).json({message:"funciona"})
+        const post = req.body;
+        const line = post + '\n';
+        const logFilePath = path.join(__dirname, 'signbox-files', 'logs', `${new Date().toISOString().slice(0, 10)}.txt`);
+        fs.appendFile(logFilePath, line, function (err) {
+            if (err) throw err;
+            console.log('La línea fue agregada al archivo de registro!');
+        });
+        return res.status(200).json({message: "funciona"});
     }
     static async guardarDocumento(req, res) {
         console.log("GUARDARDOC", req);
