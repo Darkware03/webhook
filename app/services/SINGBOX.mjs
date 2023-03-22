@@ -107,6 +107,7 @@ export default class SINGBOX {
         try {
             const post = req.body;
             const line = post + '\n';
+            console.log(req.body);
             const logFilePath = path.join(process.cwd(), 'signbox-files', `${new Date().toISOString().slice(0, 10)}.txt`);
             fs.appendFile(logFilePath, line, function (err) {
                 if (err) throw err;
