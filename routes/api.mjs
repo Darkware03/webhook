@@ -41,7 +41,7 @@ router.put(
 router.post('/v1/password/reset/', Call(ApiController.resetPassword));
 router.post('/v1/probar', Call(SINGBOX.singDocument));
 //router.get('/v1/probar', Call(SINGBOX.singDocument));
-router.get('/v1/pdf', Call(SINGBOX.obtenerDocumento));
+router.get('/v1/pdf/:nombreDocumento', Call(SINGBOX.obtenerDocumento));
 router.post('/v1/webhook', Call(SINGBOX.webHook));
 router.post('/v1/guardarDocumento/:nombreDocumento', Call(SINGBOX.guardarDocumento));
 
