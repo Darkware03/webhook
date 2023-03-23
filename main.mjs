@@ -12,8 +12,9 @@ import NotFoundExeption from './handlers/NotFoundExeption.mjs';
 import swagger from './routes/swagger.mjs';
 import WebSocketServer from './app/services/WebSocketServer.mjs';
 import Ftp from './app/nucleo/Ftp.mjs';
-
+import ws from './configs/ws.mjs'
 export default class Main {
+
   constructor() {
     this.server = Server;
     this.configuracion();
@@ -21,8 +22,10 @@ export default class Main {
     this.routes();
     this.ExceptionConfig();
     Ftp.init();
-    WebSocketServer.getInstance();
-    WebSocketServer.connection();
+    const webSocketServer = ws.getInstance();
+    webSocketServer.connection();
+/*     WebSocketServer.getInstance();
+    WebSocketServer.connection(); */
   }
 
   routes() {

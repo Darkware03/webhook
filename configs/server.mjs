@@ -3,6 +3,7 @@ import { createServer } from 'http';
 import cors from 'cors';
 import fileupload from 'express-fileupload';
 import corsConfig from './cors.mjs';
+import {Server as ServerIo }  from 'socket.io';
 
 class Server {
   constructor() {
@@ -13,7 +14,6 @@ class Server {
     this.host = process.env.HOST || 'localhost';
     this.middlewares();
   }
-
   middlewares() {
     this.app.use(fileupload({
       createParentPath: true,
@@ -25,6 +25,7 @@ class Server {
   }
 
   start() {
+
     this.server.listen(this.port, this.host, () => {
       // eslint-disable-next-line no-console
       console.log(`http://${this.host}:${this.port}`);

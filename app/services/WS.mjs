@@ -1,10 +1,7 @@
 import { Server as IO } from 'socket.io';
-import jwt from 'jsonwebtoken';
 import Server from '../../configs/server.mjs';
-import Usuario from '../models/Usuario.mjs';
 
 let instance = null;
-
 class WS {
   constructor() {
     if (!instance) {
@@ -13,33 +10,14 @@ class WS {
           origin: '*',
         },
       });
+      this.servidor = instance;
     }
-    this.valid();
-    // eslint-disable-next-line no-constructor-return
-    return instance;
+    // middlewares(instance);
+    // channels(instance);
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  valid() {
-    instance.use(async (socket, next) => {
-      try {
-        const { token } = socket.handshake.auth;
-
-        if (!token) socket.disconnect();
-        const { user } = jwt.verify(token, process.env.SECRET_KEY);
-
-        const usuario = await Usuario.findOne({ id: user?.id });
-        if (usuario) {
-          next();
-        } else {
-          const err = new Error('Not Authorized');
-          err.data = { content: 'Intente mas tarde' };
-          next(err);
-        }
-      } catch (e) {
-        next(e);
-      }
-    });
+  getInstance() {
+    return this.servidor;
   }
 }
 

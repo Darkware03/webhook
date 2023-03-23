@@ -5,9 +5,9 @@ import FormData from "form-data";
 import bigDecimal from 'js-big-decimal';
 import fs from 'fs';
 import path from 'path';
+import WS from '../services/WS.mjs';
+
 export default class SINGBOX {
-    //oneshot
-    //endpoint empresas no trae toda la info
     static async comprobarConexion() {
          try {
              const probarConexion = await axios.get(`${process.env.SINGBOX_URL}/api/echo?message=SIGNCLOUD_UP`);
@@ -104,17 +104,16 @@ export default class SINGBOX {
         });
     }
     static async webHook(req, res) {
-        const post = req.body;
+       const wsServer =  WS.getInstance();
+        wsServer.emit(`057470638`, "PRUEBA FUNCONO");
+        return res.status(200).json({message: "funciona"});
+/*         const post = req.body;
         const line = post + '\n';
         const logFilePath = path.join(process.cwd(), 'signbox-files', `${new Date().toISOString().slice(0, 10)}.txt`);
         fs.appendFile(logFilePath, line, function (err) {
             if (err) throw err;
-            console.log(req.body);
-            console.log(req.params);
-            console.log(req.query);
-            console.log('La línea fue agregada al archivo de registro!');
         });
-        return res.status(200).json({message: "funciona"});
+        return res.status(200).json({message: "funciona"}); */
     }
     static async guardarDocumento(req, res) {
     /*     const uploadedFile = await Storage.disk('documents').put({
