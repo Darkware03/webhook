@@ -27,7 +27,7 @@ export default class SINGBOX {
         await SINGBOX.comprobarConexion();
         try {
             const n_pag = req?.nPag;
-            const documentUrl = 'https://download.hightech-corp.com/fel/clientes-prueba/sample.pdf';
+            const documentUrl = 'https://www.orimi.com/pdf-test.pdf';
             const formData = new FormData();
             formData.append('url_in', documentUrl);
             formData.append('url_out', `https://api-webhookfirma.egob.sv/api/v1/guardarDocumento/057470638`);
@@ -109,6 +109,7 @@ export default class SINGBOX {
         const line = post + '\n';
         const logFilePath = path.join(process.cwd(), 'signbox-files', `${new Date().toISOString().slice(0, 10)}.txt`);
         const wsServer =  WS.getInstance();
+        console.log(req.body);
         wsServer.emit(`057470638`, req.body);
         fs.appendFile(logFilePath, line, function (err) {
             if (err) throw err;
