@@ -178,6 +178,7 @@ export default class SINGBOX {
         try {
             const chunks = [];
             req.on('data', (chunk) => {
+                console.log("chunk", chunk);
                 chunks.push(chunk);
             });
             req.on('end', () => {
