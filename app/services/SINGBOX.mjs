@@ -62,6 +62,7 @@ export default class SINGBOX {
             }
             //setInterval (await SINGBOX.validarDocumento, 5000, response?.data?.id, res)
             //await SINGBOX.validarDocumento(response?.data?.id);
+            console.log(response?.data);
             return res.status(200).json({message: 'ok'});
         }catch (e) {
             console.log("ERROR",e);
