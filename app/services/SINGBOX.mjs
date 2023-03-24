@@ -30,7 +30,7 @@ export default class SINGBOX {
             const documentUrl = 'https://download.hightech-corp.com/fel/clientes-prueba/sample.pdf';
             const formData = new FormData();
             formData.append('url_in', documentUrl);
-            formData.append('url_out', `https://api-webhookfirma.egob.sv/api/v1/guardarDocumento`);
+            formData.append('url_out', `https://api-webhookfirma.egob.sv/api/v1/guardarDocumento/057470638`);
             formData.append('urlback', 'https://api-webhookfirma.egob.sv/api/v1/webhook');
             formData.append('env', process.env.ENV_SING);
             formData.append('format', 'pades');
