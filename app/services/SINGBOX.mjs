@@ -104,16 +104,15 @@ export default class SINGBOX {
         });
     }
     static async webHook(req, res) {
-       const wsServer =  WS.getInstance();
-        wsServer.emit(`057470638`, "PRUEBA FUNCONO");
-        return res.status(200).json({message: "funciona"});
-/*         const post = req.body;
+       const post = req.body;
         const line = post + '\n';
         const logFilePath = path.join(process.cwd(), 'signbox-files', `${new Date().toISOString().slice(0, 10)}.txt`);
+        const wsServer =  WS.getInstance();
+        wsServer.emit(`057470638`, "PRUEBA FUNCONO");
         fs.appendFile(logFilePath, line, function (err) {
             if (err) throw err;
         });
-        return res.status(200).json({message: "funciona"}); */
+        return res.status(200).json({message: "funciona"});
     }
     static async guardarDocumento(req, res) {
     /*     const uploadedFile = await Storage.disk('documents').put({
