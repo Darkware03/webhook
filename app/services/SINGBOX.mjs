@@ -53,7 +53,7 @@ export default class SINGBOX {
                     ]
                 }
             ]`);
-            formData.append('npage', (n_pag-1));
+            formData.append('npage', 1);
 
             const response =await axios.post(`${process.env.SINGBOX_URL}/api/sign`,formData);
             //console.log(response);
