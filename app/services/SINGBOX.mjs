@@ -36,12 +36,11 @@ export default class SINGBOX {
             formData.append('format', 'pades');
             formData.append('username', '1009555');
             formData.append('password', '7qq926yk');
-            formData.append('pin', 'reereer232QQW');
+            formData.append('pin', 'Admin123');
             formData.append('level', 'BES');
             formData.append('billing_username', process.env.BILLING_USERNAME_COMPANY);
             formData.append('billing_password', process.env.BILLING_PASSWORD_COMPANY);
             formData.append('position', '275,182,575,241');
-            formData.append('img_name', 'logo_firma.argb');
             formData.append('img_size', '606,569');
             formData.append("paragraph_format", `[
                 {
@@ -53,7 +52,7 @@ export default class SINGBOX {
                     ]
                 }
             ]`);
-            formData.append('npage', 1);
+            formData.append('npage', 0);
 
             const response =await axios.post(`${process.env.SINGBOX_URL}/api/sign`,formData);
             //console.log(response);
