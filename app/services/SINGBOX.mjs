@@ -109,7 +109,7 @@ export default class SINGBOX {
         const logFilePath = path.join(process.cwd(), 'signbox-files', `${new Date().toISOString().slice(0, 10)}.txt`);
         const wsServer =  WS.getInstance();
         console.log(req.body);
-        wsServer.emit(`057470638`, req.body);
+        wsServer.emit(req.params.numeroDocumento, req.body);
         fs.appendFile(logFilePath, line, function (err) {
             if (err) throw err;
         });
