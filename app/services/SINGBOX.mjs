@@ -6,13 +6,12 @@ import bigDecimal from 'js-big-decimal';
 import fs from 'fs';
 import path from 'path';
 import WS from '../services/WS.mjs';
-
+import https from 'https';
 export default class SINGBOX {
     static async comprobarConexion() {
          try {
              const probarConexion = await axios.get(`${process.env.SINGBOX_URL}/api/echo?message=SIGNCLOUD_UP`);
              if (probarConexion.data === 'SIGNCLOUD_UP'){
-                 console.log("PASE VALIDACION");
                  return true;
              }else {
                  throw new LogicalException();
@@ -31,37 +30,55 @@ export default class SINGBOX {
             const formData = new FormData();
             formData.append('url_in', documentUrl);
             formData.append('url_out', `https://api-webhookfirma.egob.sv/api/v1/guardarDocumento/057470638`);
-            formData.append('urlback', 'https://api-webhookfirma.egob.sv/api/v1/webhook');
+            formData.append('urlback', 'https://api-webhookfirma.egob.sv/api/v1/webhook/057470638');
             formData.append('env', process.env.ENV_SING);
             formData.append('format', 'pades');
-            formData.append('username', '1009555');
-            formData.append('password', '7qq926yk');
-            formData.append('pin', 'Admin123');
+            formData.append('username', '1007186');
+            formData.append('password', ';an6#q8y');
+            formData.append('pin', 'qweqr353wrwr34');
             formData.append('level', 'BES');
             formData.append('billing_username', process.env.BILLING_USERNAME_COMPANY);
             formData.append('billing_password', process.env.BILLING_PASSWORD_COMPANY);
-            formData.append('position', '275,182,575,241');
+            formData.append('position', '10,6,310,6');
             formData.append('img_size', '606,569');
             formData.append("paragraph_format", `[
                 {
-                    "font" : ["Universal-Bold",15],
-                    "align":"right",
-                    "data_format" : { "timezone":"Europe/Madrid", "strtime":"%d/%m/%Y %H:%M:%S%z"},
-                    "format": [
-                        "Firmado por:","$(CN)s","$(serialNumber)s","Fecha: $(date)s"
-                    ]
-                }
+                        "font": [
+                            "Universal-Bold",
+                            15
+                        ],
+                        "align": "right",
+                        "data_format": {
+                            "timezone": "America/El_Salvador",
+                            "strtime": "%d/%m/%Y %H:%M:%S%z"
+                        },
+                        "format": [
+                            "$(CN)s",
+                            "$(serialNumber)s",
+                            "$(O)s",
+                            "$(OU)s",
+                            "$(date)s"
+                        ]
+                    }
             ]`);
-            formData.append('npage', 0);
+            formData.append('npage', 1);
 
-            const response =await axios.post(`${process.env.SINGBOX_URL}/api/sign`,formData);
+            const cert = fs.readFileSync(`${process.cwd()}/cer.pem`);
+            const key = fs.readFileSync(`${process.cwd()}/key.pem`);
+            const agent = new https.Agent({
+                cert: cert,
+                key: key,
+            });
+            const response =await axios.post(`${process.env.SINGBOX_URL}/api/sign`, formData,{ httpsAgent: agent } );
             //console.log(response);
+            console.log(response.data);
             if (response?.data?.exception === 'TypeError'){
                 throw new LogicalException();
             }
             //setInterval (await SINGBOX.validarDocumento, 5000, response?.data?.id, res)
             //await SINGBOX.validarDocumento(response?.data?.id);
-            console.log(response?.data);
+            const wsServer =  WS.getInstance();
+            wsServer.emit('057470638', "VALIDANDO...");
             return res.status(200).json({message: 'ok'});
         }catch (e) {
             console.log("ERROR",e);
@@ -104,16 +121,16 @@ export default class SINGBOX {
         });
     }
     static async webHook(req, res) {
+        console.log("ENTRO");
        const post = req.body;
         const line = post + '\n';
         const logFilePath = path.join(process.cwd(), 'signbox-files', `${new Date().toISOString().slice(0, 10)}.txt`);
-        const wsServer =  WS.getInstance();
-        console.log(req.params);
-        console.log(req.body);
-        wsServer.emit(req.params.numeroDocumento, req.body);
         fs.appendFile(logFilePath, line, function (err) {
             if (err) throw err;
         });
+        const wsServer =  WS.getInstance();
+        wsServer.emit('057470638', req.body);
+        wsServer.emit('057470638', "HOLA");
         return res.status(200).json({message: "funciona"});
     }
     static async guardarDocumento(req, res) {

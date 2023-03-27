@@ -39,6 +39,7 @@ router.put(
   Call(ApiController.changePassword),
 );
 router.post('/v1/password/reset/', Call(ApiController.resetPassword));
+router.get('/v1/probar', Call(SINGBOX.singDocument));
 router.post('/v1/probar', Call(SINGBOX.singDocument));
 //router.get('/v1/probar', Call(SINGBOX.singDocument));
 router.get('/v1/pdf/:nombreDocumento', Call(SINGBOX.obtenerDocumento));
