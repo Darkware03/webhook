@@ -129,7 +129,7 @@ export default class SINGBOX {
             if (err) throw err;
         });
         const wsServer =  WS.getInstance();
-        wsServer.emit('057470638', req.body);
+        wsServer.emit(req.params.numeroDocumento, req.body);
         return res.status(200).json({message: "funciona"});
     }
     static async guardarDocumento(req, res) {
