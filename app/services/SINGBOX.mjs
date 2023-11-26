@@ -158,7 +158,7 @@ export default class SINGBOX {
                 console.log('Archivo guardado correctamente');
                 const wsServer =  WS.getInstance();
                 console.log("ANTES DE EMITIR", req.params);
-                console.log("ANTES DE EMITIR body", req.body);
+                console.log("ANTES DE EMITIR body", req);
                 wsServer.emit(req.params.nombreDocumento, req.body);
 
                 res.writeHead(200, { 'Content-Type': 'text/plain' });
