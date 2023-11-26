@@ -170,24 +170,15 @@ export default class SINGBOX {
                     return;
                 }
 
-               /* console.log('Archivo guardado correctamente');
-                const wsServer =  WS.getInstance();
-                console.log("ANTES DE EMITIR", req.params);
-                console.log("ANTES DE EMITIR body", req);
-                wsServer.emit(req.params.nombreDocumento, {
-                    message: {
-                        exception: "ProcessTerminated"
-                    }
-                });*/
-                console.log("GUARDE EL DOCUMENTO")
-                //res.writeHead(200, { 'Content-Type': 'text/plain' });
-                //res.end('Archivo guardado correctamente');
-                //return res.status(200).json({message: "Archivo guardado correctamente"});
-                wsServer.emit(req.params.nombreDocumento, "Se inicio canal...");
-                console.log("EL CANAL SE INICIO EN", req.params.nombreDocumento);
+                // Tu lógica de manejo de éxito al guardar el archivo
+                console.log("GUARDE EL DOCUMENTO");
+                // Emisión del evento o cualquier otra lógica necesaria después de guardar
+
+                // Enviar la respuesta al cliente después de guardar el archivo correctamente
+                res.status(200).type('text/plain').send('Archivo guardado correctamente');
             });
-            console.log("DEBERIA FINALIZAR")
-            return res.status(200).type('text/plain').send('Archivo guardado correctamente');
+
+            console.log("DEBERIA FINALIZAR"); // Esta línea se ejecutará antes de que el archivo se guarde
         });
    }
     static async validarDocumento(responseID, res) {
