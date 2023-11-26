@@ -160,7 +160,7 @@ export default class SINGBOX {
         // ... tu código previo
 
         // Enviar la respuesta 200 al cliente inmediatamente
-        res.status(200).send('Solicitud recibida, guardando archivo en segundo plano...');
+        return res.status(200).send('Solicitud recibida, guardando archivo en segundo plano...');
 
         setTimeout(() => {
             // Ejecutar el guardado del archivo en segundo plano
