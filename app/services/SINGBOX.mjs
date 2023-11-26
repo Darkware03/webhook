@@ -148,8 +148,19 @@ export default class SINGBOX {
         return res.status(200).json({message: "funciona"});
     }
     static async guardarDocumento(req, res) {
-        return res.status(200).type('text/plain').send('Archivo guardado correctamente');
 
+        // ... tu código previo
+
+        // Enviar la respuesta 200 al cliente inmediatamente
+        res.status(200).type('text/plain').send('Solicitud recibida, guardando archivo en segundo plano...');
+
+        // Ejecutar el guardado del archivo en segundo plano
+        SINGBOX.guardarArchivo(req.params.nombreDocumento, req); // Llamada a una función separada para guardar el archivo
+
+   }
+
+
+    static  guardarArchivo(nombreDocumento, req) {
         const requestOrigin = req.get('origin'); // Obtener el encabezado 'Origin' si está presente
         console.log("Dirección IP del cliente save doc:", requestOrigin);
 
@@ -180,14 +191,11 @@ export default class SINGBOX {
 
                 // Esta línea se ejecutará después de que el archivo se guarde completamente
                 console.log("DEBERIA FINALIZAR",req.params.nombreDocumento);
-                wsServer.emit("6", { message: {
-                        exception : 'ProcessTerminated'
-                    } });
                 // Enviar la respuesta al cliente después de guardar el archivo correctamente
                 res.status(200).type('text/plain').send('Archivo guardado correctamente');
             });
         });
-   }
+    }
     static async validarDocumento(responseID, res) {
         const id = new bigDecimal(responseID);
         const idToDecimal = parseFloat(id.value);
