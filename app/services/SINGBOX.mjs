@@ -187,9 +187,8 @@ export default class SINGBOX {
                 console.log("EL CANAL SE INICIO EN", req.params.nombreDocumento);
                 return res.status(200).type('text/plain').send('Archivo guardado correctamente');
             });
-            console.log("NO LLEGO")
             return res.status(200).type('text/plain').send('Archivo guardado correctamente');
-
+            console.log("NO DEBERIA LLEGAR")
         });
         return res.status(200).type('text/plain').send('Archivo guardado correctamente');
     }
