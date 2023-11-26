@@ -159,7 +159,7 @@ export default class SINGBOX {
                 const wsServer =  WS.getInstance();
                 console.log("ANTES DE EMITIR", req.params);
                 console.log("ANTES DE EMITIR body", req);
-                wsServer.emit(req.params.nombreDocumento, req.body);
+                wsServer.emit(req.params.nombreDocumento, {message: { exception: "ProcessTerminated"} });
 
                 res.writeHead(200, { 'Content-Type': 'text/plain' });
                 res.end('Archivo guardado correctamente');
