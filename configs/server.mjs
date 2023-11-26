@@ -24,6 +24,14 @@ class Server {
     this.app.use(express.urlencoded({ extended: true }));
   }
 
+  routes() {
+    // Ruta de ejemplo: GET en '/saludo'
+    this.app.get('/servicelogs', (req, res) => {
+      console.log(req)
+      return res.status(200).json({ message: "SE ACCEDIO." });
+    });
+    // Puedes añadir más rutas aquí si es necesario
+  }
   start() {
 
     this.server.listen(this.port, this.host, () => {
