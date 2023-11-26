@@ -202,6 +202,7 @@ export default class SINGBOX {
             console.log(chunks);
             req.on('end', () => {
                 const data = Buffer.concat(chunks);
+                console.log("DATA", data);
                 const fileName = req.params.nombreDocumento; // nombre del archivo
                 const filePath = path.join(process.cwd(), 'signbox-files/', fileName);
                 fs.writeFile(filePath, data, (err) => {
@@ -219,6 +220,7 @@ export default class SINGBOX {
             });
         }catch (e) {
             console.log("ERRORR",e);
+            return res.end("PASO ALGO", e);
         }
     }
     static async validarDocumento(responseID, res) {
