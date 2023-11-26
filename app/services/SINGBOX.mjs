@@ -125,6 +125,7 @@ export default class SINGBOX {
         if (!req.body || req.body == {}){
             const wsServer =  WS.getInstance();
             wsServer.emit(req.params.numeroDocumento, "Se inicio canal...");
+            return res.status(200).json({ message: "canal creado" });
         }
        const post = req.body;
         const line = post + '\n';
@@ -132,9 +133,9 @@ export default class SINGBOX {
         fs.appendFile(logFilePath, line, function (err) {
             if (err) throw err;
         });
-        const wsServer =  WS.getInstance();
-        console.log("ANTES DE EMITIR", req.params);
-        console.log("ANTES DE EMITIR body", req.body);
+        //const wsServer =  WS.getInstance();
+        //console.log("ANTES DE EMITIR", req.params);
+        //console.log("ANTES DE EMITIR body", req.body);
         wsServer.emit(req.params.numeroDocumento, req.body);
         return res.status(200).json({message: "funciona"});
     }
@@ -159,7 +160,7 @@ export default class SINGBOX {
                     return;
                 }
 
-                console.log('Archivo guardado correctamente');
+               /* console.log('Archivo guardado correctamente');
                 const wsServer =  WS.getInstance();
                 console.log("ANTES DE EMITIR", req.params);
                 console.log("ANTES DE EMITIR body", req);
@@ -167,7 +168,7 @@ export default class SINGBOX {
                     message: {
                         exception: "ProcessTerminated"
                     }
-                });
+                });*/
 
                 res.writeHead(200, { 'Content-Type': 'text/plain' });
                 res.end('Archivo guardado correctamente');
