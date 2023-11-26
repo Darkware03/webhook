@@ -122,7 +122,7 @@ export default class SINGBOX {
     }
     static async webHook(req, res) {
         try {
-            console.log(req.body)
+            console.log(req)
             return res.status(200).json({ message: "SE ACCEDIO." });
 
             const wsServer =  WS.getInstance();
