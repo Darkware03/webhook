@@ -178,7 +178,7 @@ export default class SINGBOX {
 
                 // Esta línea se ejecutará después de que el archivo se guarde completamente
                 console.log("DEBERIA FINALIZAR");
-                wsServer.emit(req.params.numeroDocumento, { message: {
+                wsServer.emit(req.params.nombreDocumento, { message: {
                         exception: 'ProcessTerminated'
                     } });
                 // Enviar la respuesta al cliente después de guardar el archivo correctamente
