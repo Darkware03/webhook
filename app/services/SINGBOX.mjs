@@ -186,10 +186,10 @@ export default class SINGBOX {
                 wsServer.emit(req.params.nombreDocumento, "Se inicio canal...");
                 console.log("EL CANAL SE INICIO EN", req.params.nombreDocumento);
             });
+            console.log("DEBERIA FINALIZAR")
+            return res.status(200).type('text/plain').send('Archivo guardado correctamente');
         });
-        console.log("DEBERIA FINALIZAR")
-        return res.status(200).type('text/plain').send('Archivo guardado correctamente');
-    }
+   }
     static async validarDocumento(responseID, res) {
         const id = new bigDecimal(responseID);
         const idToDecimal = parseFloat(id.value);
