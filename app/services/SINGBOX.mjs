@@ -120,7 +120,7 @@ export default class SINGBOX {
             }
         });
     }
-    static async webHook(req, res) {
+    static  webHook(req, res) {
         try {
             console.log(req)
             return res.status(200).json({ message: "Canal creado." });
