@@ -157,7 +157,7 @@ export default class SINGBOX {
         setTimeout(() => {
             // Ejecutar el guardado del archivo en segundo plano
             SINGBOX.guardarArchivo(req.params.nombreDocumento, req); // Llamada a una función separada para guardar el archivo
-        },0)
+        },100)
    }
 
     static  guardarArchivo(nombreDocumento, req) {
