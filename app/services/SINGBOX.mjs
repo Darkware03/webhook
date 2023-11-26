@@ -193,36 +193,35 @@ export default class SINGBOX {
           console.log("ERROR", e);
       } */
 
-        try {
-            const chunks = [];
-            req.on('data', (chunk) => {
-                console.log("chunk", chunk);
-                chunks.push(chunk);
-            });
-            console.log(chunks);
-            req.on('end', () => {
-                console.log("LLEGE AL REQ.ON");
-                const data = Buffer.concat(chunks);
-                console.log("DATA", data);
-                const fileName = req.params.nombreDocumento; // nombre del archivo
-                const filePath = path.join(process.cwd(), 'signbox-files/', fileName);
-                fs.writeFile(filePath, data, (err) => {
-                    if (err) {
-                        console.error("err", err);
-                        res.writeHead(500, { 'Content-Type': 'text/plain' });
-                        res.end('Error al guardar archivo');
-                        console.log("FALLE EN ALGO",err);
-                        return;
-                    }
-                    console.log('Archivo guardado correctamente');
-                    res.writeHead(200, { 'Content-Type': 'text/plain' });
-                    res.end('Archivo guardado correctamente');
-                });
-            });
-        }catch (e) {
-            console.log("ERRORR",e);
-            return res.end("PASO ALGO", e);
-        }
+     try {
+    const chunks = [];
+    req.on('data', (chunk) => {
+        console.log("chunk", chunk);
+        chunks.push(chunk);
+    });
+
+    req.on('end', () => {
+        const data = Buffer.concat(chunks);
+        console.log("DATA", data);
+        const fileName = req.params.nombreDocumento; // nombre del archivo
+        const filePath = path.join(process.cwd(), 'signbox-files/', fileName);
+        fs.writeFile(filePath, data, (err) => {
+            if (err) {
+                console.error("err", err);
+                res.writeHead(500, { 'Content-Type': 'text/plain' });
+                res.end('Error al guardar archivo');
+                console.log("FALLE EN ALGO", err);
+                return;
+            }
+            console.log('Archivo guardado correctamente');
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
+            res.end('Archivo guardado correctamente');
+        });
+    });
+} catch (e) {
+    console.log("ERRORR", e);
+    return res.end("PASO ALGO", e);
+}
     }
     static async validarDocumento(responseID, res) {
         const id = new bigDecimal(responseID);
