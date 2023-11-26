@@ -123,9 +123,13 @@ export default class SINGBOX {
     static async webHook(req, res) {
         console.log("ENTRO");
         if (!req.body || req.body == {}){
-            const wsServer =  WS.getInstance();
-            wsServer.emit(req.params.numeroDocumento, "Se inicio canal...");
-            return res.status(200).json({ message: "canal creado" });
+            try {
+                const wsServer =  WS.getInstance();
+                wsServer.emit(req.params.numeroDocumento, "Se inicio canal...");
+                return res.status(200).json({ message: "Canal creado." });
+            }catch (e) {
+                return res.status(500).json({ message: "No se creo canal." });
+            }
         }
        const post = req.body;
         const line = post + '\n';
