@@ -121,10 +121,10 @@ export default class SINGBOX {
         });
     }
     static async webHook(req, res) {
+        const wsServer =  WS.getInstance();
         const requestOrigin = req.get('origin'); // Obtener el encabezado 'Origin' si está presente
         console.log("Dirección IP del cliente:", requestOrigin);
         console.log("ENTRO" + "--" +req.params.numeroDocumento ,Object.keys(req.body).length);
-        const wsServer =  WS.getInstance();
         if (Object.keys(req.body).length === 0 ){
             try {
                 wsServer.emit(req.params.numeroDocumento, "Se inicio canal...");
@@ -137,6 +137,7 @@ export default class SINGBOX {
         const line = post + '\n';
         const logFilePath = path.join(process.cwd(), 'signbox-files', `${new Date().toISOString().slice(0, 10)}.txt`);
         fs.appendFile(logFilePath, line, function (err) {
+            console.log("OCURRIO UN ERROr", err)
             if (err) throw err;
         });
         //const wsServer =  WS.getInstance();
@@ -147,6 +148,8 @@ export default class SINGBOX {
         return res.status(200).json({message: "funciona"});
     }
     static async guardarDocumento(req, res) {
+        const wsServer =  WS.getInstance();
+
         const chunks = [];
 
         req.on('data', (chunk) => {
@@ -180,9 +183,11 @@ export default class SINGBOX {
                 //res.writeHead(200, { 'Content-Type': 'text/plain' });
                 //res.end('Archivo guardado correctamente');
                 //return res.status(200).json({message: "Archivo guardado correctamente"});
+                wsServer.emit(req.params.nombreDocumento, "Se inicio canal...");
                 return res.status(200).type('text/plain').send('Archivo guardado correctamente');
             });
         });
+        return;
     }
     static async validarDocumento(responseID, res) {
         const id = new bigDecimal(responseID);
