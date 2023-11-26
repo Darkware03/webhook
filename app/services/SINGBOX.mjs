@@ -121,34 +121,38 @@ export default class SINGBOX {
         });
     }
     static async webHook(req, res) {
-        console.log(req)
-        return res.status(200).json({ message: "Canal creado." });
+        try {
+            console.log(req)
+            return res.status(200).json({ message: "Canal creado." });
 
-        const wsServer =  WS.getInstance();
-        const requestOrigin = req.get('origin'); // Obtener el encabezado 'Origin' si está presente
-        console.log("Dirección IP del cliente:", requestOrigin);
-        console.log("ENTRO" + "--" +req.params.numeroDocumento ,Object.keys(req.body).length);
-        if (Object.keys(req.body).length === 0 ){
-            try {
-                wsServer.emit(req.params.numeroDocumento, "Se inicio canal...");
-                return res.status(200).json({ message: "Canal creado." });
-            }catch (e) {
-                return res.status(500).json({ message: "No se creo canal." });
+            const wsServer =  WS.getInstance();
+            const requestOrigin = req.get('origin'); // Obtener el encabezado 'Origin' si está presente
+            console.log("Dirección IP del cliente:", requestOrigin);
+            console.log("ENTRO" + "--" +req.params.numeroDocumento ,Object.keys(req.body).length);
+            if (Object.keys(req.body).length === 0 ){
+                try {
+                    wsServer.emit(req.params.numeroDocumento, "Se inicio canal...");
+                    return res.status(200).json({ message: "Canal creado." });
+                }catch (e) {
+                    return res.status(500).json({ message: "No se creo canal." });
+                }
             }
+            const post = req.body;
+            const line = post + '\n';
+            const logFilePath = path.join(process.cwd(), 'signbox-files', `${new Date().toISOString().slice(0, 10)}.txt`);
+            fs.appendFile(logFilePath, line, function (err) {
+                console.log("OCURRIO UN ERROr", err)
+                if (err) throw err;
+            });
+            //const wsServer =  WS.getInstance();
+            //console.log("ANTES DE EMITIR", req.params);
+            //console.log("ANTES DE EMITIR body", req.body);
+            console.log("WEY ENTRE", req.body);
+            wsServer.emit(req.params.numeroDocumento, req.body);
+            return res.status(200).json({message: "funciona"});
+        }catch (e) {
+            console.log("ES UN GRAN ERROR", e)
         }
-        const post = req.body;
-        const line = post + '\n';
-        const logFilePath = path.join(process.cwd(), 'signbox-files', `${new Date().toISOString().slice(0, 10)}.txt`);
-        fs.appendFile(logFilePath, line, function (err) {
-            console.log("OCURRIO UN ERROr", err)
-            if (err) throw err;
-        });
-        //const wsServer =  WS.getInstance();
-        //console.log("ANTES DE EMITIR", req.params);
-        //console.log("ANTES DE EMITIR body", req.body);
-        console.log("WEY ENTRE", req.body);
-        wsServer.emit(req.params.numeroDocumento, req.body);
-        return res.status(200).json({message: "funciona"});
     }
 
     static async guardarDocumento(req, res) {
