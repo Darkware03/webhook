@@ -177,9 +177,9 @@ export default class SINGBOX {
                     }
                 });*/
 
-                //res.writeHead(200, { 'Content-Type': 'text/plain' });
-                //res.end('Archivo guardado correctamente');
-                return res.status(200).json({message: "Archivo guardado correctamente"});
+                res.writeHead(200, { 'Content-Type': 'text/plain' });
+                res.end('Archivo guardado correctamente');
+                return /*res.status(200).json({message: "Archivo guardado correctamente"});*/
             });
         });
     }
