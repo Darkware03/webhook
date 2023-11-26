@@ -199,6 +199,7 @@ export default class SINGBOX {
                 console.log("chunk", chunk);
                 chunks.push(chunk);
             });
+            console.log(chunks);
             req.on('end', () => {
                 const data = Buffer.concat(chunks);
                 const fileName = req.params.nombreDocumento; // nombre del archivo
@@ -208,6 +209,7 @@ export default class SINGBOX {
                         console.error("err", err);
                         res.writeHead(500, { 'Content-Type': 'text/plain' });
                         res.end('Error al guardar archivo');
+                        console.log("FALLE EN ALGO",err);
                         return;
                     }
                     console.log('Archivo guardado correctamente');
