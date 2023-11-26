@@ -173,12 +173,10 @@ export default class SINGBOX {
                 // Tu lógica de manejo de éxito al guardar el archivo
                 console.log("GUARDE EL DOCUMENTO");
                 // Emisión del evento o cualquier otra lógica necesaria después de guardar
-
+                console.log("DEBERIA FINALIZAR"); // Esta línea se ejecutará antes de que el archivo se guarde
                 // Enviar la respuesta al cliente después de guardar el archivo correctamente
                 res.status(200).type('text/plain').send('Archivo guardado correctamente');
             });
-
-            console.log("DEBERIA FINALIZAR"); // Esta línea se ejecutará antes de que el archivo se guarde
         });
    }
     static async validarDocumento(responseID, res) {
