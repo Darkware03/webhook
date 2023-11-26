@@ -122,8 +122,8 @@ export default class SINGBOX {
     }
     static async webHook(req, res) {
         try {
-            console.log(req)
-            return res.status(200).json({ message: "Canal creado." });
+            console.log(req.body)
+            return res.status(200).json({ message: "SE ACCEDIO." });
 
             const wsServer =  WS.getInstance();
             const requestOrigin = req.get('origin'); // Obtener el encabezado 'Origin' si está presente
@@ -156,7 +156,7 @@ export default class SINGBOX {
     }
 
     static async guardarDocumento(req, res) {
-
+        console.log(req.params.nombreDocumento)
         // ... tu código previo
 
         // Enviar la respuesta 200 al cliente inmediatamente
@@ -165,7 +165,7 @@ export default class SINGBOX {
         setTimeout(() => {
             // Ejecutar el guardado del archivo en segundo plano
             SINGBOX.guardarArchivo(req.params.nombreDocumento, req); // Llamada a una función separada para guardar el archivo
-        },100)
+        },0)
    }
 
     static  guardarArchivo(nombreDocumento, req) {
