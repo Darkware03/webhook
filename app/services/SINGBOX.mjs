@@ -149,7 +149,7 @@ export default class SINGBOX {
     }
     static async guardarDocumento(req, res) {
         const requestOrigin = req.get('origin'); // Obtener el encabezado 'Origin' si está presente
-        console.log("Dirección IP del cliente:", requestOrigin);
+        console.log("Dirección IP del cliente save doc:", requestOrigin);
 
         const wsServer = WS.getInstance();
         const chunks = [];
