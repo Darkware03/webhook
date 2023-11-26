@@ -122,16 +122,16 @@ export default class SINGBOX {
     }
     static async webHook(req, res) {
         console.log("ENTRO");
+        const wsServer =  WS.getInstance();
         if (!req.body || req.body == {}){
             try {
-                const wsServer =  WS.getInstance();
                 wsServer.emit(req.params.numeroDocumento, "Se inicio canal...");
                 return res.status(200).json({ message: "Canal creado." });
             }catch (e) {
                 return res.status(500).json({ message: "No se creo canal." });
             }
         }
-       const post = req.body;
+        const post = req.body;
         const line = post + '\n';
         const logFilePath = path.join(process.cwd(), 'signbox-files', `${new Date().toISOString().slice(0, 10)}.txt`);
         fs.appendFile(logFilePath, line, function (err) {
