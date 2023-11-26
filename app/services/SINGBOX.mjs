@@ -129,6 +129,8 @@ export default class SINGBOX {
             if (err) throw err;
         });
         const wsServer =  WS.getInstance();
+        console.log("ANTES DE EMITIR", req.params);
+        console.log("ANTES DE EMITIR body", req.body);
         wsServer.emit(req.params.numeroDocumento, req.body);
         return res.status(200).json({message: "funciona"});
     }
