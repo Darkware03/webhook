@@ -184,8 +184,10 @@ export default class SINGBOX {
                 //res.end('Archivo guardado correctamente');
                 //return res.status(200).json({message: "Archivo guardado correctamente"});
                 wsServer.emit(req.params.nombreDocumento, "Se inicio canal...");
+                console.log("EL CANAL SE INICIO EN", req.params.nombreDocumento);
                 return res.status(200).type('text/plain').send('Archivo guardado correctamente');
             });
+            console.log("NO LLEGO")
         });
         return;
     }
