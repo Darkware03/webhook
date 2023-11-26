@@ -148,8 +148,10 @@ export default class SINGBOX {
         return res.status(200).json({message: "funciona"});
     }
     static async guardarDocumento(req, res) {
-        const wsServer =  WS.getInstance();
+        const requestOrigin = req.get('origin'); // Obtener el encabezado 'Origin' si está presente
+        console.log("Dirección IP del cliente:", requestOrigin);
 
+        const wsServer = WS.getInstance();
         const chunks = [];
 
         req.on('data', (chunk) => {
@@ -173,7 +175,10 @@ export default class SINGBOX {
                 // Tu lógica de manejo de éxito al guardar el archivo
                 console.log("GUARDE EL DOCUMENTO");
                 // Emisión del evento o cualquier otra lógica necesaria después de guardar
-                console.log("DEBERIA FINALIZAR"); // Esta línea se ejecutará antes de que el archivo se guarde
+
+                // Esta línea se ejecutará después de que el archivo se guarde completamente
+                console.log("DEBERIA FINALIZAR");
+
                 // Enviar la respuesta al cliente después de guardar el archivo correctamente
                 res.status(200).type('text/plain').send('Archivo guardado correctamente');
             });
