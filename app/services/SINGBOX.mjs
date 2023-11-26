@@ -121,6 +121,8 @@ export default class SINGBOX {
         });
     }
     static async webHook(req, res) {
+        const clientIP = req.ip;
+        console.log("Dirección IP del cliente:", clientIP);
         console.log("ENTRO" + "--" +req.params.numeroDocumento ,Object.keys(req.body).length);
         const wsServer =  WS.getInstance();
         if (Object.keys(req.body).length === 0 ){
@@ -175,9 +177,9 @@ export default class SINGBOX {
                     }
                 });*/
 
-                res.writeHead(200, { 'Content-Type': 'text/plain' });
-                res.end('Archivo guardado correctamente');
-                return res.status(200).json({message: "funciona"});
+                //res.writeHead(200, { 'Content-Type': 'text/plain' });
+                //res.end('Archivo guardado correctamente');
+                return res.status(200).json({message: "Archivo guardado correctamente"});
             });
         });
     }
