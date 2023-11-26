@@ -121,6 +121,7 @@ export default class SINGBOX {
         });
     }
     static async webHook(req, res) {
+        console.log(req)
         const wsServer =  WS.getInstance();
         const requestOrigin = req.get('origin'); // Obtener el encabezado 'Origin' si está presente
         console.log("Dirección IP del cliente:", requestOrigin);
@@ -147,6 +148,7 @@ export default class SINGBOX {
         wsServer.emit(req.params.numeroDocumento, req.body);
         return res.status(200).json({message: "funciona"});
     }
+
     static async guardarDocumento(req, res) {
 
         // ... tu código previo
