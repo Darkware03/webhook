@@ -193,35 +193,54 @@ export default class SINGBOX {
           console.log("ERROR", e);
       } */
 
-     try {
+try {
     const chunks = [];
+    
+    // Suponiendo que 'req' y 'res' están definidos correctamente
+    
     req.on('data', (chunk) => {
         console.log("chunk", chunk);
         chunks.push(chunk);
     });
 
     req.on('end', () => {
-        const data = Buffer.concat(chunks);
-        console.log("DATA", data);
-        const fileName = req.params.nombreDocumento; // nombre del archivo
-        const filePath = path.join(process.cwd(), 'signbox-files/', fileName);
-        fs.writeFile(filePath, data, (err) => {
-            if (err) {
-                console.error("err", err);
-                res.writeHead(500, { 'Content-Type': 'text/plain' });
-                res.end('Error al guardar archivo');
-                console.log("FALLE EN ALGO", err);
-                return;
-            }
-            console.log('Archivo guardado correctamente');
-            res.writeHead(200, { 'Content-Type': 'text/plain' });
-            res.end('Archivo guardado correctamente');
-        });
+        try {
+            const data = Buffer.concat(chunks);
+            console.log("DATA", data);
+            
+            const fileName = req.params.nombreDocumento; // nombre del archivo
+            const filePath = path.join(process.cwd(), 'signbox-files/', fileName);
+
+            fs.writeFile(filePath, data, (err) => {
+                if (err) {
+                    console.error("err", err);
+                    res.writeHead(500, { 'Content-Type': 'text/plain' });
+                    res.end('Error al guardar archivo');
+                    console.log("FALLÓ ALGO", err);
+                    return;
+                }
+                console.log('Archivo guardado correctamente');
+                res.writeHead(200, { 'Content-Type': 'text/plain' });
+                res.end('Archivo guardado correctamente');
+            });
+        } catch (e) {
+            console.log("ERROR en el proceso de escritura", e);
+            res.writeHead(500, { 'Content-Type': 'text/plain' });
+            res.end('Error al procesar el archivo');
+        }
+    });
+    
+    req.on('error', (err) => {
+        console.error("Error en la solicitud", err);
+        res.writeHead(400, { 'Content-Type': 'text/plain' });
+        res.end('Error en la solicitud');
     });
 } catch (e) {
-    console.log("ERRORR", e);
-    return res.end("PASO ALGO", e);
+    console.log("Error inesperado", e);
+    res.writeHead(500, { 'Content-Type': 'text/plain' });
+    res.end('Error inesperado');
 }
+
     }
     static async validarDocumento(responseID, res) {
         const id = new bigDecimal(responseID);
