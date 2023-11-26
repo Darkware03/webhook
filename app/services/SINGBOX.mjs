@@ -121,7 +121,7 @@ export default class SINGBOX {
         });
     }
     static async webHook(req, res) {
-        console.log("ENTRO");
+        console.log("ENTRO" + "--" +req.params.numeroDocumento ,Object.keys(req.body).length);
         const wsServer =  WS.getInstance();
         if (Object.keys(req.body).length === 0 ){
             try {
