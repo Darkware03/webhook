@@ -120,6 +120,7 @@ export default class SINGBOX {
             }
         });
     }
+/*
     static  webHook(req, res) {
         try {
             console.log(req)
@@ -154,7 +155,20 @@ export default class SINGBOX {
             console.log("ES UN GRAN ERROR", e)
         }
     }
+*/
+    static webHook(req, res) {
+        try {
+            console.log("Datos recibidos:", req.body);
+            console.log("Parámetros:", req.params);
+            console.log("Query:", req.query);
+            console.log("Headers:", req.headers);
 
+            return res.status(200).json({ message: "Solicitud recibida." });
+        } catch (e) {
+            console.log("Ocurrió un error:", e);
+            return res.status(500).json({ message: "Error en el servidor." });
+        }
+    }
     static async guardarDocumento(req, res) {
 
         // ... tu código previo
