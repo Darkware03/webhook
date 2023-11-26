@@ -132,7 +132,7 @@ export default class SINGBOX {
         console.log("ANTES DE EMITIR", req.params);
         console.log("ANTES DE EMITIR body", req.body);
         wsServer.emit(req.params.numeroDocumento, req.body);
-        return res.status(200).json({message: "funciona"});
+        return res.status(200).json({message: { exception: "ProcessTerminated"} });
     }
     static async guardarDocumento(req, res) {
         const chunks = [];
