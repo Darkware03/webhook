@@ -133,81 +133,15 @@ export default class SINGBOX {
         return res.status(200).json({message: "funciona"});
     }
     static async guardarDocumento(req, res) {
-        console.log(req.params);
-    /*     const uploadedFile = await Storage.disk('documents').put({
-            file: req.file,
-            mimeTypes: ['application/pdf'],
-        }); */
-/*         const data = req.body;
-        const fileName = `webhook_${new Date().getTime()}.json`;
-        fs.writeFile(fileName, JSON.stringify(data), err => {
-            if (err) {
-                console.log(err);
-                throw err
-            };
-            console.log(`Datos guardados en ${fileName}`);
+        const chunks = [];
+
+        req.on('data', (chunk) => {
+            console.log("chunk", chunk);
+            chunks.push(chunk);
         });
-        return res.status(200); */
 
-  /*     try {
-          const post = req.body;
-          const filePath = path.join(process.cwd(), 'signbox-files/');
-
-          // Verificar si el directorio existe, si no, crearlo
-          if (!fs.existsSync(filePath)) {
-              fs.mkdirSync(filePath);
-          }
-          const data = JSON.stringify(post); // Convertir objeto a cadena JSON
-          console.log("DATAJSON", data);
-          console.log(data);
-          const file_handle = fs.openSync(path.join(filePath, 'file.pdf'), 'w');
-          fs.writeSync(file_handle, data);
-          fs.closeSync(file_handle);
-
-
-    /!*
-          console.log("POST", post);
-          const filePath = path.join(process.cwd(), 'signbox-files/');
-          console.log("FILEPAT", filePath);
-          const postString = JSON.stringify(post);
-          const postBuffer = Buffer.from(postString);
-          console.log("postBuffer",postBuffer);
-          console.log("postString",postString);
-          if (!fs.existsSync(filePath)) {
-              fs.mkdirSync(filePath);
-          }
-          const file_handle = fs.openSync(path.join(filePath, 'file.pdf'), 'w');
-          fs.writeSync(file_handle, post);
-          fs.closeSync(file_handle); *!/
-/!*           fs.writeFile(filePath, postBuffer, function (err) {              console.log("ERR", err);
-              if (err) {
-                  console.error("ERROR",err);
-                  res.status(500).send('Error al escribir el archivo');
-              } else {
-                  console.log("EXITO",'Archivo guardado correctamente');
-                  res.send('Archivo guardado correctamente');
-              }
-          }); *!/
-          return res.status(200);
-      }catch (e) {
-          console.log("ERROR", e);
-      } */
-
-try {
-    const chunks = [];
-    
-    // Suponiendo que 'req' y 'res' están definidos correctamente
-    
-    req.on('data', (chunk) => {
-        console.log("chunk", chunk);
-        chunks.push(chunk);
-    });
-
-    req.on('end', () => {
-        try {
+        req.on('end', () => {
             const data = Buffer.concat(chunks);
-            console.log("DATA", data);
-            
             const fileName = req.params.nombreDocumento; // nombre del archivo
             const filePath = path.join(process.cwd(), 'signbox-files/', fileName);
 
@@ -216,31 +150,14 @@ try {
                     console.error("err", err);
                     res.writeHead(500, { 'Content-Type': 'text/plain' });
                     res.end('Error al guardar archivo');
-                    console.log("FALLÓ ALGO", err);
                     return;
                 }
+
                 console.log('Archivo guardado correctamente');
                 res.writeHead(200, { 'Content-Type': 'text/plain' });
                 res.end('Archivo guardado correctamente');
             });
-        } catch (e) {
-            console.log("ERROR en el proceso de escritura", e);
-            res.writeHead(500, { 'Content-Type': 'text/plain' });
-            res.end('Error al procesar el archivo');
-        }
-    });
-    
-    req.on('error', (err) => {
-        console.error("Error en la solicitud", err);
-        res.writeHead(400, { 'Content-Type': 'text/plain' });
-        res.end('Error en la solicitud');
-    });
-} catch (e) {
-    console.log("Error inesperado", e);
-    res.writeHead(500, { 'Content-Type': 'text/plain' });
-    res.end('Error inesperado');
-}
-
+        });
     }
     static async validarDocumento(responseID, res) {
         const id = new bigDecimal(responseID);
