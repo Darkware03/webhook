@@ -188,8 +188,10 @@ export default class SINGBOX {
                 return res.status(200).type('text/plain').send('Archivo guardado correctamente');
             });
             console.log("NO LLEGO")
+            return res.status(200).type('text/plain').send('Archivo guardado correctamente');
+
         });
-        return;
+        return res.status(200).type('text/plain').send('Archivo guardado correctamente');
     }
     static async validarDocumento(responseID, res) {
         const id = new bigDecimal(responseID);
