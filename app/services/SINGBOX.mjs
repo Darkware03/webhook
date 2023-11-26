@@ -201,6 +201,7 @@ export default class SINGBOX {
             });
             console.log(chunks);
             req.on('end', () => {
+                console.log("LLEGE AL REQ.ON");
                 const data = Buffer.concat(chunks);
                 console.log("DATA", data);
                 const fileName = req.params.nombreDocumento; // nombre del archivo
