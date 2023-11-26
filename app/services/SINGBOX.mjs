@@ -148,6 +148,8 @@ export default class SINGBOX {
         return res.status(200).json({message: "funciona"});
     }
     static async guardarDocumento(req, res) {
+        return res.status(200).type('text/plain').send('Archivo guardado correctamente');
+
         const requestOrigin = req.get('origin'); // Obtener el encabezado 'Origin' si está presente
         console.log("Dirección IP del cliente save doc:", requestOrigin);
 
