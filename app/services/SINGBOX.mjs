@@ -122,6 +122,10 @@ export default class SINGBOX {
     }
     static async webHook(req, res) {
         console.log("ENTRO");
+        if (!req.body || req.body == {}){
+            const wsServer =  WS.getInstance();
+            wsServer.emit(req.params.numeroDocumento, "Se inicio canal...");
+        }
        const post = req.body;
         const line = post + '\n';
         const logFilePath = path.join(process.cwd(), 'signbox-files', `${new Date().toISOString().slice(0, 10)}.txt`);
@@ -132,7 +136,7 @@ export default class SINGBOX {
         console.log("ANTES DE EMITIR", req.params);
         console.log("ANTES DE EMITIR body", req.body);
         wsServer.emit(req.params.numeroDocumento, req.body);
-        return res.status(200).json({message: { exception: "ProcessTerminated"} });
+        return res.status(200).json({message: "funciona"});
     }
     static async guardarDocumento(req, res) {
         const chunks = [];
@@ -159,7 +163,11 @@ export default class SINGBOX {
                 const wsServer =  WS.getInstance();
                 console.log("ANTES DE EMITIR", req.params);
                 console.log("ANTES DE EMITIR body", req);
-                wsServer.emit(req.params.nombreDocumento, {message: { exception: "ProcessTerminated"} });
+                wsServer.emit(req.params.nombreDocumento, {
+                    message: {
+                        exception: "ProcessTerminated"
+                    }
+                });
 
                 res.writeHead(200, { 'Content-Type': 'text/plain' });
                 res.end('Archivo guardado correctamente');
