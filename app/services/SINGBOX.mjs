@@ -153,17 +153,96 @@ export default class SINGBOX {
     }
 
     static async guardarDocumento(req, res) {
-        console.log(req.params.nombreDocumento)
-        // ... tu código previo
+        console.log(req.params);
+        /*     const uploadedFile = await Storage.disk('documents').put({
+                file: req.file,
+                mimeTypes: ['application/pdf'],
+            }); */
+        /*         const data = req.body;
+                const fileName = `webhook_${new Date().getTime()}.json`;
+                fs.writeFile(fileName, JSON.stringify(data), err => {
+                    if (err) {
+                        console.log(err);
+                        throw err
+                    };
+                    console.log(`Datos guardados en ${fileName}`);
+                });
+                return res.status(200); */
 
-        // Enviar la respuesta 200 al cliente inmediatamente
-        return res.status(200).send('Solicitud recibida, guardando archivo en segundo plano...');
+        /*     try {
+                const post = req.body;
+                const filePath = path.join(process.cwd(), 'signbox-files/');
 
-        setTimeout(() => {
-            // Ejecutar el guardado del archivo en segundo plano
-            SINGBOX.guardarArchivo(req.params.nombreDocumento, req); // Llamada a una función separada para guardar el archivo
-        },0)
-   }
+                // Verificar si el directorio existe, si no, crearlo
+                if (!fs.existsSync(filePath)) {
+                    fs.mkdirSync(filePath);
+                }
+                const data = JSON.stringify(post); // Convertir objeto a cadena JSON
+                console.log("DATAJSON", data);
+                console.log(data);
+                const file_handle = fs.openSync(path.join(filePath, 'file.pdf'), 'w');
+                fs.writeSync(file_handle, data);
+                fs.closeSync(file_handle);
+
+
+          /!*
+                console.log("POST", post);
+                const filePath = path.join(process.cwd(), 'signbox-files/');
+                console.log("FILEPAT", filePath);
+                const postString = JSON.stringify(post);
+                const postBuffer = Buffer.from(postString);
+                console.log("postBuffer",postBuffer);
+                console.log("postString",postString);
+                if (!fs.existsSync(filePath)) {
+                    fs.mkdirSync(filePath);
+                }
+                const file_handle = fs.openSync(path.join(filePath, 'file.pdf'), 'w');
+                fs.writeSync(file_handle, post);
+                fs.closeSync(file_handle); *!/
+      /!*           fs.writeFile(filePath, postBuffer, function (err) {              console.log("ERR", err);
+                    if (err) {
+                        console.error("ERROR",err);
+                        res.status(500).send('Error al escribir el archivo');
+                    } else {
+                        console.log("EXITO",'Archivo guardado correctamente');
+                        res.send('Archivo guardado correctamente');
+                    }
+                }); *!/
+                return res.status(200);
+            }catch (e) {
+                console.log("ERROR", e);
+            } */
+
+        try {
+            const chunks = [];
+            req.on('data', (chunk) => {
+                console.log("chunk", chunk);
+                chunks.push(chunk);
+            });
+            console.log(chunks);
+            req.on('end', () => {
+                const data = Buffer.concat(chunks);
+                console.log("DATA", data);
+                const fileName = req.params.nombreDocumento; // nombre del archivo
+                const filePath = path.join(process.cwd(), 'signbox-files/', fileName);
+                fs.writeFile(filePath, data, (err) => {
+                    if (err) {
+                        console.error("err", err);
+                        res.writeHead(500, { 'Content-Type': 'text/plain' });
+                        res.end('Error al guardar archivo');
+                        console.log("FALLE EN ALGO",err);
+                        return;
+                    }
+                    console.log('Archivo guardado correctamente');
+                    res.writeHead(200, { 'Content-Type': 'text/plain' });
+                    res.end('Archivo guardado correctamente');
+                });
+            });
+        }catch (e) {
+            console.log("ERRORR",e);
+            return res.end("PASO ALGO", e);
+        }
+    }
 
     static  guardarArchivo(nombreDocumento, req) {
         const requestOrigin = req.get('origin'); // Obtener el encabezado 'Origin' si está presente
